@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import type { Chapter, Entry } from "@/content/home";
 import { resolveMedia } from "@/content/media";
 import { MediaFrame } from "../ui/media-frame";
@@ -9,8 +9,9 @@ import { BookPage, roman } from "./book-page";
 import { useBook } from "./use-book";
 
 export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
-  const { current, previous, book, select } = useBook(chapters);
   const [panel, setPanel] = useState<Entry | "menu" | null>(null);
+  const closePanel = useCallback(() => setPanel(null), []);
+  const { current, previous, book, select } = useBook(chapters, closePanel);
   const touch = useRef<{ x: number; y: number; id: number } | null>(null);
   useEffect(() => {
     function key(e: KeyboardEvent) {
@@ -71,6 +72,7 @@ export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
           className="bookmark"
           aria-label="Оглавление"
           aria-haspopup="dialog"
+          disabled={previous !== null}
           onClick={() => setPanel("menu")}
         >
           <span aria-hidden="true">☰</span>
@@ -91,7 +93,7 @@ export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
       {panel && (
         <BookDialog
           title={panel === "menu" ? "Оглавление" : panel.title}
-          close={() => setPanel(null)}
+          close={closePanel}
         >
           {panel === "menu" ? (
             <ol className="contents">

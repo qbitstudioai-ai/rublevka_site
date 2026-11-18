@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Chapter } from "@/content/home";
 
-export function useBook(chapters: readonly Chapter[]) {
+export function useBook(chapters: readonly Chapter[], closePanel: () => void) {
   const [current, setCurrent] = useState(0);
   const [previous, setPrevious] = useState<number | null>(null);
   const active = useRef(0);
@@ -41,7 +41,8 @@ export function useBook(chapters: readonly Chapter[]) {
   );
 
   useEffect(() => {
-    const restore = () =>
+    const restore = () => {
+      closePanel();
       select(
         Math.max(
           0,
@@ -49,6 +50,7 @@ export function useBook(chapters: readonly Chapter[]) {
         ),
         true,
       );
+    };
     restore();
     window.addEventListener("popstate", restore);
     window.addEventListener("hashchange", restore);
@@ -58,7 +60,7 @@ export function useBook(chapters: readonly Chapter[]) {
       window.removeEventListener("popstate", restore);
       window.removeEventListener("hashchange", restore);
     };
-  }, [chapters, select]);
+  }, [chapters, closePanel, select]);
 
   const lastFocused = useRef(0);
   useEffect(() => {

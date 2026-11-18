@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 
 export function BookDialog({
   title,
@@ -10,10 +10,15 @@ export function BookDialog({
   close: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const node = dialog.current;
+    const trigger = document.activeElement;
     node?.showModal();
-    return () => node?.close();
+    return () => {
+      node?.close();
+      if (trigger instanceof HTMLElement && trigger.isConnected && !trigger.closest("[inert], [hidden]"))
+        trigger.focus({ preventScroll: true });
+    };
   }, []);
   return (
     <dialog

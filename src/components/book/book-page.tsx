@@ -77,7 +77,7 @@ export function BookPage({
             className="seal"
             onClick={() => select(index + 1 < count ? index + 1 : 0)}
           >
-            {index + 1 < count ? "Листать дальше" : "Вернуться к началу"}{" "}
+            {index + 1 < count ? "Листать дальше" : "К началу"}{" "}
             <span aria-hidden="true">{index + 1 < count ? "→" : "↶"}</span>
           </button>
         )}

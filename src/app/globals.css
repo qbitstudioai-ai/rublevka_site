@@ -347,6 +347,9 @@ h2 {
 [data-turn] .leaf {
   pointer-events: none;
 }
+.binding[data-turn] {
+  overflow: clip;
+}
 [data-turn="next"] [data-departing] .recto-copy,
 [data-turn="back"] [data-departing] .recto-photo {
   z-index: 1;
@@ -376,7 +379,8 @@ h2 {
 }
 @keyframes turn {
   from {
-    transform: rotateY(var(--from));
+    transform: perspective(100rem) rotateY(var(--from));
+    clip-path: inset(6% 0 8% round 2%);
     filter: brightness(1);
   }
   50% {
@@ -384,7 +388,8 @@ h2 {
     box-shadow: 0 0 3rem #3e20085e;
   }
   to {
-    transform: rotateY(var(--to));
+    transform: perspective(100rem) rotateY(var(--to));
+    clip-path: inset(6% 0 8% round 2%);
     filter: brightness(1);
   }
 }
@@ -482,7 +487,7 @@ h2 {
     font-size: clamp(1.4rem, 4cqh, 2rem);
   }
   .closing .carving {
-    height: 42cqh;
+    height: 40cqh;
   }
   .bookmark {
     top: max(env(safe-area-inset-top), 1.1%);
