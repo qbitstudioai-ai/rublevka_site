@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
+
 import { DevelopmentNotice } from "@/components/ui/development-notice";
 import { getSiteUrl } from "@/server/site-url";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function HomePage() {
   const siteUrl = getSiteUrl();

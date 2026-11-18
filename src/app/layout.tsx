@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { getSiteUrl } from "@/server/site-url";
+import { getSiteUrl, isIndexingEnabled } from "@/server/site-url";
 
 import "./globals.css";
 
@@ -12,12 +12,9 @@ export const metadata: Metadata = {
   },
   description:
     "Загородный комплекс для тихого отдыха и мероприятий в Волгоградской области.",
-  alternates: {
-    canonical: "/",
-  },
   robots: {
-    index: true,
-    follow: true,
+    index: isIndexingEnabled,
+    follow: isIndexingEnabled,
   },
 };
 
