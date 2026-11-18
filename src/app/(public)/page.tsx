@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 
-import { DevelopmentNotice } from "@/components/ui/development-notice";
+import { HomeStory } from "@/components/home/home-story";
 import { getSiteUrl } from "@/server/site-url";
 
 export const metadata: Metadata = {
+  title: "Рублевка — загородный комплекс в дубовом лесу",
+  description:
+    "Интерактивный прототип загородного комплекса «Рублевка»: домики, беседки, банкетные залы и банный комплекс.",
   alternates: {
     canonical: "/",
   },
@@ -20,14 +23,14 @@ export default function HomePage() {
   } as const;
 
   return (
-    <main className="development-page">
-      <DevelopmentNotice />
+    <>
+      <HomeStory />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
         }}
       />
-    </main>
+    </>
   );
 }
