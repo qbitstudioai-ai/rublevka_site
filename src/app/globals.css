@@ -42,6 +42,7 @@
 @layer tokens {
   :root {
     --color-pine-950: #0d2119;
+    --color-pine-1000: #081710;
     --color-pine-900: #122a20;
     --color-pine-800: #1c3b2d;
     --color-parchment-100: #eee1c5;
@@ -55,6 +56,29 @@
     --color-gold-300: #dfbf78;
     --color-ink: #2c2118;
     --color-ink-muted: #665848;
+    --color-nav-text: #fff8e9;
+    --overlay-black-24: rgb(0 0 0 / 24%);
+    --overlay-white-05: rgb(255 255 255 / 5%);
+    --overlay-white-07: rgb(255 255 255 / 7%);
+    --overlay-white-48: rgb(255 255 255 / 48%);
+    --overlay-gold-04: rgb(197 154 70 / 4%);
+    --overlay-gold-07: rgb(197 154 70 / 7%);
+    --overlay-gold-08: rgb(197 154 70 / 8%);
+    --overlay-gold-12: rgb(197 154 70 / 12%);
+    --overlay-gold-72: rgb(197 154 70 / 72%);
+    --overlay-gold-light-56: rgb(223 191 120 / 56%);
+    --overlay-gold-light-68: rgb(223 191 120 / 68%);
+    --overlay-oak-07: rgb(112 71 44 / 7%);
+    --overlay-oak-08: rgb(112 71 44 / 8%);
+    --overlay-oak-09: rgb(94 55 35 / 9%);
+    --overlay-oak-14: rgb(112 71 44 / 14%);
+    --overlay-oak-18: rgb(112 71 44 / 18%);
+    --overlay-oak-22: rgb(112 71 44 / 22%);
+    --overlay-oak-23: rgb(112 71 44 / 23%);
+    --overlay-oak-34: rgb(112 71 44 / 34%);
+    --overlay-oak-42: rgb(112 71 44 / 42%);
+    --overlay-burgundy-18: rgb(111 31 45 / 18%);
+    --overlay-burgundy-23: rgb(111 31 45 / 23%);
     --font-display: Georgia, "Times New Roman", serif;
     --font-body: "Segoe UI", Arial, sans-serif;
     --space-1: 0.5rem;
@@ -71,6 +95,14 @@
     --border-gold: 1px solid color-mix(in srgb, var(--color-gold-500), transparent 18%);
     --shadow-page: 0 2.5rem 7rem rgb(0 0 0 / 28%), 0 0.25rem 1rem rgb(76 45 24 / 18%);
     --shadow-photo: 0 1.5rem 3.5rem rgb(70 40 20 / 19%);
+    --shadow-nav: 0 1rem 3rem var(--overlay-black-24);
+    --shadow-button: inset 0 0 0 0.3rem var(--overlay-white-05), 0 0.8rem 2rem var(--overlay-burgundy-18);
+    --shadow-button-hover: inset 0 0 0 0.3rem var(--overlay-white-07), 0 1.1rem 2.4rem var(--overlay-burgundy-23);
+    --shadow-caption: 0 0.7rem 1.6rem rgb(70 40 20 / 14%);
+    --motion-fast: 180ms;
+    --motion-photo: 700ms;
+    --ease-standard: ease;
+    --ease-photo: cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 }
 
@@ -78,8 +110,8 @@
   body {
     overflow-x: hidden;
     background:
-      radial-gradient(circle at 8% 12%, rgb(197 154 70 / 8%), transparent 21rem),
-      linear-gradient(135deg, var(--color-pine-950), #081710 72%);
+      radial-gradient(circle at 8% 12%, var(--overlay-gold-08), transparent 21rem),
+      linear-gradient(135deg, var(--color-pine-950), var(--color-pine-1000) 72%);
     color: var(--color-ink);
     font-family: var(--font-body);
     text-rendering: optimizeLegibility;
@@ -130,7 +162,7 @@
     z-index: -1;
     width: 22rem;
     height: 22rem;
-    border: 1px solid rgb(197 154 70 / 12%);
+    border: 1px solid var(--overlay-gold-12);
     border-radius: 50%;
     content: "";
     pointer-events: none;
@@ -174,8 +206,8 @@
     justify-content: space-between;
     padding: 0.65rem 0.75rem 0.65rem 1.5rem;
     border: var(--border-gold);
-    background: rgb(13 33 25 / 94%);
-    box-shadow: 0 1rem 3rem rgb(0 0 0 / 24%);
+    background: color-mix(in srgb, var(--color-pine-950) 94%, transparent);
+    box-shadow: var(--shadow-nav);
     color: var(--color-parchment-50);
     translate: -50% 0;
     backdrop-filter: blur(12px);
@@ -230,13 +262,16 @@
     border: 1px solid transparent;
     font-family: var(--font-display);
     font-size: 1.05rem;
-    transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+    transition:
+      border-color var(--motion-fast) var(--ease-standard),
+      background-color var(--motion-fast) var(--ease-standard),
+      color var(--motion-fast) var(--ease-standard);
   }
 
   .story-nav__chapters a:hover {
     border-color: var(--color-gold-500);
     background: var(--color-burgundy-700);
-    color: #fff8e9;
+    color: var(--color-nav-text);
   }
 
   .chapter {
@@ -255,7 +290,7 @@
     place-items: center;
     border: var(--border-gold);
     background: var(--color-pine-900);
-    box-shadow: inset 0 0 0 0.3rem rgb(197 154 70 / 7%);
+    box-shadow: inset 0 0 0 0.3rem var(--overlay-gold-07);
     color: var(--color-gold-300);
     font-family: var(--font-display);
     translate: 0 -50%;
@@ -279,9 +314,9 @@
     border: var(--border-gold);
     background-color: var(--color-parchment-50);
     background-image:
-      radial-gradient(circle at 14% 20%, rgb(255 255 255 / 48%) 0 0.12rem, transparent 0.18rem),
-      radial-gradient(circle at 78% 64%, rgb(94 55 35 / 9%) 0 0.08rem, transparent 0.15rem),
-      linear-gradient(100deg, rgb(112 71 44 / 7%), transparent 16%, transparent 82%, rgb(112 71 44 / 8%));
+      radial-gradient(circle at 14% 20%, var(--overlay-white-48) 0 0.12rem, transparent 0.18rem),
+      radial-gradient(circle at 78% 64%, var(--overlay-oak-09) 0 0.08rem, transparent 0.15rem),
+      linear-gradient(100deg, var(--overlay-oak-07), transparent 16%, transparent 82%, var(--overlay-oak-08));
     background-size: 1.6rem 1.8rem, 2rem 2.2rem, 100% 100%;
     box-shadow: var(--shadow-page);
   }
@@ -292,7 +327,7 @@
     position: absolute;
     inset: 0.75rem;
     z-index: 0;
-    border: 1px solid rgb(112 71 44 / 23%);
+    border: 1px solid var(--overlay-oak-23);
     content: "";
     pointer-events: none;
   }
@@ -314,7 +349,7 @@
     z-index: 0;
     width: 20rem;
     height: 60rem;
-    background: linear-gradient(90deg, transparent, rgb(94 55 35 / 7%), transparent);
+    background: linear-gradient(90deg, transparent, var(--overlay-oak-07), transparent);
     content: "";
     filter: blur(2px);
     pointer-events: none;
@@ -334,7 +369,7 @@
     place-items: center;
     border: var(--border-gold);
     background: var(--color-burgundy-700);
-    box-shadow: inset 0 0 0 0.3rem rgb(255 255 255 / 5%);
+    box-shadow: inset 0 0 0 0.3rem var(--overlay-white-05);
     color: var(--color-paper-light);
     font-family: var(--font-display);
     font-size: 1.35rem;
@@ -383,7 +418,7 @@
     position: relative;
     margin: 0;
     overflow: hidden;
-    border: 1px solid rgb(112 71 44 / 42%);
+    border: 1px solid var(--overlay-oak-42);
     background: var(--color-oak-800);
     box-shadow: var(--shadow-photo);
   }
@@ -391,7 +426,7 @@
   .media-frame::after {
     position: absolute;
     inset: 0.45rem;
-    border: 1px solid rgb(223 191 120 / 68%);
+    border: 1px solid var(--overlay-gold-light-68);
     content: "";
     pointer-events: none;
   }
@@ -401,7 +436,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: scale 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: scale var(--motion-photo) var(--ease-photo);
   }
 
   .media-frame--hero {
@@ -440,17 +475,20 @@
     padding: 0.85rem 0.95rem 0.85rem 1.4rem;
     border: 1px solid var(--color-gold-500);
     background: var(--color-burgundy-700);
-    box-shadow: inset 0 0 0 0.3rem rgb(255 255 255 / 5%), 0 0.8rem 2rem rgb(111 31 45 / 18%);
+    box-shadow: var(--shadow-button);
     color: var(--color-paper-light);
     font-size: 0.95rem;
     font-weight: 650;
     letter-spacing: 0.035em;
-    transition: background-color 180ms ease, translate 180ms ease, box-shadow 180ms ease;
+    transition:
+      background-color var(--motion-fast) var(--ease-standard),
+      translate var(--motion-fast) var(--ease-standard),
+      box-shadow var(--motion-fast) var(--ease-standard);
   }
 
   .button-link:hover {
     background: var(--color-burgundy-600);
-    box-shadow: inset 0 0 0 0.3rem rgb(255 255 255 / 7%), 0 1.1rem 2.4rem rgb(111 31 45 / 23%);
+    box-shadow: var(--shadow-button-hover);
     translate: 0 -0.15rem;
   }
 
@@ -459,7 +497,7 @@
     width: 2.15rem;
     aspect-ratio: 1;
     place-items: center;
-    border-left: 1px solid rgb(223 191 120 / 56%);
+    border-left: 1px solid var(--overlay-gold-light-56);
     color: var(--color-gold-300);
     font-size: 1.2rem;
   }
@@ -495,7 +533,7 @@
     width: 2.6rem;
     aspect-ratio: 1;
     place-items: center;
-    border: 1px solid rgb(112 71 44 / 34%);
+    border: 1px solid var(--overlay-oak-34);
     color: var(--color-burgundy-700);
     translate: -50% 0;
     animation: scroll-breathe 2.4s ease-in-out infinite;
@@ -503,7 +541,7 @@
 
   .chapter--places {
     background:
-      linear-gradient(180deg, transparent, rgb(197 154 70 / 4%) 25%, transparent 85%),
+      linear-gradient(180deg, transparent, var(--overlay-gold-04) 25%, transparent 85%),
       var(--color-pine-950);
   }
 
@@ -591,7 +629,7 @@
     padding: 0.85rem 1.2rem;
     border: var(--border-gold);
     background: var(--color-parchment-50);
-    box-shadow: 0 0.7rem 1.6rem rgb(70 40 20 / 14%);
+    box-shadow: var(--shadow-caption);
     color: var(--color-oak-800);
   }
 
@@ -697,7 +735,7 @@
   .media-frame--plate {
     aspect-ratio: 1.45 / 1;
     padding: 0.55rem;
-    border-color: rgb(112 71 44 / 22%);
+    border-color: var(--overlay-oak-22);
     background: var(--color-paper-light);
   }
 
@@ -712,9 +750,9 @@
     z-index: 3;
     width: clamp(3.5rem, 7vw, 6.5rem);
     aspect-ratio: 1;
-    background: linear-gradient(135deg, rgb(112 71 44 / 14%) 0 49%, var(--color-paper-light) 50% 100%);
-    border-top: 1px solid rgb(112 71 44 / 18%);
-    border-left: 1px solid rgb(112 71 44 / 18%);
+    background: linear-gradient(135deg, var(--overlay-oak-14) 0 49%, var(--color-paper-light) 50% 100%);
+    border-top: 1px solid var(--overlay-oak-18);
+    border-left: 1px solid var(--overlay-oak-18);
     content: "";
     clip-path: polygon(100% 0, 0 100%, 100% 100%);
   }
@@ -849,7 +887,7 @@
     .hero-page,
     .chapter-page,
     .quiet-page {
-      border-color: rgb(197 154 70 / 72%);
+      border-color: var(--overlay-gold-72);
     }
 
     .hero-page {

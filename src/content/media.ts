@@ -42,7 +42,7 @@ export const mediaCatalog = {
   },
   "banquet-hall": {
     id: "banquet-hall",
-    src: "/images/rublevka/banquet-hall.webp",
+    src: "/images/rublevka/banquet-hall.avif",
     sourceUrl: "https://rublevka34.com/wp-content/uploads/2024/05/zal-1_result.avif",
     alt: "Просторный деревянный банкетный зал с колоннами",
     description: "Интерьер действующего банкетного зала с деревянной отделкой и открытой планировкой.",
@@ -52,7 +52,7 @@ export const mediaCatalog = {
   },
   "oak-forest": {
     id: "oak-forest",
-    src: "/images/rublevka/oak-forest.webp",
+    src: "/images/rublevka/oak-forest.avif",
     sourceUrl: "https://rublevka34.com/wp-content/uploads/2024/05/vesna_result.avif",
     alt: "Дубовая роща и деревянные строения на территории Рублевки",
     description: "Широкий вид зелёной территории комплекса со взрослыми дубами и беседками.",

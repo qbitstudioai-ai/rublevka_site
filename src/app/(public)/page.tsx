@@ -4,7 +4,7 @@ import { HomeStory } from "@/components/home/home-story";
 import { getSiteUrl } from "@/server/site-url";
 
 export const metadata: Metadata = {
-  title: "Рублевка — загородный комплекс в дубовом лесу",
+  title: "Загородный комплекс в дубовом лесу",
   description:
     "Интерактивный прототип загородного комплекса «Рублевка»: домики, беседки, банкетные залы и банный комплекс.",
   alternates: {
