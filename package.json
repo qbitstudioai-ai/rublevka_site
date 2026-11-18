@@ -9,9 +9,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "tsx --test src/content/*.test.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck && npm run build"
+    "check": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "next": "16.4.6",
@@ -24,6 +25,8 @@
     "@types/react-dom": "19.3.0",
     "eslint": "9.39.3",
     "eslint-config-next": "16.4.6",
+    "image-size": "^2.1.0",
+    "tsx": "^4.23.15",
     "typescript": "5.9.3"
   }
 }
