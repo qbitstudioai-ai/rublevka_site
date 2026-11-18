@@ -591,3 +591,6 @@ h2 {
     visibility: hidden;
   }
 }
+
+.book-dates { display:inline-flex;align-items:center;justify-content:center;text-decoration:none; }
+.folio-nav .turn-next {font:inherit;text-decoration:underline;text-underline-offset:.2em;}

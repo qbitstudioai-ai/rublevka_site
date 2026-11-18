@@ -10,7 +10,7 @@ import { MediaFrame } from "../ui/media-frame";
 import { BookReturn } from "./book-return";
 import { PhotoGallery } from "./gallery";
 
-function SectionLinks({ current }: { current: SectionId }) {
+function SectionLinks({ current }: { current?: SectionId }) {
   return sectionIds.map((id) => (
     <Link
       key={id}
@@ -21,7 +21,7 @@ function SectionLinks({ current }: { current: SectionId }) {
     </Link>
   ));
 }
-function GuideHeader({ id }: { id: SectionId }) {
+export function GuideHeader({ id }: { id?: SectionId }) {
   return (
     <header className="guide-bar">
       <div className="guide-bar-inner">
@@ -31,9 +31,13 @@ function GuideHeader({ id }: { id: SectionId }) {
         <nav className="wide-nav" aria-label="Разделы комплекса">
           <SectionLinks current={id} />
         </nav>
+        <Link href="/bronirovanie" className="guide-date">
+          Выбрать даты
+        </Link>
         <details className="small-nav">
           <summary>Разделы ☰</summary>
           <nav aria-label="Разделы комплекса">
+            <Link href="/bronirovanie">Выбрать даты проживания</Link>
             <SectionLinks current={id} />
           </nav>
         </details>
@@ -43,7 +47,7 @@ function GuideHeader({ id }: { id: SectionId }) {
 }
 function GuestAction({ action }: { action: Page["action"] }) {
   const choices = {
-    stay: [reception.tel, "Уточнить даты по телефону"],
+    stay: ["/bronirovanie", "Выбрать даты"],
     enquire: [reception.tel, "Позвонить администратору"],
     map: [mapHref, "Открыть в Яндекс Картах"],
     photos: ["#guide-details", "Смотреть фотографии"],
@@ -79,6 +83,7 @@ function PageHeading({ page }: { page: Page }) {
 function ObjectCard({ item }: { item: GuideItem }) {
   return (
     <article className="guide-object">
+      {item.photo && <MediaFrame mediaId={item.photo} sizes="(max-width: 620px) 92vw, 280px" />}
       <h3>{item.name}</h3>
       {item.detail && (
         <dl className="guide-facts">
@@ -87,6 +92,15 @@ function ObjectCard({ item }: { item: GuideItem }) {
         </dl>
       )}
       <p>{item.description}</p>
+      {item.room && (
+        <Link
+          className="guide-action"
+          href={`/bronirovanie?room=${item.room}`}
+          aria-label={`Выбрать даты: ${item.name}`}
+        >
+          Выбрать даты →
+        </Link>
+      )}
     </article>
   );
 }
@@ -100,6 +114,10 @@ function ContactDetails() {
       <dt>Электронная почта</dt>
       <dd>
         <a href={`mailto:${reception.email}`}>{reception.email}</a>
+      </dd>
+      <dt>Проживание</dt>
+      <dd>
+        <Link href="/bronirovanie">Выбрать даты поездки</Link>
       </dd>
       <dt>Для навигатора</dt>
       <dd>
