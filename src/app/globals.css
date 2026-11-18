@@ -1,0 +1,131 @@
+@layer reset, tokens, base, components;
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    min-height: 100%;
+    margin: 0;
+  }
+}
+
+@layer tokens {
+  :root {
+    --color-forest-950: #14211a;
+    --color-forest-800: #263c2f;
+    --color-bark-700: #6b4935;
+    --color-parchment-100: #f5efe2;
+    --color-parchment-50: #fbf8f1;
+    --color-ember-500: #b9683d;
+    --font-display: Georgia, "Times New Roman", serif;
+    --font-body: "Segoe UI", Arial, sans-serif;
+    --space-1: 0.5rem;
+    --space-2: 0.75rem;
+    --space-3: 1rem;
+    --space-4: 1.5rem;
+    --space-5: 2rem;
+    --space-6: 3rem;
+    --radius-small: 0.25rem;
+    --shadow-soft: 0 1.5rem 5rem rgb(20 33 26 / 12%);
+    --content-width: 62rem;
+  }
+}
+
+@layer base {
+  body {
+    background: var(--color-parchment-50);
+    color: var(--color-forest-950);
+    font-family: var(--font-body);
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  p {
+    margin: 0;
+  }
+
+  h1 {
+    max-width: 12ch;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 7vw, 5.75rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+  }
+}
+
+@layer components {
+  .development-page {
+    display: grid;
+    min-height: 100svh;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    padding: var(--space-4);
+  }
+
+  .development-notice {
+    display: grid;
+    min-width: 0;
+    width: min(100%, var(--content-width));
+    grid-template-columns: auto 1fr;
+    gap: clamp(var(--space-4), 5vw, var(--space-6));
+    align-items: start;
+    padding: clamp(var(--space-5), 7vw, 6rem);
+    border: 1px solid rgb(107 73 53 / 20%);
+    border-radius: var(--radius-small);
+    background: var(--color-parchment-100);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .development-notice__mark {
+    display: grid;
+    width: clamp(3.5rem, 8vw, 5rem);
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid currentColor;
+    color: var(--color-bark-700);
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  .development-notice__name {
+    margin-bottom: var(--space-4);
+    color: var(--color-bark-700);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .development-notice__message {
+    max-width: 38rem;
+    min-width: 0;
+    margin-top: var(--space-4);
+    color: var(--color-forest-800);
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 40rem) {
+    .development-notice {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
