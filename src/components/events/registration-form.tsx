@@ -2,21 +2,21 @@
 import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { submitRegistration } from "@/app/(public)/meropriyatiya/[slug]/actions";
+import { ActivityDetails } from "./activity-details";
+import { servicePrice } from "./service-price";
 import { MediaFrame } from "@/components/ui/media-frame";
-import {
-  dayPlan,
-  displayPrice,
-  eventDate,
-  mediaId,
-  money,
-  planTime,
-} from "./presentation";
+import { dayPlan, eventDate, mediaId, money, planTime } from "./presentation";
 
 type Option = {
   id: string;
   title: string;
   description: string;
   imageId: string | null;
+  longDescription: string;
+  durationText: string;
+  priceSuffix: string;
+  details: string;
+  galleryIds: string[];
   startsAt: Date | null;
   price: number | null;
   available: boolean;
@@ -30,6 +30,7 @@ type Props = {
     endsAt: Date;
     price: number | null;
     group: boolean;
+    termsVersion: number;
   };
   options: Option[];
   enabled: boolean;
@@ -49,9 +50,10 @@ export function RegistrationForm({
     phone: "",
     messenger: "",
     consent: false,
+    groupSize: "1",
   });
   const [state, submit, pending] = useActionState(
-    submitRegistration.bind(null, event.id, requestId),
+    submitRegistration.bind(null, event.id, requestId, event.termsVersion),
     null,
   );
   const summary = useRef<HTMLHeadingElement>(null),
@@ -79,8 +81,21 @@ export function RegistrationForm({
         </p>
         <p>
           Предварительная стоимость · {money(state.receipt.total)}
-          {state.receipt.hasQuote ? " + услуги по запросу" : ""}
+          {state.receipt.hasQuote ? " + услуги по согласованию" : ""}
         </p>
+        {state.receipt.groupSize > 1 && (
+          <p>Участников · {state.receipt.groupSize}</p>
+        )}
+        {state.receipt.services.length > 0 && (
+          <ul className="fest-receipt-services">
+            {state.receipt.services.map((service, index) => (
+              <li key={index}>
+                {service.title} ·{" "}
+                {servicePrice(service.price, service.priceSuffix)}
+              </li>
+            ))}
+          </ul>
+        )}
         <p>
           В тестовой базе сохранена заявка. При открытии регистрации условия
           участия подтвердит администратор.
@@ -92,84 +107,73 @@ export function RegistrationForm({
     <form id="event-registration" action={submit} className="fest-form">
       {options.length > 0 && (
         <fieldset className="fest-options">
-          <legend>Дополнительные активности</legend>
+          <legend>Дополните свой отдых</legend>
           <div className="fest-option-grid">
             {options.map((option) => {
               const photo = mediaId(option.imageId),
                 checked = selection.includes(option.id);
               return (
-                <label
+                <article
                   key={option.id}
                   className="fest-option"
                   data-selected={checked}
                   aria-disabled={!option.available || undefined}
                 >
-                  <input
-                    type="checkbox"
-                    name="activity"
-                    value={option.id}
-                    checked={checked}
-                    disabled={!option.available || option.required || pending}
-                    onChange={(e) =>
-                      setSelection(
-                        e.target.checked
-                          ? [...selection, option.id]
-                          : selection.filter((id) => id !== option.id),
-                      )
-                    }
-                  />
-                  {option.required && option.available && (
-                    <input type="hidden" name="activity" value={option.id} />
-                  )}
-                  <span>
-                    {photo && (
-                      <MediaFrame
-                        mediaId={photo}
-                        sizes="(max-width: 680px) 90vw, 22vw"
-                      />
+                  <label className="fest-option-choice">
+                    <input
+                      type="checkbox"
+                      name="activity"
+                      value={option.id}
+                      checked={checked}
+                      disabled={!option.available || option.required || pending}
+                      onChange={(e) =>
+                        setSelection(
+                          e.target.checked
+                            ? [...selection, option.id]
+                            : selection.filter((id) => id !== option.id),
+                        )
+                      }
+                    />
+                    {option.required && option.available && (
+                      <input type="hidden" name="activity" value={option.id} />
                     )}
-                    <strong>{option.title}</strong>
-                    <span>{option.description}</span>
-                    <small>
-                      {planTime(option.startsAt, event.startsAt)} ·{" "}
-                      {displayPrice(option.price)}
-                    </small>
-                    {(!option.available || option.required) && (
+                    <span>
+                      {photo && (
+                        <MediaFrame
+                          mediaId={photo}
+                          sizes="(max-width: 680px) 90vw, 22vw"
+                        />
+                      )}
+                      <strong>{option.title}</strong>
+                      <span>{option.description}</span>
                       <small>
-                        {!option.available
-                          ? "Запись недоступна"
-                          : "Входит в программу"}
+                        {option.startsAt &&
+                          planTime(option.startsAt, event.startsAt) + " · "}
+                        {option.durationText && option.durationText + " · "}
+                        {servicePrice(option.price, option.priceSuffix)}
                       </small>
-                    )}
-                  </span>
-                </label>
+                      {(!option.available || option.required) && (
+                        <small>
+                          {!option.available
+                            ? "Запись недоступна"
+                            : "Входит в программу"}
+                        </small>
+                      )}
+                      {option.available && !option.required && (
+                        <small className="fest-pick">
+                          {checked ? "✓ Добавлено" : "+ Добавить"}
+                        </small>
+                      )}
+                    </span>
+                  </label>
+                  <ActivityDetails option={option} />
+                </article>
               );
             })}
           </div>
         </fieldset>
       )}
       <div className="fest-register-grid">
-        <section className="fest-agenda" aria-labelledby="day-heading">
-          <h2 id="day-heading">Ваш день на Рублевке</h2>
-          <ol aria-live="polite">
-            {plan.entries.map((entry) => (
-              <li key={entry.id ?? event.id}>
-                <time dateTime={entry.startsAt?.toISOString()}>
-                  {planTime(entry.startsAt, event.startsAt)}
-                </time>
-                <strong>{entry.title}</strong>
-                <small>{displayPrice(entry.price)}</small>
-              </li>
-            ))}
-          </ol>
-          <div className="fest-total" aria-live="polite">
-            <span>Предварительная стоимость</span>
-            <strong>{money(plan.total)}</strong>
-            {plan.hasQuote && (
-              <small>Услуги по запросу рассчитываются отдельно.</small>
-            )}
-          </div>
-        </section>
         <section className="fest-guest" aria-labelledby="guest-heading">
           <h2 id="guest-heading">
             {event.group ? "Обращение организатора" : "Регистрация участника"}
@@ -181,9 +185,27 @@ export function RegistrationForm({
               </p>
               {event.group && (
                 <p>
-                  Укажите данные взрослого организатора группы. Сведения о детях
-                  не требуются.
+                  Укажите контакты взрослого организатора и общее число гостей.
+                  Фиксированные суммы указаны за заявку. Сведения о детях не
+                  требуются.
                 </p>
+              )}
+              {event.group && (
+                <label>
+                  Число участников
+                  <input
+                    name="groupSize"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={1000000}
+                    value={details.groupSize}
+                    onChange={(e) =>
+                      setDetails({ ...details, groupSize: e.target.value })
+                    }
+                    required
+                  />
+                </label>
               )}
               <label>
                 {event.group ? "ФИО взрослого организатора" : "ФИО"}
@@ -249,15 +271,38 @@ export function RegistrationForm({
                   {state.error}
                 </p>
               )}
-              <button className="guide-action" type="submit" disabled={pending}>
-                {pending ? "Сохраняем заявку…" : "Отправить заявку"}
-              </button>
             </>
           ) : (
             <>
               <p>Приём заявок на сайте пока закрыт.</p>
               <Link href="/kontakty">Связаться с администрацией →</Link>
             </>
+          )}
+        </section>
+        <section className="fest-agenda" aria-labelledby="day-heading">
+          <h2 id="day-heading">Ваш день на Рублевке</h2>
+          <ol aria-live="polite">
+            {plan.entries.map((entry) => (
+              <li key={entry.id ?? event.id}>
+                <time dateTime={entry.startsAt?.toISOString()}>
+                  {planTime(entry.startsAt, event.startsAt)}
+                </time>
+                <strong>{entry.title}</strong>
+                <small>{servicePrice(entry.price)}</small>
+              </li>
+            ))}
+          </ol>
+          <div className="fest-total" aria-live="polite">
+            <span>Предварительная стоимость</span>
+            <strong>{money(plan.total)}</strong>
+            {plan.hasQuote && (
+              <small>Услуги по согласованию рассчитываются отдельно.</small>
+            )}
+          </div>
+          {enabled && (
+            <button className="guide-action" type="submit" disabled={pending}>
+              {pending ? "Сохраняем заявку…" : "Отправить заявку"}
+            </button>
           )}
         </section>
       </div>

@@ -1,8 +1,9 @@
 "use server";
-import { and, count, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/server/events/db";
+import { mediaCatalog } from "@/content/media";
 import {
   events,
   activities,
@@ -28,6 +29,35 @@ import {
 import { participants } from "@/server/admin/participants";
 import type { FormState } from "../form";
 const base = "/admin/meropriyatiya";
+const occupiedPlaces =
+  sql<number>`coalesce(sum(${registrations.groupSize}), 0)`.mapWith(Number);
+function verifyTerms(form: FormData) {
+  if (form.get("verifiedTerms") !== "yes")
+    throw new InputError("Подтвердите проверку программы, условий и цен.");
+}
+function nextVerification(previous: Date | null) {
+  return new Date(Math.max(Date.now(), (previous?.getTime() ?? 0) + 1));
+}
+function gallerySelection(form: FormData) {
+  const photos = [...new Set(form.getAll("galleryIds").filter(Boolean))];
+  if (
+    photos.length > 8 ||
+    photos.some(
+      (photo) =>
+        typeof photo !== "string" || !Object.hasOwn(mediaCatalog, photo),
+    )
+  )
+    throw new InputError("Выберите до восьми изображений из каталога.");
+  return photos as string[];
+}
+function activityPosition(form: FormData) {
+  const value = textValue(form, "position", 5);
+  if (value && !/^\d+$/.test(value))
+    throw new InputError(
+      "Порядок показа должен быть целым числом от 0 до 99 999.",
+    );
+  return Number(value);
+}
 function idField(f: FormData, name: string) {
   const id = textValue(f, name, 50);
   if (id && !uuidPattern.test(id))
@@ -80,6 +110,7 @@ export async function saveEvent(
       throw new InputError(
         "Перед публикацией заполните описание и программу, проверьте и снимите редакционные замечания.",
       );
+    if (status !== "draft") verifyTerms(f);
     if (status === "open" && startsAt <= new Date())
       throw new InputError("Регистрация возможна только до начала события.");
     const data = {
@@ -109,7 +140,7 @@ export async function saveEvent(
         if (!before) throw new InputError("Событие не найдено.");
         fresh(f, before);
         const [occupied] = await tx
-          .select({ value: count() })
+          .select({ value: occupiedPlaces })
           .from(registrations)
           .where(
             and(
@@ -135,28 +166,39 @@ export async function saveEvent(
           throw new InputError(
             "Время активности выходит за новые границы события.",
           );
-        await tx.update(events).set(data).where(eq(events.id, id));
+        await tx
+          .update(events)
+          .set({
+            ...data,
+            termsVerifiedAt:
+              status === "draft"
+                ? null
+                : nextVerification(before.termsVerifiedAt),
+          })
+          .where(eq(events.id, id));
       } else {
         const [row] = await tx
           .insert(events)
-          .values(data)
+          .values({
+            ...data,
+            termsVerifiedAt: status === "draft" ? null : nextVerification(null),
+          })
           .returning({ id: events.id });
         target = row.id;
         created = row.id;
       }
-      await tx
-        .insert(auditLogs)
-        .values({
-          adminId: user.id,
-          action: id ? "event.update" : "event.create",
-          targetId: target,
-        });
+      await tx.insert(auditLogs).values({
+        adminId: user.id,
+        action: id ? "event.update" : "event.create",
+        targetId: target,
+      });
     });
   } catch (err) {
     return failed(err);
   }
   revalidatePath(base);
   revalidatePath("/meropriyatiya");
+  revalidatePath("/meropriyatiya/[slug]", "page");
   if (created) redirect(base + "/" + created);
   revalidatePath(base + "/" + f.get("id"));
   return { message: "Событие сохранено.", ok: true };
@@ -177,6 +219,12 @@ export async function saveActivity(
       eventId,
       title,
       description: textValue(f, "description", 3000),
+      longDescription: textValue(f, "longDescription", 3000),
+      details: textValue(f, "details", 2000),
+      durationText: textValue(f, "durationText", 80),
+      priceSuffix: textValue(f, "priceSuffix", 80),
+      galleryIds: gallerySelection(f),
+      position: activityPosition(f),
       imageId: imageValue(f),
       startsAt: dateValue(f, "startsAt"),
       capacity: capacityValue(f),
@@ -193,6 +241,7 @@ export async function saveActivity(
         .where(eq(events.id, eventId))
         .for("update");
       if (!event) throw new InputError("Событие не найдено.");
+      if (event.status !== "draft") verifyTerms(f);
       if (
         data.startsAt &&
         (data.startsAt < event.startsAt || data.startsAt > event.endsAt)
@@ -209,7 +258,7 @@ export async function saveActivity(
         if (!before) throw new InputError("Активность не найдена.");
         fresh(f, before);
         const [occupied] = await tx
-          .select({ value: count() })
+          .select({ value: occupiedPlaces })
           .from(registrationActivities)
           .innerJoin(
             registrations,
@@ -233,15 +282,20 @@ export async function saveActivity(
           .returning({ id: activities.id });
         target = row.id;
       }
-      await tx
-        .insert(auditLogs)
-        .values({
-          adminId: user.id,
-          action: id ? "activity.update" : "activity.create",
-          targetId: target,
-        });
+      if (event.termsVerifiedAt) {
+        await tx
+          .update(events)
+          .set({ termsVerifiedAt: nextVerification(event.termsVerifiedAt) })
+          .where(eq(events.id, event.id));
+      }
+      await tx.insert(auditLogs).values({
+        adminId: user.id,
+        action: id ? "activity.update" : "activity.create",
+        targetId: target,
+      });
     });
     revalidatePath(base + "/" + eventId);
+    revalidatePath("/meropriyatiya/[slug]", "page");
   } catch (err) {
     return failed(err);
   }
@@ -290,21 +344,19 @@ export async function updateParticipant(
         .update(registrations)
         .set({ status, paymentStatus: payment })
         .where(eq(registrations.id, id));
-      await tx
-        .insert(auditLogs)
-        .values({
-          adminId: user.id,
-          action:
-            "registration." +
-            row.status +
-            "." +
-            status +
-            "." +
-            row.paymentStatus +
-            "." +
-            payment,
-          targetId: id,
-        });
+      await tx.insert(auditLogs).values({
+        adminId: user.id,
+        action:
+          "registration." +
+          row.status +
+          "." +
+          status +
+          "." +
+          row.paymentStatus +
+          "." +
+          payment,
+        targetId: id,
+      });
     });
     revalidatePath(base + "/" + eventId);
   } catch (err) {

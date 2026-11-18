@@ -96,7 +96,7 @@ export default async function EventPage(props: Props) {
             </div>
           </dl>
           {open && enabled ? (
-            <a className="guide-action" href="#guest-heading">
+            <a className="guide-action" href="#event-registration">
               {event.group ? "Оставить обращение" : "Зарегистрироваться"} ↓
             </a>
           ) : (
@@ -144,6 +144,7 @@ export default async function EventPage(props: Props) {
             id: event.id,
             title: event.title,
             group: event.group,
+            termsVersion: event.termsVersion,
             startsAt: event.startsAt,
             endsAt: event.endsAt,
             price: event.price,

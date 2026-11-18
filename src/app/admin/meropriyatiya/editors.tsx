@@ -60,6 +60,17 @@ function Terms({
     </div>
   );
 }
+function VerifyTerms({ activity = false }: { activity?: boolean }) {
+  return (
+    <label className="office-check">
+      <input type="checkbox" name="verifiedTerms" value="yes" />
+      {activity
+        ? "Подтверждаю проверку цены и условий услуги для опубликованного события"
+        : "Подтверждаю проверку дат, цен и условий, включая дополнительные услуги"}
+    </label>
+  );
+}
+
 export function EventEditor({ event }: { event?: Event }) {
   return (
     <ActionForm action={saveEvent} submit="Сохранить событие">
@@ -143,14 +154,17 @@ export function EventEditor({ event }: { event?: Event }) {
         <input type="checkbox" name="archive" defaultChecked={event?.archive} />
         Показывать в архиве после завершения
       </label>
+      <VerifyTerms />
     </ActionForm>
   );
 }
 export function ActivityEditor({
   eventId,
   activity,
+  published,
 }: {
   eventId: string;
+  published: boolean;
   activity?: Activity;
 }) {
   return (
@@ -168,7 +182,7 @@ export function ActivityEditor({
         />
       </label>
       <label>
-        Описание
+        Краткое описание на карточке
         <textarea
           name="description"
           maxLength={3000}
@@ -183,8 +197,74 @@ export function ActivityEditor({
           defaultValue={formatInputDate(activity?.startsAt)}
         />
       </label>
+      <label>
+        Подробное описание услуги
+        <textarea
+          name="longDescription"
+          maxLength={3000}
+          rows={4}
+          defaultValue={activity?.longDescription}
+        />
+      </label>
+      <label>
+        Что входит в услугу
+        <textarea
+          name="details"
+          maxLength={2000}
+          rows={4}
+          defaultValue={activity?.details}
+        />
+        <small>
+          Условия и ограничения размещайте по одному пункту на строку.
+        </small>
+      </label>
+      <div className="office-grid">
+        <label>
+          Длительность
+          <input
+            name="durationText"
+            maxLength={80}
+            defaultValue={activity?.durationText}
+          />
+        </label>
+        <label>
+          Порядок показа
+          <input
+            name="position"
+            type="number"
+            min={0}
+            max={99999}
+            defaultValue={activity?.position ?? 0}
+          />
+        </label>
+      </div>
       <Terms price={activity?.price} capacity={activity?.capacity} />
+      <label>
+        Уточнение к цене
+        <input
+          name="priceSuffix"
+          maxLength={80}
+          defaultValue={activity?.priceSuffix}
+        />
+        <small>Используйте для условий, которые уже согласованы.</small>
+      </label>
       <ImageChoice image={activity?.imageId} optional />
+      <details className="office-gallery">
+        <summary>Дополнительные фотографии из каталога</summary>
+        <div className="office-grid">
+          {Object.values(mediaCatalog).map((image) => (
+            <label className="office-check" key={image.id}>
+              <input
+                type="checkbox"
+                name="galleryIds"
+                value={image.id}
+                defaultChecked={activity?.galleryIds.includes(image.id)}
+              />
+              {image.alt}
+            </label>
+          ))}
+        </div>
+      </details>
       <label className="office-check">
         <input
           type="checkbox"
@@ -201,6 +281,7 @@ export function ActivityEditor({
         />
         Обязательна для участия
       </label>
+      {published && <VerifyTerms activity />}
     </ActionForm>
   );
 }

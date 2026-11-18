@@ -57,6 +57,7 @@ export const events = pgTable(
     group: boolean().notNull().default(false),
     price: integer(),
     capacity: integer(),
+    termsVerifiedAt: instant("terms_verified_at"),
     reviewNote: text("review_note").notNull().default(""),
   },
   (t) => [
@@ -76,6 +77,15 @@ export const activities = pgTable(
       .references(() => events.id),
     title: text().notNull(),
     description: text().notNull().default(""),
+    longDescription: text("long_description").notNull().default(""),
+    details: text().notNull().default(""),
+    durationText: text("duration_text").notNull().default(""),
+    priceSuffix: text("price_suffix").notNull().default(""),
+    galleryIds: text("gallery_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    position: integer().notNull().default(0),
     imageId: text("image_id"),
     startsAt: instant("starts_at"),
     price: integer(),
@@ -85,6 +95,7 @@ export const activities = pgTable(
   },
   (t) => [
     index("activities_event").on(t.eventId),
+    check("activity_position", sql`${t.position} >= 0`),
     check("activity_price", sql`${t.price} >= 0`),
     check("activity_capacity", sql`${t.capacity} >= 0`),
   ],
@@ -101,6 +112,8 @@ export const registrations = pgTable(
     name: text().notNull(),
     phone: text().notNull(),
     messenger: text(),
+    groupSize: integer("group_size").notNull().default(1),
+    eventPrice: integer("event_price"),
     consentedAt: instant("consented_at").notNull().defaultNow(),
     consentVersion: text("consent_version").notNull(),
     total: bigint({ mode: "number" }).notNull(),
@@ -112,6 +125,8 @@ export const registrations = pgTable(
   (t) => [
     uniqueIndex("registration_request").on(t.eventId, t.requestId),
     index("registrations_event_status").on(t.eventId, t.status),
+    check("registration_group_size", sql`${t.groupSize} between 1 and 1000000`),
+    check("saved_event_price", sql`${t.eventPrice} >= 0`),
     check("registration_total", sql`${t.total} >= 0`),
   ],
 );
@@ -127,6 +142,9 @@ export const registrationActivities = pgTable(
       .references(() => activities.id),
     title: text().notNull(),
     price: integer(),
+    priceSuffix: text("price_suffix").notNull().default(""),
+    startsAt: instant("starts_at"),
+    position: integer().notNull().default(0),
   },
   (t) => [
     primaryKey({ columns: [t.registrationId, t.activityId] }),

@@ -4,6 +4,7 @@ import { csvCell, uuidPattern } from "@/server/admin/input";
 import { participants } from "@/server/admin/participants";
 import { db } from "@/server/events/db";
 import { events, auditLogs } from "@/server/events/schema";
+import { servicePrice } from "@/components/events/service-price";
 import { guestStates, payStates } from "../../labels";
 const headers = {
   "Cache-Control": "private, no-store",
@@ -34,7 +35,8 @@ export async function POST(
       "ФИО",
       "Телефон",
       "Мессенджер",
-      "Активности",
+      "Число участников",
+      "Выбранные услуги и цены",
       "Стоимость, коп.",
       "Также по запросу",
       "Статус участия",
@@ -45,7 +47,10 @@ export async function POST(
       r.name,
       r.phone,
       r.messenger,
-      r.activities.join(", "),
+      r.groupSize,
+      r.activities
+        .map((a) => a.title + " · " + servicePrice(a.price, a.priceSuffix))
+        .join(", "),
       r.total,
       r.hasQuote ? "да" : "нет",
       guestStates[r.status],

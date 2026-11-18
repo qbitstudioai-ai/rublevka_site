@@ -3,6 +3,7 @@ import { useState, useTransition } from "react";
 import { ActionForm, type FormState } from "../form";
 import type { ParticipantRow } from "@/server/admin/participants";
 import { searchParticipants, updateParticipant } from "./actions";
+import { servicePrice } from "@/components/events/service-price";
 import { guestStates, payStates } from "./labels";
 
 export function Guests({
@@ -70,7 +71,19 @@ export function Guests({
               {row.messenger && " · " + row.messenger}
             </p>
             <p>Заявка № {row.id}</p>
-            <p>{row.activities.join(" · ") || "Основная программа"}</p>
+            <p>Участников: {row.groupSize}</p>
+            {row.activities.length > 0 ? (
+              <ul aria-label="Выбранные услуги">
+                {row.activities.map((activity, index) => (
+                  <li key={index}>
+                    {activity.title} ·{" "}
+                    {servicePrice(activity.price, activity.priceSuffix)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Основная программа</p>
+            )}
             <p>
               Предварительно{" "}
               {new Intl.NumberFormat("ru-RU", {

@@ -24,7 +24,11 @@ export default async function ManageEvent({
       .select()
       .from(activities)
       .where(eq(activities.eventId, id))
-      .orderBy(asc(activities.startsAt), activities.title),
+      .orderBy(
+        asc(activities.position),
+        asc(activities.startsAt),
+        activities.title,
+      ),
     participants(id),
   ]);
   return (
@@ -47,12 +51,16 @@ export default async function ManageEvent({
         {items.map((a) => (
           <details className="office-fold" key={a.id}>
             <summary>{a.title}</summary>
-            <ActivityEditor eventId={id} activity={a} />
+            <ActivityEditor
+              eventId={id}
+              activity={a}
+              published={event.status !== "draft"}
+            />
           </details>
         ))}
         <details className="office-fold">
           <summary>Добавить активность</summary>
-          <ActivityEditor eventId={id} />
+          <ActivityEditor eventId={id} published={event.status !== "draft"} />
         </details>
       </details>
       <section className="office-section">
@@ -64,7 +72,12 @@ export default async function ManageEvent({
             </form>
           )}
         </div>
-        <Guests key={id} initial={rows} eventId={id} isAdmin={user.role === "admin"} />
+        <Guests
+          key={id}
+          initial={rows}
+          eventId={id}
+          isAdmin={user.role === "admin"}
+        />
       </section>
     </>
   );

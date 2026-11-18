@@ -34,7 +34,6 @@ export async function login(
   )
     return denied;
   try {
-    if (!(await takeRateLimit("login-global", 100, 900))) return denied;
     const digest = createHash("sha256").update(username).digest("hex");
     if (!(await takeRateLimit("login-" + digest, 8, 900))) return denied;
     const [user] = await db

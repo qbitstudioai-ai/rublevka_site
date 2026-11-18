@@ -249,7 +249,6 @@
 }
 .fest-option {
   display: grid;
-  grid-template-columns: 1.25rem minmax(0, 1fr);
   gap: 0.75rem;
   align-content: start;
   padding: 1rem;
@@ -265,7 +264,17 @@
   opacity: 0.75;
   cursor: default;
 }
-.fest-option > span {
+.fest-option-choice {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: 0.75rem;
+  cursor: inherit;
+}
+.fest-pick {
+  color: var(--wine);
+  font-weight: 700 !important;
+}
+.fest-option-choice > span {
   display: grid;
   gap: 0.55rem;
 }
@@ -475,3 +484,6 @@
     }
   }
 }
+
+.fest-agenda .guide-action { margin-top: 1.3rem; }
+.fest-receipt-services { display: grid; gap: .3rem; list-style: none; padding: 0; }
