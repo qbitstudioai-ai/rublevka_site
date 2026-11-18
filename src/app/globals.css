@@ -344,6 +344,38 @@ h2 {
   right: 0.2rem;
   top: 0;
 }
+.book-dialog--contents {
+  --cover-edge: clamp(.65rem, 3vw, 1rem);
+  padding: .75rem clamp(.8rem, 3vw, 1.5rem) 1.5rem;
+  background: var(--paper) var(--folio) center 40% / 165% 540%;
+  border: var(--cover-edge) solid var(--table);
+  border-image: var(--folio) 40 36 / var(--cover-edge) stretch;
+  box-shadow: 0 .8rem 3rem #23120799;
+}
+.book-dialog--contents::before {
+  content: "";
+  display: block;
+  width: 82%;
+  aspect-ratio: 5.3;
+  margin: 0 auto .35rem;
+  background: var(--carving) top center / 100% auto no-repeat;
+  pointer-events: none;
+}
+.book-dialog--contents h2 { text-align: center; }
+.book-dialog--contents .contents button {
+  display: grid;
+  grid-template-columns: 2.1em 1fr;
+  align-items: baseline;
+  padding: .65rem .25rem;
+  line-height: 1.22;
+}
+.contents-number { color: var(--wine); font-size: .9em; }
+.book-dialog--contents [aria-current="page"] { font-weight: bold; }
+.book-dialog--contents .close-dialog {
+  color: var(--wine);
+  right: 0;
+  background: radial-gradient(ellipse, var(--paper) 40%, transparent 72%);
+}
 [data-turn] .leaf {
   pointer-events: none;
 }
@@ -475,7 +507,8 @@ h2 {
     min-height: max(var(--tap), 5.1cqh);
   }
   .index .carving {
-    height: 32.5cqh;
+    height: 27.5cqh;
+    margin-top: 0;
   }
   .index .birds {
     height: 4.4cqh;
@@ -514,6 +547,10 @@ h2 {
     transform-origin: left;
     animation: mobile-turn var(--turn) var(--curve) reverse both;
   }
+}
+@media (max-width: 640px) and (max-height: 700px) {
+  .index.spread { padding-top: max(env(safe-area-inset-top), 2.6cqh); }
+  .index .carving { height: 25.5cqh; }
 }
 @keyframes mobile-turn {
   from {

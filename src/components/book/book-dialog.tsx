@@ -4,10 +4,12 @@ export function BookDialog({
   title,
   children,
   close,
+  contents = false,
 }: {
   title: string;
   children: ReactNode;
   close: () => void;
+  contents?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useLayoutEffect(() => {
@@ -22,7 +24,7 @@ export function BookDialog({
   }, []);
   return (
     <dialog
-      className="book-dialog"
+      className={contents ? "book-dialog book-dialog--contents" : "book-dialog"}
       ref={dialog}
       aria-labelledby="dialog-heading"
       onCancel={(e) => {

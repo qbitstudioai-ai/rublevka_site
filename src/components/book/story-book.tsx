@@ -92,6 +92,7 @@ export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
       </div>
       {panel && (
         <BookDialog
+          contents={panel === "menu"}
           title={panel === "menu" ? "Оглавление" : panel.title}
           close={closePanel}
         >
@@ -106,7 +107,8 @@ export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
                       select(i);
                     }}
                   >
-                    {roman(i + 1)} · {c.label}
+                    <span className="contents-number">{roman(i + 1)}</span>
+                    {c.label}
                   </button>
                 </li>
               ))}
