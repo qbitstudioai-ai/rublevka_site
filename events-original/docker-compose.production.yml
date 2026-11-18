@@ -1,0 +1,35 @@
+# Пример production-запуска. Реальные значения — в .env.production (не хранится в Git).
+#   cp .env.example .env.production   # заполнить
+#   docker compose -f docker-compose.production.yml up -d --build
+# HTTPS обеспечивает внешний reverse proxy (nginx/Caddy и т.п.), см. DEPLOYMENT.md.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rublevka-registration:latest
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      NODE_ENV: production
+      # Пути внутри контейнера — на постоянных volume.
+      DATABASE_PATH: /data/db/rublevka.sqlite
+      UPLOADS_DIR: /data/uploads
+      BACKUP_DIR: /data/backups
+      # Приложение работает только за reverse proxy, который перезаписывает X-Real-IP.
+      TRUST_PROXY: "true"
+    volumes:
+      - rublevka_db:/data/db
+      - rublevka_uploads:/data/uploads
+      - rublevka_backups:/data/backups
+    # Порт доступен только локально — снаружи обращения идут через reverse proxy.
+    ports:
+      - "127.0.0.1:3000:3000"
+    # Время на корректное завершение: Next.js закрывает сервер, SQLite закрывается при выходе.
+    stop_grace_period: 30s
+
+volumes:
+  rublevka_db:
+  rublevka_uploads:
+  rublevka_backups:

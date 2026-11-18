@@ -10,7 +10,7 @@ import { MediaFrame } from "../ui/media-frame";
 import { BookReturn } from "./book-return";
 import { PhotoGallery } from "./gallery";
 
-function SectionLinks({ current }: { current?: SectionId | "meropriyatiya" }) {
+function SectionLinks({ current }: { current?: SectionId }) {
   return (
     <>
       {sectionIds.map((id) => (
@@ -22,16 +22,16 @@ function SectionLinks({ current }: { current?: SectionId | "meropriyatiya" }) {
           {sections[id]}
         </Link>
       ))}
-      <Link
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- The mounted events app owns its own router. */}
+      <a
         href="/meropriyatiya"
-        aria-current={current === "meropriyatiya" ? "page" : undefined}
       >
         Мероприятия
-      </Link>
+      </a>
     </>
   );
 }
-export function GuideHeader({ id }: { id?: SectionId | "meropriyatiya" }) {
+export function GuideHeader({ id }: { id?: SectionId }) {
   return (
     <header className="guide-bar">
       <div className="guide-bar-inner">

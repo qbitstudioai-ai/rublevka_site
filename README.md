@@ -67,15 +67,14 @@ npm run check
 
 ### Мероприятия
 
-Для афиши, импорта и панели укажите в окружении `DATABASE_URL` для PostgreSQL. Для входа задайте отдельный случайный `ADMIN_SESSION_SECRET` длиной от 32 символов. Секрет и строка подключения передаются через окружение оболочки, в том числе при выполнении CLI-команд.
+`npm run dev` запускает основной сайт и оригинальное приложение регистрации. Для первого запуска установите зависимости обоих приложений. Для установленной версии SQLite требуется Node.js 22 или новее.
 
-```bash
-npm run db:migrate
-npm run events:import
-npm run admin:create -- organizer admin
-npm run dev -- --hostname 127.0.0.1
+```powershell
+npm ci
+npm ci --prefix events-original --ignore-scripts
+npm run dev -- --port 3270
 ```
 
-CLI запросит пароль со скрытым вводом. Для менеджера укажите роль `manager`. Афиша доступна по адресу `/meropriyatiya`, панель — `/admin/meropriyatiya`. Повторный импорт сохраняет правки в уже созданных черновиках.
+Афиша открывается по адресу `http://localhost:3270/meropriyatiya`, панель — по `/meropriyatiya/admin`. Внутренний процесс афиши слушает только loopback на порту 3271. Локальная SQLite автоматически создаётся в `events-original/data` и заполняется публичным каталогом. Для локального входа задайте собственные `ADMIN_USERNAME`, `ADMIN_PASSWORD` и `ADMIN_SESSION_SECRET` в файле `events-original/.env.local`.
 
-Для проверки регистрации используйте только вымышленные данные. Команда `node scripts/test-events-db.mjs --serve` поднимет временный локальный PostgreSQL и выведет путь к файлу со строкой подключения. В другой оболочке задайте `DATABASE_URL` из него, выполните миграции и включите `EVENT_REGISTRATION_MODE=test`. Откройте сайт на localhost. Режим требует локальную БД с именем `rublevka_events_test`. Для автоматических проверок достаточно `npm run check`: тесты БД сами создают изолированный кластер.
+Развёртывание требует отдельного процесса оригинального приложения. Основной сайт передаёт ему запросы через `EVENTS_ORIGINAL_ORIGIN`. Публичный приём заявок закрыт.

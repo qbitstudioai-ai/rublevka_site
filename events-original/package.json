@@ -1,0 +1,46 @@
+{
+  "name": "rublevka-guest-registration",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build && node scripts/prepare-standalone.mjs",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "npm run build && playwright test",
+    "screenshots": "npm run build && playwright test --grep скриншоты",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:seed": "node scripts/db-seed.mjs",
+    "test": "npm run build && playwright test",
+    "telegram:retry": "node scripts/telegram-retry.mjs",
+    "backup": "node scripts/backup.mjs",
+    "start:standalone": "node .next/standalone/server.js",
+    "catalog:import": "node scripts/copy-public-catalog.mjs"
+  },
+  "dependencies": {
+    "@fontsource/montserrat": "^5.3.0",
+    "better-sqlite3": "^13.0.3",
+    "exceljs": "^4.4.0",
+    "next": "^16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^16.4.6",
+    "typescript": "^5.9.0"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "^11.1.1"
+    }
+  }
+}

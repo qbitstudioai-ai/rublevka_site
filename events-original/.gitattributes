@@ -1,0 +1,5 @@
+# Миграции всегда с LF: от содержимого считается контрольная сумма.
+db/migrations/*.sql text eol=lf
+# Shell-скрипты исполняются в Linux-контейнере — только LF.
+*.sh text eol=lf
+Dockerfile text eol=lf

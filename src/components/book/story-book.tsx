@@ -115,12 +115,13 @@ export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
             >
               Выбрать даты
             </Link>
-            <Link
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- The mounted events app owns its own router. */}
+            <a
               href="/meropriyatiya"
               onClick={() => rememberChapter(chapters[current].id)}
             >
               Мероприятия
-            </Link>
+            </a>
             {sectionIds.map((id) => (
               <Link
                 key={id}
