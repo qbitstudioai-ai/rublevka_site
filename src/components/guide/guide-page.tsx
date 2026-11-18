@@ -10,18 +10,28 @@ import { MediaFrame } from "../ui/media-frame";
 import { BookReturn } from "./book-return";
 import { PhotoGallery } from "./gallery";
 
-function SectionLinks({ current }: { current?: SectionId }) {
-  return sectionIds.map((id) => (
-    <Link
-      key={id}
-      href={"/" + id}
-      aria-current={id === current ? "page" : undefined}
-    >
-      {sections[id]}
-    </Link>
-  ));
+function SectionLinks({ current }: { current?: SectionId | "meropriyatiya" }) {
+  return (
+    <>
+      {sectionIds.map((id) => (
+        <Link
+          key={id}
+          href={"/" + id}
+          aria-current={id === current ? "page" : undefined}
+        >
+          {sections[id]}
+        </Link>
+      ))}
+      <Link
+        href="/meropriyatiya"
+        aria-current={current === "meropriyatiya" ? "page" : undefined}
+      >
+        Мероприятия
+      </Link>
+    </>
+  );
 }
-export function GuideHeader({ id }: { id?: SectionId }) {
+export function GuideHeader({ id }: { id?: SectionId | "meropriyatiya" }) {
   return (
     <header className="guide-bar">
       <div className="guide-bar-inner">
@@ -83,7 +93,12 @@ function PageHeading({ page }: { page: Page }) {
 function ObjectCard({ item }: { item: GuideItem }) {
   return (
     <article className="guide-object">
-      {item.photo && <MediaFrame mediaId={item.photo} sizes="(max-width: 620px) 92vw, 280px" />}
+      {item.photo && (
+        <MediaFrame
+          mediaId={item.photo}
+          sizes="(max-width: 620px) 92vw, 280px"
+        />
+      )}
       <h3>{item.name}</h3>
       {item.detail && (
         <dl className="guide-facts">
