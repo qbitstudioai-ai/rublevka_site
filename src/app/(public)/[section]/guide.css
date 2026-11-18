@@ -1,0 +1,364 @@
+.guest-guide {
+  --cream: #faf2df;
+  --edge: #bb9a65;
+  --walnut: #382319;
+  --forest: #263d32;
+  --ochre: #845f32;
+  --coal: #36271d;
+  --utility: system-ui, "Segoe UI", sans-serif;
+  --measure: 76rem;
+  --pad: clamp(1rem, 4vw, 4rem);
+  --texture: url("/art/book/paper-grain.webp");
+  --panel: var(--cream) var(--texture) repeat;
+  color: var(--coal);
+  background: var(--panel);
+  min-height: 100dvh;
+}
+.guest-guide a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+.guest-guide :focus-visible,
+.contents a:focus-visible,
+.book-sections a:focus-visible {
+  outline: 3px solid #4589a5;
+  outline-offset: 2px;
+}
+.guide-skip,
+.visually-hidden {
+  position: absolute;
+  clip-path: inset(100%);
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+.guide-skip:focus {
+  clip-path: none;
+  height: auto;
+  width: auto;
+  z-index: 9;
+  background: white;
+  padding: 1rem;
+}
+.guide-bar,
+.guide-footer {
+  background: var(--walnut);
+  color: var(--cream);
+  border-block: 3px double var(--edge);
+}
+.guide-bar-inner,
+.guide-body,
+.guide-footer {
+  padding-inline: var(--pad);
+}
+.guide-bar-inner,
+.guide-body {
+  max-width: var(--measure);
+  margin: auto;
+}
+.guide-bar-inner,
+.wide-nav,
+.guide-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.guide-brand {
+  font: 2.5rem/1 var(--title);
+  text-decoration: none;
+  padding-block: 0.9rem;
+  color: #f8d8a2 !important;
+}
+.wide-nav a,
+.small-nav a,
+.small-nav summary {
+  font: 500 0.9rem/1.35 var(--utility);
+  padding: 0.8rem 0.35rem;
+  text-decoration: none;
+  min-height: 44px;
+}
+.wide-nav a[aria-current],
+.small-nav a[aria-current] {
+  color: #ffdaa2;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+.wide-nav a:hover,
+.guide-footer a:hover,
+.back-to-book:hover {
+  text-decoration: underline;
+}
+.small-nav {
+  display: none;
+}
+.guide-hero {
+  display: grid;
+  grid-template-columns: 0.88fr 1.12fr;
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 5rem);
+  padding-block: clamp(2rem, 4vw, 4rem);
+  border-bottom: 1px solid var(--edge);
+}
+.guide-heading {
+  display: grid;
+  justify-items: start;
+  gap: 1.1rem;
+}
+.back-to-book {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font: 600 0.85rem/1.35 var(--utility);
+  text-decoration: none;
+}
+.guide-birds {
+  display: block;
+  width: 6.5rem;
+  height: 2.25rem;
+  background: url("/art/book/birds.webp") center/contain no-repeat;
+}
+.guest-guide h1,
+.guest-guide h2,
+.guest-guide h3 {
+  color: var(--red);
+  text-shadow: none;
+  letter-spacing: -0.035em;
+  font-family: var(--type);
+  font-weight: 500;
+  line-height: 1.03;
+}
+.guest-guide h1 {
+  font-size: clamp(3rem, 5.4vw, 5rem);
+  text-wrap: balance;
+}
+.guide-heading p,
+.guide-object p,
+.contacts-list,
+.guide-footer {
+  font: 1.02rem/1.6 var(--utility);
+}
+.guide-heading p {
+  max-width: 38ch;
+}
+.guest-guide .guide-action {
+  display: inline-flex;
+  gap: 1rem;
+  align-items: center;
+  min-height: 46px;
+  background: var(--wine);
+  color: #fff2d4;
+  text-decoration: none;
+  font: 600 0.93rem/1.3 var(--utility);
+  padding: 0.8rem 1.1rem;
+  border: 3px double var(--edge);
+}
+.guide-action:hover {
+  background: var(--red);
+}
+.guide-plate {
+  margin-top: 1.2rem;
+  position: relative;
+  padding: 0.45rem 0.45rem 0;
+  background: var(--walnut);
+  border: 1px solid var(--edge);
+  box-shadow: 0 0.55rem 1.3rem #452c192c;
+}
+.guide-plate:before {
+  content: "";
+  position: absolute;
+  width: 42%;
+  aspect-ratio: 5.4;
+  bottom: calc(100% - 0.6rem);
+  left: 29%;
+  background: var(--carving) center top/100% auto no-repeat;
+  pointer-events: none;
+}
+.guide-plate figure {
+  aspect-ratio: 1.48;
+}
+.guide-plate p {
+  font: italic 1rem/1.3 var(--type);
+  color: var(--cream);
+  padding: 0.65rem;
+  text-align: center;
+}
+.guide-details {
+  padding-block: clamp(2rem, 4.5vw, 4rem);
+}
+.guest-guide h2 {
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  margin: 0 0 1.4rem;
+}
+.guide-objects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1.5rem;
+}
+.guide-object {
+  border-top: 3px double var(--edge);
+  padding: 1rem 0;
+}
+.guide-object h3 {
+  font-size: 1.7rem;
+  margin: 0 0 0.75rem;
+}
+.guide-object p {
+  font-size: 0.95rem;
+}
+.guide-facts,
+.guide-facts dd {
+  margin: 0;
+}
+.guide-facts dd {
+  color: var(--forest);
+  font: 700 0.85rem/1.5 var(--utility);
+  margin-bottom: 0.6rem;
+}
+.contacts-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.85rem 2rem;
+}
+.contacts-list dt {
+  font-weight: 600;
+}
+.contacts-list dd {
+  margin: 0;
+}
+.guide-footer {
+  padding-block: 1.5rem;
+  padding-inline: max(
+    var(--pad),
+    calc((100vw - var(--measure)) / 2 + var(--pad))
+  );
+  font-size: 0.9rem;
+}
+.guide-footer address {
+  font-style: normal;
+}
+.guide-footer > div:last-child {
+  display: grid;
+  gap: 0.25rem;
+}
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+}
+.photo-grid figure {
+  aspect-ratio: 3/2;
+}
+.photo-grid a {
+  display: block;
+  text-decoration: none;
+}
+.photo-grid span {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 0.7rem 0;
+  font: 1rem/1.35 var(--type);
+  border-bottom: 1px solid var(--edge);
+}
+.photo-grid b {
+  color: var(--red);
+}
+.photo-viewer {
+  border: 2px solid var(--edge);
+  color: var(--cream);
+  background: var(--walnut);
+  width: min(90vw, 68rem);
+  max-height: 92dvh;
+  padding: 0.7rem;
+}
+.photo-viewer::backdrop {
+  background: #211710de;
+}
+.photo-viewer figure {
+  height: min(62dvh, 55vw);
+}
+.photo-viewer img {
+  object-fit: contain;
+}
+.photo-viewer button {
+  min-height: 44px;
+  min-width: 44px;
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--edge);
+}
+.viewer-close {
+  display: block;
+  margin: 0 0 0.5rem auto;
+  padding-inline: 1rem;
+}
+.viewer-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+}
+@media (max-width: 58rem) {
+  .wide-nav {
+    display: none;
+  }
+  .small-nav {
+    display: block;
+  }
+  .small-nav summary {
+    cursor: pointer;
+  }
+  .small-nav nav {
+    display: grid;
+    position: absolute;
+    z-index: 4;
+    right: var(--pad);
+    background: var(--walnut);
+    border: 1px solid var(--edge);
+    padding: 0.4rem 1rem;
+    min-width: 12rem;
+  }
+  .small-nav a {
+    display: block;
+  }
+}
+@media (max-width: 700px) {
+  .guide-hero {
+    grid-template-columns: 1fr;
+    gap: 1.7rem;
+    padding-top: 0.8rem;
+  }
+  .guide-heading {
+    gap: 0.7rem;
+  }
+  .guide-heading .guide-birds {
+    width: 5rem;
+    height: 1.6rem;
+  }
+  .guide-plate {
+    margin: 0;
+  }
+  .guide-plate figure {
+    aspect-ratio: 1.65;
+  }
+  .guide-objects,
+  .photo-grid {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+  .contacts-list {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+  .contacts-list dd {
+    margin-bottom: 0.6rem;
+  }
+  .guide-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

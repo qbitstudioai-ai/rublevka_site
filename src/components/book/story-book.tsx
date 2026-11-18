@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useRef, useState, useEffect } from "react";
-import type { Chapter, Entry } from "@/content/home";
-import { resolveMedia } from "@/content/media";
-import { MediaFrame } from "../ui/media-frame";
+import Link from "next/link";
+import type { Chapter } from "@/content/home";
+import { sections, sectionIds } from "@/content/sections";
+import { rememberChapter } from "../guide/book-return";
 import { BookDialog } from "./book-dialog";
 import { BookPage, roman } from "./book-page";
 import { useBook } from "./use-book";
 
 export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
-  const [panel, setPanel] = useState<Entry | "menu" | null>(null);
-  const closePanel = useCallback(() => setPanel(null), []);
+  const [panel, setPanel] = useState(false);
+  const closePanel = useCallback(() => setPanel(false), []);
   const { current, previous, book, select } = useBook(chapters, closePanel);
   const touch = useRef<{ x: number; y: number; id: number } | null>(null);
   useEffect(() => {
@@ -73,7 +74,7 @@ export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
           aria-label="Оглавление"
           aria-haspopup="dialog"
           disabled={previous !== null}
-          onClick={() => setPanel("menu")}
+          onClick={() => setPanel(true)}
         >
           <span aria-hidden="true">☰</span>
         </button>
@@ -86,42 +87,38 @@ export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
             active={i === current}
             departing={i === previous}
             select={select}
-            showEntry={setPanel}
           />
         ))}
       </div>
       {panel && (
-        <BookDialog
-          contents={panel === "menu"}
-          title={panel === "menu" ? "Оглавление" : panel.title}
-          close={closePanel}
-        >
-          {panel === "menu" ? (
-            <ol className="contents">
-              {chapters.map((c, i) => (
-                <li key={c.id}>
-                  <button
-                    aria-current={i === current ? "page" : undefined}
-                    onClick={() => {
-                      setPanel(null);
-                      select(i);
-                    }}
-                  >
-                    <span className="contents-number">{roman(i + 1)}</span>
-                    {c.label}
-                  </button>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <>
-              <MediaFrame
-                mediaId={panel.media}
-                sizes="(max-width: 600px) 80vw, 480px"
-              />
-              <p>{resolveMedia(panel.media).description}</p>
-            </>
-          )}
+        <BookDialog contents title="Оглавление" close={closePanel}>
+          <ol className="contents">
+            {chapters.map((c, i) => (
+              <li key={c.id}>
+                <button
+                  aria-current={i === current ? "page" : undefined}
+                  onClick={() => {
+                    setPanel(false);
+                    select(i);
+                  }}
+                >
+                  <span className="contents-number">{roman(i + 1)}</span>
+                  {c.label}
+                </button>
+              </li>
+            ))}
+          </ol>
+          <nav className="book-sections" aria-label="Разделы комплекса">
+            {sectionIds.map((id) => (
+              <Link
+                key={id}
+                href={"/" + id}
+                onClick={() => rememberChapter(chapters[current].id)}
+              >
+                {sections[id]}
+              </Link>
+            ))}
+          </nav>
         </BookDialog>
       )}
     </main>

@@ -1,5 +1,7 @@
 import { MediaFrame } from "../ui/media-frame";
-import type { Chapter, Entry } from "@/content/home";
+import Link from "next/link";
+import type { Chapter } from "@/content/home";
+import { rememberChapter } from "../guide/book-return";
 
 export function roman(page: number) {
   const numerals = [
@@ -24,7 +26,6 @@ type Props = {
   active: boolean;
   departing: boolean;
   select: (n: number) => void;
-  showEntry: (entry: Entry) => void;
 };
 export function BookPage({
   chapter,
@@ -33,7 +34,6 @@ export function BookPage({
   active,
   departing,
   select,
-  showEntry,
 }: Props) {
   const opening = chapter.layout === "opening";
   const Title = opening ? "h1" : "h2";
@@ -63,11 +63,14 @@ export function BookPage({
         {chapter.entries && (
           <ul className="contents">
             {chapter.entries.map((entry) => (
-              <li key={entry.media}>
-                <button onClick={() => showEntry(entry)}>
+              <li key={entry.section}>
+                <Link
+                  href={"/" + entry.section}
+                  onClick={() => rememberChapter(chapter.id)}
+                >
                   {entry.title}
                   <span aria-hidden="true">→</span>
-                </button>
+                </Link>
               </li>
             ))}
           </ul>

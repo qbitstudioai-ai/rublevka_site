@@ -1,6 +1,7 @@
 import type { MediaId } from "./media";
+import type { SectionId } from "./sections";
 
-export type Entry = { title: string; media: MediaId };
+export type Entry = { title: string; section: SectionId };
 export type Chapter = {
   id: string;
   label: string;
@@ -26,10 +27,10 @@ export const chapters: readonly Chapter[] = [
     title: "Место, где вас ждут",
     photo: "gazebo-oaks",
     entries: [
-      { title: "Домики", media: "house-oaks" },
-      { title: "Беседки", media: "gazebo-oaks" },
-      { title: "Банкетные залы", media: "banquet-hall" },
-      { title: "Баня", media: "bath-complex" },
+      { title: "Домики", section: "prozhivanie" },
+      { title: "Беседки", section: "besedki" },
+      { title: "Банкетные залы", section: "banketnye-zaly" },
+      { title: "Баня", section: "banya" },
     ],
   },
   {

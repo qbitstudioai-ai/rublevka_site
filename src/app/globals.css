@@ -284,7 +284,7 @@ h2 {
   width: 86%;
   margin: 1cqh auto;
 }
-.contents button {
+.contents :is(button, a) {
   width: 100%;
   min-height: var(--tap);
   display: flex;
@@ -295,7 +295,10 @@ h2 {
   color: var(--red);
   font-size: clamp(1.2rem, 2cqw, 2.25rem);
 }
-.contents button:hover,
+.contents a { text-decoration: none; padding: 1px 6px; }
+.book-sections { display: flex; flex-wrap: wrap; gap: .15rem 1rem; padding-top: .75rem; }
+.book-sections a { color: var(--wine); display: inline-flex; align-items: center; min-height: var(--tap); text-underline-offset: .2em; }
+.contents :is(button, a):hover,
 .folio-nav button:hover {
   color: #34100b;
   background: #fff3d44a;
@@ -502,7 +505,7 @@ h2 {
     margin: 1cqh 0;
     flex: none;
   }
-  .contents button {
+  .contents :is(button, a) {
     font-size: clamp(1.3rem, 7cqw, 2.5rem);
     min-height: max(var(--tap), 5.1cqh);
   }
