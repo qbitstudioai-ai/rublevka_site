@@ -115,6 +115,12 @@ export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
             >
               Выбрать даты
             </Link>
+            <Link
+              href="/meropriyatiya"
+              onClick={() => rememberChapter(chapters[current].id)}
+            >
+              Мероприятия
+            </Link>
             {sectionIds.map((id) => (
               <Link
                 key={id}

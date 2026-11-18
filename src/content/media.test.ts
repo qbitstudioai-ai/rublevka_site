@@ -19,7 +19,7 @@ test("media catalog exposes unique, descriptive assets from the official site", 
     assert.ok(asset.alt.length > 12, `${asset.id} needs a useful alt text`);
     assert.ok(asset.description.length > 20, `${asset.id} needs an editorial description`);
     assert.match(asset.src, /^\/images\/rublevka\//);
-    assert.match(asset.sourceUrl, /^https:\/\/rublevka34\.com\//);
+    assert.ok(["https://rublevka34.com", "https://meropriyatiya.allqbit.ru"].includes(new URL(asset.sourceUrl).origin));
     assert.ok(asset.width > 0);
     assert.ok(asset.height > 0);
 
