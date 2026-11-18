@@ -1,3 +1,4 @@
+import { roomLabels, type Room } from "./stay-request";
 import type { MediaId } from "./media";
 import type { SectionId } from "./sections";
 
@@ -14,7 +15,13 @@ export const reception = {
 };
 export const mapHref = `https://yandex.ru/maps/?pt=${reception.longitude},${reception.latitude}&z=16&l=map`;
 
-export type GuideItem = { name: string; description: string; detail?: string };
+export type GuideItem = {
+  name: string;
+  description: string;
+  detail?: string;
+  room?: Room;
+  photo?: MediaId;
+};
 export type GuidePage = {
   heading: string;
   title: string;
@@ -41,26 +48,34 @@ export const guide: Record<SectionId, GuidePage> = {
     section: "Где остановиться",
     items: [
       {
-        name: "Номер в срубе",
+        room: "room",
+        photo: "house-oaks",
+        name: roomLabels.room,
         detail: "2 гостя",
         description:
           "В деревянном корпусе четыре номера. В каждом есть двуспальная кровать, кухонный уголок и душ.",
       },
       {
-        name: "Отдельный коттедж",
+        room: "cottage",
+        photo: "cottage",
+        name: roomLabels.cottage,
         detail: "2 гостя",
         description:
           "Спальня и собственная кухня. Возле дома можно собраться в беседке у мангала.",
       },
       {
-        name: "Дом с двумя спальнями",
+        room: "bedrooms",
+        photo: "bedrooms",
+        name: roomLabels.bedrooms,
         detail: "4 гостя",
         description:
           "В обеих спальнях двуспальные кровати. За общим столом на кухне поместится вся семья.",
       },
       {
-        name: "Семейный дом",
-        detail: "Дома № 7 и 8",
+        room: "family",
+        photo: "family",
+        name: roomLabels.family,
+        detail: "6 гостей · Дома № 7 и 8",
         description:
           "Две спальни и балкон наверху, кухня и гостиная на первом этаже.",
       },

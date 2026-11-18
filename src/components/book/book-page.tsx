@@ -75,13 +75,18 @@ export function BookPage({
             ))}
           </ul>
         )}
-        {!chapter.entries && (
-          <button
-            className="seal"
-            onClick={() => select(index + 1 < count ? index + 1 : 0)}
+        {opening && (
+          <Link
+            className="seal book-dates"
+            href="/bronirovanie"
+            onClick={() => rememberChapter(chapter.id)}
           >
-            {index + 1 < count ? "Листать дальше" : "К началу"}{" "}
-            <span aria-hidden="true">{index + 1 < count ? "→" : "↶"}</span>
+            Выбрать даты
+          </Link>
+        )}
+        {chapter.layout === "closing" && (
+          <button className="seal" onClick={() => select(0)}>
+            К началу <span aria-hidden="true">↶</span>
           </button>
         )}
         <nav className="folio-nav" aria-label="Страницы книги">
@@ -96,6 +101,11 @@ export function BookPage({
           <span aria-label={`Глава ${index + 1} из ${count}`}>
             {roman(index + 1)} / {roman(count)}
           </span>
+          {opening && (
+            <button className="turn-next" onClick={() => select(index + 1)}>
+              Листать дальше →
+            </button>
+          )}
           {index > 0 && index + 1 < count && (
             <button
               onClick={() => select(index + 1)}

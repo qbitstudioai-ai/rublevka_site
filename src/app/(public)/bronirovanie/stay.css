@@ -1,0 +1,89 @@
+.stay-main {
+  padding-block: 1.2rem 3rem;
+}
+.stay-main h1 {
+  margin: 0.6rem 0 1.5rem;
+}
+.stay-layout {
+  display: grid;
+  grid-template-columns: 1.14fr 1fr;
+  gap: clamp(1rem, 4vw, 4rem);
+  align-items: start;
+}
+.stay-form,
+.stay-aside {
+  border: 1px solid var(--edge);
+  background: #fff8e9;
+}
+.stay-form,
+.stay-aside > div {
+  padding: clamp(1rem, 3vw, 2rem);
+}
+.stay-main h2 {
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+}
+.stay-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.3rem 1rem;
+  margin-bottom: 1.5rem;
+}
+.stay-fields label {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  font: 600 0.9rem/1.4 var(--utility);
+  min-width: 0;
+}
+.stay-fields label:last-child {
+  grid-column: 1/-1;
+}
+.stay-fields input,
+.stay-fields select {
+  min-width: 0;
+  width: 100%;
+  min-height: 46px;
+  background: white;
+  color: var(--ink);
+  border: 1px solid var(--edge);
+  padding: 0.45rem;
+  font: 1rem var(--utility);
+}
+.stay-fields small {
+  color: var(--red);
+}
+.stay-aside figure {
+  height: clamp(8rem, 14vw, 12rem);
+}
+.stay-aside p {
+  margin: 0 0 1rem;
+  font: 1rem/1.55 var(--utility);
+}
+.stay-result {
+  white-space: pre-line;
+}
+.stay-aside a,
+.stay-aside button {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 1rem;
+  min-height: 44px;
+  color: var(--wine);
+}
+.stay-aside button {
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  padding: 0;
+}
+.stay-aside span {
+  display: block;
+}
+@media (max-width: 700px) {
+  .stay-layout {
+    grid-template-columns: 1fr;
+  }
+  .stay-fields {
+    gap: 1rem 0.6rem;
+  }
+}

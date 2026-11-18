@@ -109,6 +109,12 @@ export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
             ))}
           </ol>
           <nav className="book-sections" aria-label="Разделы комплекса">
+            <Link
+              href="/bronirovanie"
+              onClick={() => rememberChapter(chapters[current].id)}
+            >
+              Выбрать даты
+            </Link>
             {sectionIds.map((id) => (
               <Link
                 key={id}
