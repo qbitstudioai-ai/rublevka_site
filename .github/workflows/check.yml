@@ -21,7 +21,11 @@ jobs:
             events-original/package-lock.json
       - run: npm ci
       - run: npm run check
-      - run: npm ci --prefix events-original --ignore-scripts
+      - name: Install original app dependencies
+        working-directory: events-original
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
       - name: Build original events application
         shell: bash
         run: |
