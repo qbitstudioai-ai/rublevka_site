@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GuideHeader } from "@/components/guide/guide-page";
+import { GuideFooter, GuideHeader } from "@/components/guide/guide-page";
 import { StayForm } from "@/components/booking/stay-form";
 import {
   publicContent,
@@ -28,7 +28,7 @@ export default async function Booking() {
     publicContent("book"),
     publicContent("prozhivanie"),
   ]);
-  const { tel, email } = contactLinks(contacts);
+  const contact = contactLinks(contacts);
   const catalog = catalogFor(media.items);
   const labels: Record<Room, string> = { ...roomLabels };
   for (const item of lodging.items) {
@@ -44,7 +44,7 @@ export default async function Booking() {
         <h1>Выбрать даты</h1>
         <StayForm
           mode={configuredMode(process.env.BOOKING_PROVIDER)}
-          contact={{ tel, email }}
+          contact={{ tel: contact.tel, email: contact.email }}
           roomLabels={labels}
           photo={
             catalog["house-oaks"] ??
@@ -52,6 +52,7 @@ export default async function Booking() {
           }
         />
       </main>
+      <GuideFooter contact={contact} />
     </div>
   );
 }

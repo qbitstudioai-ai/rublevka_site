@@ -179,17 +179,20 @@ function ContactDetails({ contact }: { contact: Contact }) {
     </dl>
   );
 }
-function GuideFooter({ contact }: { contact: Contact }) {
+export function GuideFooter({ contact }: { contact: Contact }) {
   return (
     <footer className="guide-footer">
       <div>
         <BookReturn />
         <address>{contact.address}</address>
       </div>
-      <div>
+      <div className="guide-footer-contacts">
         <a href={contact.tel}>{contact.phone}</a>
         <a href={`mailto:${contact.email}`}>{contact.email}</a>
       </div>
+      <Link className="guide-staff-link" href="/admin/site/login">
+        Вход для сотрудников
+      </Link>
     </footer>
   );
 }
