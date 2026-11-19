@@ -37,7 +37,7 @@ export default function MapPage() {
       <main className="territory-frame" id="territory-content">
         <header className="territory-intro">
           <h1>{title}</h1>
-          <p>Выберите объект на карте или найдите его по категории.</p>
+          <p>Приблизьте карту для точного выбора или откройте список объектов под ней.</p>
         </header>
         <TerritoryMap objects={territoryObjects}>
           <MapArt boundary={territoryBoundary} />

@@ -103,6 +103,16 @@ export function useMapView(svgRef: RefObject<SVGSVGElement | null>) {
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) pointerEnd(event);
   }
 
+  function reveal([x, y]: Point) {
+    const view = current.current;
+    const margin = 22;
+    const safeX = Math.min(view.x + view.width - margin, Math.max(view.x + margin, x));
+    const safeY = Math.min(view.y + view.height - margin, Math.max(view.y + margin, y));
+    if (safeX !== x || safeY !== y) {
+      update(transformView(view, 1, [0, 0], [x - safeX, y - safeY]));
+    }
+  }
+
   return {
     zoom,
     reset: () => update(fullView),
@@ -114,6 +124,7 @@ export function useMapView(svgRef: RefObject<SVGSVGElement | null>) {
     pointerMove,
     pointerEnd,
     pointerLeave,
+    reveal,
     wasDragged: () => dragged.current,
   };
 }

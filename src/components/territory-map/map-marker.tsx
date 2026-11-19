@@ -16,11 +16,13 @@ export function MapMarker({
   visible,
   selected,
   select,
+  reveal,
 }: {
   object: TerritoryObject;
   visible: boolean;
   selected: boolean;
   select: (trigger: SVGGElement) => void;
+  reveal: () => void;
 }) {
   const [x, y] = object.marker;
   const label = labels[object.number];
@@ -52,6 +54,9 @@ export function MapMarker({
       aria-label={`№${object.number} — ${object.name}`}
       onClick={onClick}
       onKeyDown={onKeyDown}
+      onFocus={(event) => {
+        if (event.currentTarget.matches(":focus-visible")) reveal();
+      }}
     >
       {building ? <polygon className="map-wall" points={contour} transform="translate(2 5)" /> : null}
       <polygon className="map-footprint" points={contour} />

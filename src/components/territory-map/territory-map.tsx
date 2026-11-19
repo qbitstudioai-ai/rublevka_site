@@ -36,7 +36,14 @@ export function TerritoryMap({
 
   function close(restoreFocus: boolean) {
     setSelected(null);
-    if (restoreFocus) trigger.current?.focus({ preventScroll: true });
+    if (restoreFocus) {
+      if (trigger.current instanceof HTMLElement) {
+        trigger.current.scrollIntoView({ block: "nearest" });
+      } else if (selected) {
+        map.reveal(selected.marker);
+      }
+      trigger.current?.focus({ preventScroll: true });
+    }
     trigger.current = null;
   }
 
@@ -107,6 +114,7 @@ export function TerritoryMap({
               visible={matchesFilter(object, filter)}
               selected={selected?.id === object.id}
               select={(element) => select(object, element)}
+              reveal={() => map.reveal(object.marker)}
             />
           ))}
         </svg>
