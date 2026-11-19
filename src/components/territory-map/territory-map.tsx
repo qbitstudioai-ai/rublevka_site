@@ -12,14 +12,17 @@ const filters = Object.keys(categories) as MapFilter[];
 export function TerritoryMap({
   objects,
   children,
+  ornament,
 }: {
   objects: readonly TerritoryObject[];
   children: ReactNode;
+  ornament: ReactNode;
 }) {
   const [filter, setFilter] = useState<MapFilter>("all");
   const [selected, setSelected] = useState<TerritoryObject | null>(null);
   const trigger = useRef<HTMLElement | SVGElement | null>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
+  const directory = useRef<HTMLDetailsElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const map = useMapView(svg);
 
@@ -52,6 +55,14 @@ export function TerritoryMap({
     if (selected && !matchesFilter(selected, next)) close(false);
   }
 
+  function showDirectory() {
+    const list = directory.current;
+    if (!list) return;
+    list.open = true;
+    list.scrollIntoView({ block: "start" });
+    list.querySelector("summary")?.focus({ preventScroll: true });
+  }
+
   function onKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (event.key === "Escape" && selected) {
       event.preventDefault();
@@ -74,21 +85,32 @@ export function TerritoryMap({
 
   return (
     <section className="territory-workspace" aria-label="Объекты на карте" onKeyDown={onKeyDown}>
-      <div className="territory-filters" role="group" aria-label="Категории карты">
-        {filters.map((id) => (
-          <button
-            key={id}
-            type="button"
-            data-filter={id}
-            aria-pressed={id === filter}
-            onClick={() => changeFilter(id)}
-          >
-            {id !== "all" ? <span className="map-swatch" aria-hidden="true" /> : null}
-            {categories[id]}
-          </button>
-        ))}
+      <div className="territory-toolbar">
+        <div className="territory-filters" role="group" aria-label="Категории карты">
+          {filters.map((id) => (
+            <button
+              key={id}
+              type="button"
+              data-filter={id}
+              aria-pressed={id === filter}
+              onClick={() => changeFilter(id)}
+            >
+              {id !== "all" ? <span className="map-swatch" aria-hidden="true" /> : null}
+              {categories[id]}
+            </button>
+          ))}
+        </div>
+        <button type="button" className="territory-directory-link" aria-controls="territory-directory" onClick={showDirectory}>
+          К списку объектов <span aria-hidden="true">↓</span>
+        </button>
       </div>
-      <div className="territory-stage">
+      <div className="territory-stage" data-map-filter={filter}>
+        <div className="territory-cartouche" aria-hidden="true">
+          <span className="territory-cartouche-ornament" />
+          <span>Дубовая<br />роща</span>
+          <span className="territory-cartouche-rule" />
+        </div>
+        {ornament}
         <svg
           ref={svg}
           className="territory-svg"
@@ -118,11 +140,13 @@ export function TerritoryMap({
             />
           ))}
         </svg>
-        <p className="territory-note">Схема территории · масштаб условный</p>
-        <div className="territory-zoom" role="group" aria-label="Масштаб карты">
-          <button type="button" onClick={() => map.zoom(1.35)} aria-label="Приблизить">＋</button>
-          <button type="button" onClick={() => map.zoom(1 / 1.35)} aria-label="Отдалить">−</button>
-          <button type="button" onClick={map.reset} aria-label="Показать всю карту">⤢</button>
+        <div className="territory-stage-tools">
+          <p className="territory-note">Схема территории · масштаб условный</p>
+          <div className="territory-zoom" role="group" aria-label="Масштаб карты">
+            <button type="button" onClick={() => map.zoom(1.35)} aria-label="Приблизить">＋</button>
+            <button type="button" onClick={() => map.zoom(1 / 1.35)} aria-label="Отдалить">−</button>
+            <button type="button" onClick={map.reset} aria-label="Показать всю карту">⤢</button>
+          </div>
         </div>
         {selected ? (
           <section key={selected.id} className="territory-card" aria-labelledby="territory-card-title">
@@ -133,7 +157,9 @@ export function TerritoryMap({
               aria-label="Закрыть карточку"
               onClick={() => close(true)}
             >×</button>
-            <p className="territory-card-meta">Объект №{selected.number} · {selected.type}</p>
+            <p className="territory-card-meta">
+              <span className="territory-card-number">№{selected.number}</span> {selected.type}
+            </p>
             <h2 id="territory-card-title">{selected.name}</h2>
             <p className="territory-card-copy">{selected.description}</p>
             {selected.capacity ? <p className="territory-capacity">До {selected.capacity} гостей</p> : null}
@@ -148,7 +174,7 @@ export function TerritoryMap({
       <p className="territory-keys" id="territory-keys">
         Используйте кнопки масштаба или клавиши +, −, 0. Стрелки перемещают приближённую карту.
       </p>
-      <details className="territory-directory">
+      <details className="territory-directory" id="territory-directory" ref={directory}>
         <summary>Список объектов</summary>
         <ul>
           {objects.filter((object) => matchesFilter(object, filter)).map((object) => (

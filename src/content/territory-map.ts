@@ -31,7 +31,7 @@ const steppedBuildings: Partial<Record<number, readonly Point[]>> = {
 };
 const rounded = (value: number) => Math.round(value * 100) / 100;
 
-function geometry(object: Input): Pick<TerritoryObject, "shape" | "roof"> {
+function footprint(object: Input): readonly Point[] {
   const stepped = steppedBuildings[object.number];
   const [a, b, c, d] = object.footprint;
   const angle = stepped ? -Math.PI / 15 :
@@ -43,9 +43,9 @@ function geometry(object: Input): Pick<TerritoryObject, "shape" | "roof"> {
     rounded(x * sin + y * cos),
   ];
 
-  if (stepped) return { shape: stepped.map(world), roof: null };
+  if (stepped) return stepped.map(world);
   if (object.category === "activity") {
-    return { shape: object.footprint.map(asPoint), roof: null };
+    return object.footprint.map(asPoint);
   }
 
   const [p, q, r, s] = object.footprint.map(([x, y]) => [
@@ -56,13 +56,8 @@ function geometry(object: Input): Pick<TerritoryObject, "shape" | "roof"> {
   const right = (q[0] + r[0]) / 2 - 1;
   const top = (p[1] + q[1]) / 2 + 1;
   const bottom = (r[1] + s[1]) / 2 - 1;
-  const middle = (left + right) / 2;
   const corners: Point[] = [[left, top], [right, top], [right, bottom], [left, bottom]];
-  const shade: Point[] = [[left, top], [middle, top + 5], [middle, bottom - 5], [left, bottom]];
-  return {
-    shape: corners.map(world),
-    roof: object.category === "pool" ? null : shade.map(world),
-  };
+  return corners.map(world);
 }
 
 const descriptions: Partial<Record<number, string>> = {
@@ -96,7 +91,7 @@ function destination(path: string | null): MapDestination | null {
 export const territoryObjects: readonly TerritoryObject[] = source.objects.map((object) => {
   const [type, filter] = kinds[object.category as keyof typeof kinds];
   return {
-    ...geometry(object),
+    shape: footprint(object),
     id: object.id,
     number: object.number,
     name: object.name,

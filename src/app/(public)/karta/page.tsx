@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { GuideHeader } from "@/components/guide/guide-page";
-import { MapArt } from "@/components/territory-map/map-art";
+import { AtlasOakSprig, MapArt } from "@/components/territory-map/map-art";
 import { TerritoryMap } from "@/components/territory-map/territory-map";
 import { territoryBoundary, territoryObjects } from "@/content/territory-map";
 import { getSiteUrl, isIndexingEnabled } from "@/server/site-url";
@@ -37,10 +37,10 @@ export default function MapPage() {
       <main className="territory-frame" id="territory-content">
         <header className="territory-intro">
           <h1>{title}</h1>
-          <p>Приблизьте карту для точного выбора или откройте список объектов под ней.</p>
+          <p>Выберите объект на карте или найдите его в списке.</p>
         </header>
-        <TerritoryMap objects={territoryObjects}>
-          <MapArt boundary={territoryBoundary} />
+        <TerritoryMap objects={territoryObjects} ornament={<AtlasOakSprig />}>
+          <MapArt boundary={territoryBoundary} objects={territoryObjects} />
         </TerritoryMap>
       </main>
       <script
