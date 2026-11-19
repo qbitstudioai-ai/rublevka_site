@@ -26,7 +26,6 @@ export function MapMarker({
 }) {
   const [x, y] = object.marker;
   const label = labels[object.number];
-  const building = object.category !== "activity" && object.category !== "pool";
   const contour = points(object.shape);
 
   function onKeyDown(event: KeyboardEvent<SVGGElement>) {
@@ -58,17 +57,7 @@ export function MapMarker({
         if (event.currentTarget.matches(":focus-visible")) reveal();
       }}
     >
-      {building ? <polygon className="map-wall" points={contour} transform="translate(2 5)" /> : null}
       <polygon className="map-footprint" points={contour} />
-      {object.roof ? (
-        <>
-          <polygon className="map-roof-shade" points={points(object.roof)} />
-          <polyline className="map-ridge" points={points(object.roof.slice(1, 3))} />
-        </>
-      ) : null}
-      {object.category === "pool" ? (
-        <path className="map-ripples" d="M-8-12q-5 5 0 10t0 10M4-12q-5 5 0 10t0 10M16-12q-5 5 0 10t0 10" transform={`translate(${x} ${y})`} />
-      ) : null}
       {object.entrances.map(({ tip, angle }) => (
         <path key={tip.join(",")} className="map-entrance" d="M-4-13L0-7L4-13M0-16V-7" transform={`translate(${tip.join(" ")}) rotate(${angle})`}>
           <title>Отмеченный вход</title>

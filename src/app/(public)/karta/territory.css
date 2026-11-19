@@ -1,110 +1,137 @@
 .territory-page {
-  --map-paper: #f7f0df;
-  --map-ink: #39291e;
-  --map-soft: #67594a;
-  --map-accent: #772c20;
-  --map-accent-ink: #fff6e3;
-  --map-line: #c9b58f;
-  --map-forest: #283e34;
-  --map-land: #738262;
-  --map-land-light: #a4a17a;
-  --map-path: #d5bf92;
-  --map-oak: #466243;
-  --map-oak-edge: #344e38;
-  --map-oak-light: #8a965f;
-  --map-oak-vein: #bbbd86;
-  --map-wall: #6e4030;
-  --map-wall-edge: #533e2c;
-  --map-water: #4e9699;
-  --map-water-light: #d4eee0;
-  --map-clearing: #a2a776;
-  --map-lodging: #b66b42;
-  --map-gazebo: #728658;
-  --map-banquet: #a04f39;
-  --map-leisure: #498b8f;
-  --map-infrastructure: #c3a876;
-  --map-pin: #f8edce;
-  --map-highlight: #fff1a9;
-  --map-shadow: 0 0.4rem 1.8rem #24180e36;
+  --map-paper: #f8efd9;
+  --map-sheet: #eee0bc;
+  --map-ink: #3d2c1f;
+  --map-soft: #655342;
+  --map-accent: var(--wine);
+  --map-light: #fff4d5;
+  --map-line: #c3a777;
+  --map-gilt: #b8884c;
+  --map-forest: #3d5434;
+  --map-land: #8f9a64;
+  --map-land-light: #bbb681;
+  --map-land-middle: #abb178;
+  --map-land-edge: #6c7348;
+  --map-path: #dcc68d;
+  --map-lane: #d3be84;
+  --map-oak-edge: #324a36;
+  --map-leaf-sun: #a3a957;
+  --map-leaf-olive: #6d8545;
+  --map-leaf-shade: #385937;
+  --map-oak-bark: #674b32;
+  --map-oak-vein: #e2d39a;
+  --map-timber: #a36b3e;
+  --map-timber-shade: #67452f;
+  --map-roof: #a35835;
+  --map-roof-shade: #774129;
+  --map-water: #398482;
+  --map-water-light: #b0d6bf;
+  --map-clearing: #b5ae73;
+  --map-lodging: #a45a35;
+  --map-gazebo: #5a7248;
+  --map-banquet: #883d2e;
+  --map-leisure: #316f72;
+  --map-infrastructure: #8e6c3b;
+  --map-outline: #533a2b;
+  --map-highlight: #fff0a1;
+  --map-shadow: 0 0.65rem 1.7rem #46361d34;
   --map-space-1: 0.375rem;
   --map-space-2: 0.625rem;
   --map-space-3: 1rem;
   --map-space-4: 1.5rem;
   --map-space-5: 2rem;
-  --map-radius: 0.5rem;
   --map-caption: 0.8125rem;
   --map-display: var(--type);
   --map-ui: var(--utility);
-  background: var(--map-paper);
+  --map-texture: url("/art/book/paper-grain.webp");
+  background: var(--map-paper) var(--map-texture);
   color: var(--map-ink);
 }
 
 .territory-frame {
-  max-width: 80rem;
+  max-width: 87rem;
   margin-inline: auto;
-  padding: var(--map-space-4) clamp(0.75rem, 3vw, 2rem) var(--map-space-5);
+  padding: var(--map-space-4) clamp(0.75rem, 4vw, 3.5rem) var(--map-space-5);
   scroll-margin-top: 5rem;
 }
-
 .territory-intro { margin-bottom: var(--map-space-3); }
 .territory-intro h1 {
-  font: 400 clamp(2.1rem, 5vw, 3.6rem)/1.04 var(--map-display);
+  font: 400 clamp(2.1rem, 5vw, 3.55rem)/1.03 var(--map-display);
   letter-spacing: -0.035em;
-  color: var(--map-ink);
-  text-shadow: none;
+  color: var(--map-accent);
+  text-shadow: var(--ink-shadow);
 }
 .territory-intro p {
   font: 0.9375rem/1.5 var(--map-ui);
   color: var(--map-soft);
   margin-top: var(--map-space-2);
 }
-
+.territory-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--map-space-1) var(--map-space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--map-space-2);
+}
 .territory-filters {
   display: flex;
   flex-wrap: wrap;
   gap: var(--map-space-1);
-  margin-bottom: var(--map-space-3);
 }
-.territory-filters button {
+.territory-filters button, .territory-directory-link {
   display: inline-flex;
   align-items: center;
   gap: var(--map-space-1);
   min-height: var(--tap);
   padding: var(--map-space-1) var(--map-space-2);
   border: 1px solid var(--map-line);
-  border-radius: 2rem;
-  background: var(--map-paper);
+  border-radius: 0.3rem;
+  background: transparent;
   font: var(--map-caption)/1.25 var(--map-ui);
 }
-.territory-filters button:hover { border-color: var(--map-accent); }
+.territory-filters button:hover, .territory-directory-link:hover { border-color: var(--map-accent); }
 .territory-filters button[aria-pressed="true"] {
   background: var(--map-accent);
   border-color: var(--map-accent);
-  color: var(--map-accent-ink);
+  color: var(--map-light);
 }
+.territory-directory-link { color: var(--map-accent); font-weight: 650; }
+.territory-directory-link span { font-size: 1rem; }
 .map-swatch {
   background: var(--map-category);
-  border: 1px solid var(--map-wall-edge);
   border-radius: 50%;
-  width: 0.65rem;
-  height: 0.65rem;
+  width: 0.58rem;
+  height: 0.58rem;
 }
-[data-filter="lodging"] { --map-category: var(--map-lodging); }
-[data-filter="gazebo"] { --map-category: var(--map-gazebo); }
-[data-filter="banquet"] { --map-category: var(--map-banquet); }
-[data-filter="leisure"] { --map-category: var(--map-leisure); }
-[data-filter="infrastructure"] { --map-category: var(--map-infrastructure); }
+.territory-workspace [data-filter="lodging"] { --map-category: var(--map-lodging); }
+.territory-workspace [data-filter="gazebo"] { --map-category: var(--map-gazebo); }
+.territory-workspace [data-filter="banquet"] { --map-category: var(--map-banquet); }
+.territory-workspace [data-filter="leisure"] { --map-category: var(--map-leisure); }
+.territory-workspace [data-filter="infrastructure"] { --map-category: var(--map-infrastructure); }
 
 .territory-stage {
   position: relative;
-  height: clamp(29rem, 70svh, 46rem);
+  height: clamp(31rem, 72svh, 51rem);
   overflow: clip;
-  background: var(--map-forest);
-  border: 1px solid var(--map-line);
-  border-radius: var(--map-radius);
+  background:
+    var(--map-texture),
+    radial-gradient(ellipse at 42% 38%, var(--map-light) 20%, var(--map-sheet) 73%, var(--map-line));
+  border: 3px double var(--map-gilt);
+  border-radius: 0.4rem;
+  box-shadow: var(--map-shadow), inset 0 0 2.8rem color-mix(in srgb, var(--map-gilt) 24%, transparent);
+}
+.territory-stage::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: var(--map-space-1);
+  border: 1px solid color-mix(in srgb, var(--map-gilt) 44%, transparent);
+  pointer-events: none;
 }
 .territory-svg {
   display: block;
+  position: relative;
   width: 100%;
   height: 100%;
   cursor: grab;
@@ -114,83 +141,192 @@
 }
 .territory-svg:focus-visible { outline-offset: -4px; }
 .territory-svg[data-panning] { cursor: grabbing; }
+.territory-cartouche {
+  position: absolute;
+  z-index: 1;
+  top: var(--map-space-4);
+  left: var(--map-space-4);
+  color: var(--map-accent);
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: var(--map-space-2);
+  width: clamp(7rem, 13vw, 12rem);
+  font: italic 400 clamp(1.55rem, 2.7vw, 2.7rem)/0.97 var(--map-display);
+  pointer-events: none;
+}
+.territory-cartouche-ornament {
+  width: 4rem;
+  aspect-ratio: 2.6;
+  background: url("/art/book/birds.webp") center / contain no-repeat;
+}
+.territory-cartouche-rule {
+  width: min(75%, 8rem);
+  aspect-ratio: 12;
+  background: url("/art/book/rule.webp") center / contain no-repeat;
+}
+.territory-sprig {
+  position: absolute;
+  right: clamp(3.8rem, 6vw, 6.5rem);
+  bottom: clamp(2.4rem, 5vw, 5rem);
+  width: clamp(6rem, 11vw, 10rem);
+  color: var(--map-gilt);
+  opacity: 0.66;
+  pointer-events: none;
+}
+.territory-sprig-leaves {
+  fill: color-mix(in srgb, var(--map-gilt) 13%, transparent);
+  stroke: currentColor;
+  stroke-width: 1.1;
+}
+.territory-sprig-veins, .territory-sprig-acorns {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.territory-stage:has(.territory-svg[data-zoomed]) :is(.territory-cartouche, .territory-sprig) { display: none; }
+@media (max-width: 75rem) {
+  .territory-cartouche, .territory-sprig { display: none; }
+}
+
 .map-art { pointer-events: none; }
 .map-land-light { stop-color: var(--map-land-light); }
+.map-land-middle { stop-color: var(--map-land-middle); }
 .map-land-shade { stop-color: var(--map-land); }
-.map-boundary { fill: url(#territory-land); stroke: var(--map-path); stroke-width: 4; stroke-linejoin: round; }
+.map-sun-warm { stop-color: var(--map-light); }
+.map-leaf-sun { stop-color: var(--map-leaf-sun); }
+.map-leaf-olive { stop-color: var(--map-leaf-olive); }
+.map-leaf-shade { stop-color: var(--map-leaf-shade); }
+.map-pool-light { stop-color: var(--map-water-light); }
+.map-pool-dark { stop-color: var(--map-water); }
+.map-roof-edge { stop-color: var(--map-outline); }
+.map-boundary, .map-boundary-edge, .map-boundary-shadow { stroke-linejoin: round; }
+.map-boundary-shadow { fill: var(--map-outline); opacity: 0.17; stroke: var(--map-outline); stroke-width: 8; }
+.map-boundary-edge { fill: var(--map-land-edge); stroke: var(--map-land-edge); stroke-width: 4; }
+.map-boundary { fill: url(#territory-land); stroke: var(--map-path); stroke-width: 4; }
 #territory-grain path { fill: none; stroke: var(--map-oak-edge); opacity: 0.24; }
-.map-contours { fill: none; stroke: var(--map-path); opacity: 0.5; }
-.map-paths { fill: none; stroke: var(--map-path); stroke-linecap: round; opacity: 0.9; }
-.map-oak-shadow { fill: var(--map-forest); opacity: 0.4; }
-.map-oak-crown { fill: var(--map-oak); stroke: var(--map-oak-edge); stroke-width: 1.5; }
-.map-oak-light { fill: var(--map-oak-light); opacity: 0.48; }
-.map-oak-veins { fill: none; stroke: var(--map-oak-vein); opacity: 0.58; }
+#territory-shingles path { fill: none; stroke: var(--map-light); stroke-width: 0.43; }
+.map-contours { fill: none; stroke: var(--map-light); opacity: 0.37; }
+.map-lanes, .map-paths { fill: none; stroke-linecap: round; }
+.map-lanes { stroke: var(--map-lane); stroke-width: 5.5; opacity: 0.93; }
+.map-paths { stroke: var(--map-path); stroke-width: 16; }
+.map-path-grain { stroke: var(--map-light); stroke-width: 6; opacity: 0.45; stroke-dasharray: 1 3; }
+.map-oak-shadow { fill: var(--map-oak-edge); opacity: 0.27; }
+.map-oak-bark { fill: var(--map-oak-bark); stroke: var(--map-outline); stroke-width: 0.8; }
+.map-oak-bark-light { fill: none; stroke: var(--map-lane); opacity: 0.65; }
+.map-oak-crown { fill: url(#territory-oak-light); stroke: var(--map-oak-edge); stroke-width: 1.45; }
+.map-oak-lobes { fill: var(--map-leaf-sun); opacity: 0.44; }
+.map-oak-lobes-dark { fill: var(--map-oak-edge); opacity: 0.31; }
+.map-oak-veins { fill: none; stroke: var(--map-oak-vein); opacity: 0.58; stroke-width: 1.1; }
 .map-grove-label, .map-label {
-  fill: var(--map-accent-ink);
+  fill: var(--map-light);
   stroke: var(--map-oak-edge);
   paint-order: stroke;
   stroke-linejoin: round;
-  stroke-width: 4;
+  stroke-width: 4.5;
 }
-.map-grove-label { font: italic 21px var(--map-display); text-anchor: middle; }
-.map-label { font: 600 20px var(--map-display); }
+.map-grove-label { font: italic 22px var(--map-display); text-anchor: middle; }
+.map-label { font: 700 20px var(--map-display); }
+
+.map-relief[data-kind="gazebo"] { --map-roof: #7b8751; --map-roof-shade: #4d6042; }
+.map-relief[data-map-art="18"] { --map-roof: #c08b4e; --map-roof-shade: #9b6c42; }
+.map-relief[data-map-art="29"] { --map-roof: #b8743d; --map-roof-shade: #83502d; }
+.map-relief[data-kind="banquet"] { --map-roof: #a35b38; --map-roof-shade: #753c2a; }
+.map-relief[data-kind="utility"] { --map-roof: #897052; --map-roof-shade: #675441; }
+.territory-stage[data-map-filter="lodging"] .map-relief:not([data-art-filter="lodging"]),
+.territory-stage[data-map-filter="gazebo"] .map-relief:not([data-art-filter="gazebo"]),
+.territory-stage[data-map-filter="banquet"] .map-relief:not([data-art-filter="banquet"]),
+.territory-stage[data-map-filter="leisure"] .map-relief:not([data-art-filter="leisure"]),
+.territory-stage[data-map-filter="infrastructure"] .map-relief:not([data-art-filter="infrastructure"]) { opacity: 0.32; }
+.relief-shadow { fill: var(--map-outline); opacity: 0.23; }
+.relief-wall, .relief-gable, .relief-deck { fill: var(--map-timber); stroke: var(--map-outline); stroke-width: 1.05; }
+.relief-wall-dark { fill: var(--map-timber-shade); stroke: var(--map-outline); stroke-width: 0.9; }
+.relief-log { fill: none; stroke: var(--map-outline); stroke-width: 0.8; opacity: 0.8; }
+.relief-window { fill: var(--map-light); stroke: var(--map-outline); stroke-width: 0.95; }
+.relief-window-cross { stroke: var(--map-outline); stroke-width: 0.6; }
+.relief-roof-dark { fill: var(--map-roof-shade); stroke: var(--map-outline); stroke-width: 1.2; }
+.relief-roof { fill: var(--map-roof); stroke: var(--map-outline); stroke-width: 1.2; }
+.relief-shingles { opacity: 0.48; }
+.relief-crest, .relief-fascia, .relief-carving, .relief-lattice { fill: none; stroke-linejoin: round; }
+.relief-crest { stroke: var(--map-path); stroke-width: 1.25; }
+.relief-fascia { stroke: var(--map-outline); stroke-width: 1.45; }
+.relief-carving { stroke: var(--map-light); stroke-width: 1.05; stroke-dasharray: 1.3 1.3; }
+.relief-eaves { fill: none; stroke: var(--map-path); stroke-width: 1.25; }
+.relief-lattice { stroke: var(--map-path); stroke-width: 1.15; }
+.relief-post { fill: none; stroke: var(--map-outline); stroke-width: 2.7; }
+.relief-finial { fill: var(--map-path); stroke: var(--map-outline); stroke-width: 0.8; }
+.relief-pool-rim { fill: var(--map-path); stroke: var(--map-outline); stroke-width: 1.1; }
+.relief-water { fill: url(#territory-water); stroke: var(--map-water); stroke-width: 1.1; }
+.relief-water-glint, .relief-pool-steps { fill: none; stroke: var(--map-light); stroke-width: 1; opacity: 0.8; }
+.relief-clearing { fill: var(--map-clearing); stroke: var(--map-land-edge); stroke-width: 1.4; stroke-dasharray: 2.5 3; }
+.relief-tennis, .relief-play, .relief-fire, .relief-ceremony, .relief-mill {
+  stroke: var(--map-outline);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: var(--map-path);
+}
+.relief-tennis rect { fill: var(--map-water); }
+.relief-tennis rect + path { stroke: var(--map-light); stroke-width: 1; }
+.relief-play, .relief-mill { fill: none; }
+.relief-fire path:first-of-type { fill: var(--map-roof); }
+.relief-ceremony path:first-child { fill: none; }
 
 .map-marker { cursor: pointer; }
 .map-marker:focus-visible { outline: none; }
 .map-marker > :not(.map-hit, .map-footprint, .map-pin) { pointer-events: none; }
-.map-wall, .map-footprint {
-  stroke: var(--map-wall-edge);
-  stroke-width: 2;
+.map-footprint { fill: transparent; stroke: transparent; stroke-linejoin: round; }
+.map-entrance {
+  stroke: var(--map-light);
+  stroke-width: 2.8;
+  fill: none;
+  stroke-linecap: round;
   stroke-linejoin: round;
+  filter: drop-shadow(0 1px 1px var(--map-outline));
 }
-.map-wall { fill: var(--map-wall); }
-.map-footprint { fill: var(--map-category); }
-.map-roof-shade { fill: var(--map-wall); opacity: 0.24; }
-.map-ridge { fill: none; stroke: var(--map-accent-ink); opacity: 0.6; stroke-width: 1.5; }
-[data-category="activity"] .map-footprint { fill: var(--map-clearing); stroke-dasharray: 3 3; }
-[data-category="pool"] .map-footprint { fill: var(--map-water); stroke: var(--map-accent-ink); stroke-width: 3; }
-.map-ripples { fill: none; stroke: var(--map-water-light); stroke-width: 1.6; opacity: 0.8; }
-.map-entrance { stroke: var(--map-accent-ink); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 .map-hit { fill: transparent; }
-.map-pin { fill: var(--map-pin); stroke: var(--map-wall-edge); stroke-width: 1.5; }
+.map-pin { fill: var(--map-light); stroke: var(--map-category); stroke-width: 2.25; }
 .map-number {
   fill: var(--map-ink);
   text-anchor: middle;
   dominant-baseline: middle;
-  font: 700 16px var(--map-ui);
+  font: 750 16px var(--map-ui);
 }
-.map-marker[data-muted] { opacity: 0.24; }
 .map-marker[data-muted] * { pointer-events: none; }
-.map-marker[data-muted] :is(.map-pin, .map-number, .map-label) { visibility: hidden; }
+.map-marker[data-muted] :is(.map-pin, .map-number, .map-label, .map-entrance) { visibility: hidden; }
 .map-marker:is(:focus-visible, [aria-pressed="true"]) .map-footprint { stroke: var(--map-highlight); stroke-width: 4; }
-.map-marker:is(:focus-visible, [aria-pressed="true"]) .map-pin { fill: var(--map-accent); stroke: var(--map-highlight); stroke-width: 2; }
-.map-marker:is(:focus-visible, [aria-pressed="true"]) .map-number { fill: var(--map-accent-ink); }
+.map-marker:is(:focus-visible, [aria-pressed="true"]) .map-pin { fill: var(--map-accent); stroke: var(--map-highlight); stroke-width: 3; }
+.map-marker:is(:focus-visible, [aria-pressed="true"]) .map-number { fill: var(--map-light); }
 @media (hover: hover) {
   .map-marker:not([data-muted]):hover .map-footprint { stroke: var(--map-highlight); stroke-width: 4; }
-  .map-marker:not([data-muted]):hover .map-pin { fill: var(--map-accent); stroke: var(--map-highlight); stroke-width: 2; }
-  .map-marker:not([data-muted]):hover .map-number { fill: var(--map-accent-ink); }
+  .map-marker:not([data-muted]):hover .map-pin { fill: var(--map-accent); stroke: var(--map-highlight); stroke-width: 3; }
+  .map-marker:not([data-muted]):hover .map-number { fill: var(--map-light); }
 }
 
-.territory-note {
+.territory-stage-tools {
   position: absolute;
-  left: var(--map-space-2);
-  bottom: var(--map-space-2);
-  border-radius: 0.25rem;
-  padding: var(--map-space-1);
-  color: var(--map-accent-ink);
-  background: color-mix(in srgb, var(--map-forest) 90%, transparent);
-  font: 0.6875rem var(--map-ui);
+  inset: auto var(--map-space-3) var(--map-space-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--map-space-2);
   pointer-events: none;
 }
-.territory-zoom {
-  position: absolute;
-  display: grid;
-  right: var(--map-space-3);
-  bottom: var(--map-space-3);
+.territory-note {
+  color: var(--map-soft);
+  background: color-mix(in srgb, var(--map-light) 92%, transparent);
   border: 1px solid var(--map-line);
-  border-radius: var(--map-radius);
+  padding: var(--map-space-1) var(--map-space-2);
+  font: 0.6875rem/1.25 var(--map-ui);
+}
+.territory-zoom {
+  display: grid;
+  border: 1px solid var(--map-line);
+  border-radius: 0.3rem;
   background: var(--map-paper);
   box-shadow: var(--map-shadow);
+  pointer-events: auto;
 }
 .territory-zoom button, .territory-close {
   width: var(--tap);
@@ -204,28 +340,50 @@
 
 .territory-card {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   inset: var(--map-space-3) var(--map-space-3) auto auto;
-  width: min(19rem, 100% - var(--map-space-5));
+  width: min(19.75rem, 100% - var(--map-space-5));
   max-height: calc(100% - var(--map-space-5));
   overflow: auto;
-  padding: var(--map-space-3) var(--map-space-4) var(--map-space-4);
-  border: 1px solid var(--map-line);
-  border-radius: var(--map-radius);
-  background: var(--map-paper);
+  padding: var(--map-space-4);
+  border: 3px double var(--map-gilt);
+  border-radius: 0.35rem;
+  background: var(--map-texture), linear-gradient(145deg, var(--map-light), var(--map-paper) 67%, var(--map-sheet));
   box-shadow: var(--map-shadow);
+}
+.territory-card::after {
+  content: "";
+  display: block;
+  width: 4.5rem;
+  height: 0.6rem;
+  margin-top: var(--map-space-3);
+  background: url("/art/book/rule.webp") center / contain no-repeat;
 }
 .territory-close { position: absolute; top: var(--map-space-1); right: var(--map-space-1); }
 .territory-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--map-space-2);
   color: var(--map-accent);
   font: 650 var(--map-caption)/1.25 var(--map-ui);
   padding-right: var(--tap);
   margin-bottom: var(--map-space-2);
 }
+.territory-card-number {
+  color: var(--map-light);
+  background: var(--map-accent);
+  border: 3px double var(--map-gilt);
+  border-radius: 50% 50% 44% 44%;
+  flex: none;
+  min-width: 2.5rem;
+  padding: var(--map-space-1);
+  text-align: center;
+  font: 700 1rem/1 var(--map-display);
+}
 .territory-card h2 {
-  color: var(--map-ink);
-  text-shadow: none;
-  font: 400 clamp(1.3rem, 3vw, 1.8rem)/1.13 var(--map-display);
+  color: var(--map-accent);
+  text-shadow: var(--ink-shadow);
+  font: 400 clamp(1.4rem, 3vw, 1.95rem)/1.09 var(--map-display);
   margin-bottom: var(--map-space-2);
 }
 .territory-card-copy, .territory-capacity {
@@ -237,21 +395,19 @@
 .territory-page .territory-cta {
   display: inline-flex;
   align-items: center;
-  gap: var(--map-space-1);
+  gap: var(--map-space-2);
   min-height: var(--tap);
-  border-radius: 0.3rem;
+  border: 3px double var(--map-gilt);
+  border-radius: 0.24rem;
   padding-inline: var(--map-space-3);
   background: var(--map-accent);
-  color: var(--map-accent-ink);
+  color: var(--map-light);
   text-decoration: none;
-  font: 600 var(--map-caption) var(--map-ui);
+  font: 650 var(--map-caption) var(--map-ui);
 }
-.territory-cta:hover { text-decoration: underline; }
-.territory-keys {
-  color: var(--map-soft);
-  margin-block: var(--map-space-2);
-  font: var(--map-caption)/1.4 var(--map-ui);
-}
+.territory-page .territory-cta:hover { text-decoration: underline; }
+.territory-keys { color: var(--map-soft); margin-block: var(--map-space-2); font: var(--map-caption)/1.4 var(--map-ui); }
+.territory-directory { scroll-margin-top: 5.5rem; }
 .territory-directory summary {
   cursor: pointer;
   min-height: var(--tap);
@@ -285,7 +441,8 @@
 
 @media (max-width: 42rem) {
   .territory-frame { padding-top: var(--map-space-3); }
-  .territory-stage { height: clamp(24rem, 57svh, 34rem); }
+  .territory-toolbar { display: grid; justify-content: stretch; }
+  .territory-directory-link { justify-self: end; min-height: var(--tap); }
   .territory-filters {
     overflow-x: auto;
     flex-wrap: nowrap;
@@ -293,11 +450,22 @@
     scrollbar-width: thin;
   }
   .territory-filters button { flex: none; }
-  .territory-zoom { right: var(--map-space-2); bottom: var(--map-space-2); }
-  .territory-stage:has(.territory-card) .territory-zoom { top: var(--map-space-2); bottom: auto; }
+  .territory-stage { height: auto; }
+  .territory-svg { height: auto; aspect-ratio: 974 / 902; }
+  .territory-svg:not([data-zoomed]) { touch-action: pan-y; }
+  .territory-stage-tools {
+    position: relative;
+    inset: auto;
+    align-items: center;
+    margin: 0 var(--map-space-2) var(--map-space-2);
+  }
+  .territory-zoom { display: flex; box-shadow: none; }
+  .territory-zoom button + button { border-top: 0; border-left: 1px solid var(--map-line); }
+  .territory-note { border: 0; background: none; padding-inline: 0; }
   .map-label { display: none; }
-  .map-number { font-size: 20px; }
-  .map-pin { r: 16px; }
+  .map-number { font-size: 26px; }
+  .map-pin { r: 17.5px; }
+  .map-hit { r: 30px; }
   .territory-card {
     position: fixed;
     z-index: 9;
@@ -317,12 +485,12 @@
     background: var(--map-line);
     border-radius: var(--map-space-1);
   }
+  .territory-card::after { display: none; }
   .territory-keys { display: none; }
 }
 @media (forced-colors: active) {
-  .map-marker:is(:focus-visible, [aria-pressed="true"]) .map-pin {
-    fill: Highlight;
-    stroke: HighlightText;
-  }
+  .map-pin { fill: Canvas; stroke: ButtonText; }
+  .map-number { fill: ButtonText; }
+  .map-marker:is(:focus-visible, [aria-pressed="true"]) .map-pin { fill: Highlight; stroke: HighlightText; }
   .map-marker:is(:focus-visible, [aria-pressed="true"]) .map-number { fill: HighlightText; }
 }

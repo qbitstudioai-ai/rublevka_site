@@ -32,7 +32,6 @@ export type TerritoryObject = {
   capacity: number | null;
   destination: MapDestination | null;
   shape: readonly Point[];
-  roof: readonly Point[] | null;
   marker: Point;
   entrances: readonly { tip: Point; angle: number }[];
 };

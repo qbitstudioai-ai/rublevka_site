@@ -28,6 +28,11 @@ function viewBox({ x, y, width, height }: MapView): string {
   return [x, y, width, height].join(" ");
 }
 
+function renderView(svg: SVGSVGElement, view: MapView) {
+  svg.setAttribute("viewBox", viewBox(view));
+  svg.toggleAttribute("data-zoomed", view.width < fullView.width);
+}
+
 export function useMapView(svgRef: RefObject<SVGSVGElement | null>) {
   const current = useRef(fullView);
   const pointers = useRef(new Map<number, Point>());
@@ -36,7 +41,7 @@ export function useMapView(svgRef: RefObject<SVGSVGElement | null>) {
 
   function update(view: MapView) {
     current.current = view;
-    svgRef.current?.setAttribute("viewBox", viewBox(view));
+    if (svgRef.current) renderView(svgRef.current, view);
   }
 
   function zoom(scale: number, anchor?: Point) {
@@ -55,7 +60,7 @@ export function useMapView(svgRef: RefObject<SVGSVGElement | null>) {
       const anchor = svgPoint(matrix, [event.clientX, event.clientY]);
       const view = transformView(current.current, event.deltaY > 0 ? 0.88 : 1.14, anchor, [0, 0]);
       current.current = view;
-      svg.setAttribute("viewBox", viewBox(view));
+      renderView(svg, view);
     }
     svg.addEventListener("wheel", wheel, { passive: false });
     return () => svg.removeEventListener("wheel", wheel);
