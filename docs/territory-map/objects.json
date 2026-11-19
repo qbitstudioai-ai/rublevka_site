@@ -1,0 +1,1235 @@
+{
+  "version": 1,
+  "status": "draft_geometry_for_owner_review",
+  "coordinate_system": {
+    "type": "pixel_on_owner_annotated_plan",
+    "viewBox": [
+      0,
+      0,
+      906,
+      876
+    ],
+    "units": "source_image_pixels",
+    "orientation": "as_uploaded_top_of_image_is_top_of_plan",
+    "not_georeferenced": true
+  },
+  "sources": {
+    "owner_annotated_plan": {
+      "filename": "Screenshot_128.jpg",
+      "width": 906,
+      "height": 876
+    },
+    "owner_satellite_reference": {
+      "filename": "image.png",
+      "width": 844,
+      "height": 782
+    }
+  },
+  "boundary_on_annotated_plan": [
+    [
+      10,
+      99
+    ],
+    [
+      616,
+      13
+    ],
+    [
+      780,
+      650
+    ],
+    [
+      865,
+      638
+    ],
+    [
+      897,
+      747
+    ],
+    [
+      176,
+      848
+    ]
+  ],
+  "boundary_on_satellite_reference": [
+    [
+      56,
+      109
+    ],
+    [
+      621,
+      29
+    ],
+    [
+      658,
+      174
+    ],
+    [
+      612,
+      183
+    ],
+    [
+      726,
+      585
+    ],
+    [
+      823,
+      570
+    ],
+    [
+      838,
+      670
+    ],
+    [
+      188,
+      751
+    ]
+  ],
+  "removed_numbers": [
+    7
+  ],
+  "objects": [
+    {
+      "number": 1,
+      "id": "object-01",
+      "name": "Ресепшн",
+      "category": "reception",
+      "footprint": [
+        [
+          54,
+          301
+        ],
+        [
+          72,
+          296
+        ],
+        [
+          79,
+          331
+        ],
+        [
+          103,
+          328
+        ],
+        [
+          107,
+          347
+        ],
+        [
+          70,
+          356
+        ]
+      ],
+      "label": [
+        80.8,
+        326.5
+      ],
+      "entrances": [],
+      "destination": "/kontakty"
+    },
+    {
+      "number": 2,
+      "id": "object-02",
+      "name": "Двухместный модульный дом №1",
+      "category": "lodging",
+      "footprint": [
+        [
+          76,
+          389
+        ],
+        [
+          115,
+          380
+        ],
+        [
+          121,
+          409
+        ],
+        [
+          81,
+          419
+        ]
+      ],
+      "label": [
+        98.3,
+        399.3
+      ],
+      "entrances": [],
+      "construction": "modular",
+      "capacity_guests": 2,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 3,
+      "id": "object-03",
+      "name": "Двухместный модульный дом №2",
+      "category": "lodging",
+      "footprint": [
+        [
+          83,
+          425
+        ],
+        [
+          122,
+          415
+        ],
+        [
+          129,
+          443
+        ],
+        [
+          91,
+          452
+        ]
+      ],
+      "label": [
+        106.3,
+        433.8
+      ],
+      "entrances": [],
+      "construction": "modular",
+      "capacity_guests": 2,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 4,
+      "id": "object-04",
+      "name": "Двухместный модульный дом №3",
+      "category": "lodging",
+      "footprint": [
+        [
+          90,
+          459
+        ],
+        [
+          129,
+          449
+        ],
+        [
+          137,
+          477
+        ],
+        [
+          97,
+          487
+        ]
+      ],
+      "label": [
+        113.3,
+        468
+      ],
+      "entrances": [],
+      "construction": "modular",
+      "capacity_guests": 2,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 5,
+      "id": "object-05",
+      "name": "Двухместный модульный дом №4",
+      "category": "lodging",
+      "footprint": [
+        [
+          98,
+          496
+        ],
+        [
+          135,
+          485
+        ],
+        [
+          144,
+          513
+        ],
+        [
+          105,
+          524
+        ]
+      ],
+      "label": [
+        120.5,
+        504.5
+      ],
+      "entrances": [],
+      "construction": "modular",
+      "capacity_guests": 2,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 6,
+      "id": "object-06",
+      "name": "Десятиместный дом №1 «баня»",
+      "category": "lodging",
+      "footprint": [
+        [
+          194,
+          733
+        ],
+        [
+          295,
+          713
+        ],
+        [
+          315,
+          807
+        ],
+        [
+          218,
+          826
+        ]
+      ],
+      "label": [
+        255.5,
+        769.8
+      ],
+      "entrances": [
+        {
+          "side": "north",
+          "tip": [
+            283,
+            716
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "capacity_guests": 10,
+      "destination": "/prozhivanie",
+      "note": "Дом-баня; не путать с отдельной услугой парной."
+    },
+    {
+      "number": 8,
+      "id": "object-08",
+      "name": "Четырёхместный дом №3",
+      "category": "lodging",
+      "footprint": [
+        [
+          231,
+          486
+        ],
+        [
+          265,
+          483
+        ],
+        [
+          269,
+          529
+        ],
+        [
+          236,
+          531
+        ]
+      ],
+      "label": [
+        250.3,
+        507.3
+      ],
+      "entrances": [
+        {
+          "side": "north",
+          "tip": [
+            245,
+            479
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "capacity_guests": 4,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 9,
+      "id": "object-09",
+      "name": "Четырёхместный дом №4",
+      "category": "lodging",
+      "footprint": [
+        [
+          265,
+          483
+        ],
+        [
+          299,
+          480
+        ],
+        [
+          303,
+          528
+        ],
+        [
+          269,
+          529
+        ]
+      ],
+      "label": [
+        284,
+        505
+      ],
+      "entrances": [
+        {
+          "side": "south",
+          "tip": [
+            296,
+            529
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "capacity_guests": 4,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 10,
+      "id": "object-10",
+      "name": "Четырёхместный дом №6",
+      "category": "lodging",
+      "footprint": [
+        [
+          211,
+          332
+        ],
+        [
+          263,
+          322
+        ],
+        [
+          271,
+          364
+        ],
+        [
+          219,
+          374
+        ]
+      ],
+      "label": [
+        241,
+        348
+      ],
+      "entrances": [
+        {
+          "side": "east",
+          "tip": [
+            270,
+            335
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "capacity_guests": 4,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 11,
+      "id": "object-11",
+      "name": "Четырёхместный дом №5",
+      "category": "lodging",
+      "footprint": [
+        [
+          219,
+          374
+        ],
+        [
+          271,
+          364
+        ],
+        [
+          277,
+          395
+        ],
+        [
+          229,
+          409
+        ]
+      ],
+      "label": [
+        249,
+        385.5
+      ],
+      "entrances": [
+        {
+          "side": "west",
+          "tip": [
+            225,
+            405
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "capacity_guests": 4,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 12,
+      "id": "object-12",
+      "name": "Теннисный стол",
+      "category": "activity",
+      "footprint": [
+        [
+          393,
+          426
+        ],
+        [
+          461,
+          412
+        ],
+        [
+          465,
+          453
+        ],
+        [
+          402,
+          464
+        ]
+      ],
+      "label": [
+        430.3,
+        438.8
+      ],
+      "entrances": [],
+      "destination": "/uslugi"
+    },
+    {
+      "number": 13,
+      "id": "object-13",
+      "name": "Детская площадка",
+      "category": "activity",
+      "footprint": [
+        [
+          364,
+          515
+        ],
+        [
+          482,
+          488
+        ],
+        [
+          493,
+          544
+        ],
+        [
+          375,
+          566
+        ]
+      ],
+      "label": [
+        428.5,
+        528.3
+      ],
+      "entrances": [],
+      "destination": "/uslugi"
+    },
+    {
+      "number": 14,
+      "id": "object-14",
+      "name": "Мельница",
+      "category": "landmark",
+      "footprint": [
+        [
+          518,
+          450
+        ],
+        [
+          557,
+          438
+        ],
+        [
+          565,
+          483
+        ],
+        [
+          526,
+          491
+        ]
+      ],
+      "label": [
+        541.5,
+        465.5
+      ],
+      "entrances": [],
+      "destination": "/uslugi"
+    },
+    {
+      "number": 15,
+      "id": "object-15",
+      "name": "Костровая зона со скамейками",
+      "category": "activity",
+      "footprint": [
+        [
+          585,
+          451
+        ],
+        [
+          613,
+          440
+        ],
+        [
+          624,
+          472
+        ],
+        [
+          591,
+          483
+        ]
+      ],
+      "label": [
+        603.3,
+        461.5
+      ],
+      "entrances": [],
+      "destination": "/uslugi"
+    },
+    {
+      "number": 16,
+      "id": "object-16",
+      "name": "«Зелёная» беседка",
+      "category": "gazebo",
+      "footprint": [
+        [
+          585,
+          493
+        ],
+        [
+          640,
+          481
+        ],
+        [
+          653,
+          554
+        ],
+        [
+          598,
+          567
+        ]
+      ],
+      "label": [
+        619,
+        523.8
+      ],
+      "entrances": [
+        {
+          "side": "north",
+          "tip": [
+            590,
+            486
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "destination": "/besedki"
+    },
+    {
+      "number": 17,
+      "id": "object-17",
+      "name": "Дом №10: двухэтажная гостиница, четыре двухместных номера",
+      "category": "lodging",
+      "footprint": [
+        [
+          158,
+          100
+        ],
+        [
+          212,
+          91
+        ],
+        [
+          218,
+          137
+        ],
+        [
+          163,
+          139
+        ]
+      ],
+      "label": [
+        187.8,
+        116.8
+      ],
+      "entrances": [
+        {
+          "side": "south",
+          "tip": [
+            197,
+            139
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "room_count": 4,
+      "guests_per_room": 2,
+      "destination": "/prozhivanie",
+      "note": "Нанесено здание, не номера по отдельности. В здании четыре двухместных номера."
+    },
+    {
+      "number": 18,
+      "id": "object-18",
+      "name": "«Бежевая» беседка",
+      "category": "gazebo",
+      "footprint": [
+        [
+          253,
+          84
+        ],
+        [
+          305,
+          78
+        ],
+        [
+          312,
+          130
+        ],
+        [
+          259,
+          135
+        ]
+      ],
+      "label": [
+        282.3,
+        106.8
+      ],
+      "entrances": [
+        {
+          "side": "south",
+          "tip": [
+            290,
+            132
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "destination": "/besedki"
+    },
+    {
+      "number": 19,
+      "id": "object-19",
+      "name": "Дом №9: двухэтажная гостиница, четыре двухместных номера",
+      "category": "lodging",
+      "footprint": [
+        [
+          341,
+          82
+        ],
+        [
+          402,
+          74
+        ],
+        [
+          405,
+          129
+        ],
+        [
+          342,
+          132
+        ]
+      ],
+      "label": [
+        372.5,
+        104.3
+      ],
+      "entrances": [
+        {
+          "side": "south",
+          "tip": [
+            376,
+            130
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "room_count": 4,
+      "guests_per_room": 2,
+      "destination": "/prozhivanie",
+      "note": "Нанесено здание, не номера по отдельности. В здании четыре двухместных номера."
+    },
+    {
+      "number": 20,
+      "id": "object-20",
+      "name": "«Круглая» беседка",
+      "category": "gazebo",
+      "footprint": [
+        [
+          328,
+          203
+        ],
+        [
+          381,
+          192
+        ],
+        [
+          385,
+          234
+        ],
+        [
+          333,
+          242
+        ]
+      ],
+      "label": [
+        356.8,
+        217.8
+      ],
+      "entrances": [
+        {
+          "side": "east",
+          "tip": [
+            383,
+            223
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "destination": "/besedki"
+    },
+    {
+      "number": 21,
+      "id": "object-21",
+      "name": "Малый банкетный зал",
+      "category": "banquet",
+      "footprint": [
+        [
+          408,
+          170
+        ],
+        [
+          487,
+          159
+        ],
+        [
+          497,
+          222
+        ],
+        [
+          421,
+          234
+        ]
+      ],
+      "label": [
+        453.3,
+        196.3
+      ],
+      "entrances": [
+        {
+          "side": "west",
+          "tip": [
+            414,
+            209
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "destination": "/banketnye-zaly"
+    },
+    {
+      "number": 22,
+      "id": "object-22",
+      "name": "Большой банкетный зал",
+      "category": "banquet",
+      "footprint": [
+        [
+          569,
+          191
+        ],
+        [
+          615,
+          181
+        ],
+        [
+          645,
+          193
+        ],
+        [
+          655,
+          252
+        ],
+        [
+          638,
+          281
+        ],
+        [
+          673,
+          304
+        ],
+        [
+          682,
+          351
+        ],
+        [
+          653,
+          376
+        ],
+        [
+          593,
+          391
+        ],
+        [
+          565,
+          375
+        ],
+        [
+          574,
+          317
+        ],
+        [
+          590,
+          281
+        ],
+        [
+          564,
+          264
+        ],
+        [
+          550,
+          216
+        ]
+      ],
+      "label": [
+        611.9,
+        283.8
+      ],
+      "entrances": [
+        {
+          "side": "west",
+          "tip": [
+            563,
+            348
+          ],
+          "evidence": "arrow_on_owner_plan"
+        },
+        {
+          "side": "south",
+          "tip": [
+            634,
+            389
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "destination": "/banketnye-zaly"
+    },
+    {
+      "number": 23,
+      "id": "object-23",
+      "name": "Площадка для торжеств",
+      "category": "activity",
+      "footprint": [
+        [
+          641,
+          405
+        ],
+        [
+          689,
+          390
+        ],
+        [
+          708,
+          451
+        ],
+        [
+          661,
+          467
+        ]
+      ],
+      "label": [
+        674.8,
+        428.3
+      ],
+      "entrances": [],
+      "destination": "/uslugi"
+    },
+    {
+      "number": 24,
+      "id": "object-24",
+      "name": "Малый бассейн",
+      "category": "pool",
+      "footprint": [
+        [
+          677,
+          496
+        ],
+        [
+          701,
+          488
+        ],
+        [
+          716,
+          552
+        ],
+        [
+          689,
+          558
+        ]
+      ],
+      "label": [
+        695.8,
+        523.5
+      ],
+      "entrances": [],
+      "destination": "/uslugi"
+    },
+    {
+      "number": 25,
+      "id": "object-25",
+      "name": "Большой бассейн",
+      "category": "pool",
+      "footprint": [
+        [
+          705,
+          635
+        ],
+        [
+          750,
+          616
+        ],
+        [
+          780,
+          729
+        ],
+        [
+          733,
+          745
+        ]
+      ],
+      "label": [
+        742,
+        681.3
+      ],
+      "entrances": [],
+      "destination": "/uslugi"
+    },
+    {
+      "number": 26,
+      "id": "object-26",
+      "name": "VIP-дом №2",
+      "category": "lodging",
+      "footprint": [
+        [
+          624,
+          678
+        ],
+        [
+          672,
+          665
+        ],
+        [
+          692,
+          725
+        ],
+        [
+          646,
+          739
+        ]
+      ],
+      "label": [
+        658.5,
+        701.8
+      ],
+      "entrances": [
+        {
+          "side": "east",
+          "tip": [
+            675,
+            684
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 27,
+      "id": "object-27",
+      "name": "Двухэтажный шестиместный дом №8",
+      "category": "lodging",
+      "footprint": [
+        [
+          448,
+          733
+        ],
+        [
+          486,
+          729
+        ],
+        [
+          491,
+          786
+        ],
+        [
+          450,
+          790
+        ]
+      ],
+      "label": [
+        468.8,
+        759.5
+      ],
+      "entrances": [
+        {
+          "side": "north",
+          "tip": [
+            466,
+            732
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "capacity_guests": 6,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 28,
+      "id": "object-28",
+      "name": "Двухэтажный шестиместный дом №7",
+      "category": "lodging",
+      "footprint": [
+        [
+          342,
+          742
+        ],
+        [
+          388,
+          737
+        ],
+        [
+          390,
+          790
+        ],
+        [
+          343,
+          798
+        ]
+      ],
+      "label": [
+        365.8,
+        766.8
+      ],
+      "entrances": [
+        {
+          "side": "north",
+          "tip": [
+            365,
+            739
+          ],
+          "evidence": "arrow_on_owner_plan"
+        }
+      ],
+      "construction": "log",
+      "capacity_guests": 6,
+      "destination": "/prozhivanie"
+    },
+    {
+      "number": 29,
+      "id": "object-29",
+      "name": "«Оранжевая» беседка",
+      "category": "gazebo",
+      "footprint": [
+        [
+          341,
+          630
+        ],
+        [
+          383,
+          629
+        ],
+        [
+          389,
+          660
+        ],
+        [
+          346,
+          663
+        ]
+      ],
+      "label": [
+        364.8,
+        645.5
+      ],
+      "entrances": [],
+      "destination": "/besedki"
+    },
+    {
+      "number": 30,
+      "id": "object-30",
+      "name": "Кирпичный хозяйственный дом — не для проживания",
+      "category": "utility",
+      "footprint": [
+        [
+          397,
+          628
+        ],
+        [
+          443,
+          624
+        ],
+        [
+          446,
+          658
+        ],
+        [
+          401,
+          662
+        ]
+      ],
+      "label": [
+        421.8,
+        643
+      ],
+      "entrances": [],
+      "construction": "brick",
+      "destination": null,
+      "bookable": false
+    },
+    {
+      "number": 31,
+      "id": "object-31",
+      "name": "Уличный туалет",
+      "category": "utility",
+      "footprint": [
+        [
+          679,
+          360
+        ],
+        [
+          699,
+          355
+        ],
+        [
+          705,
+          383
+        ],
+        [
+          683,
+          388
+        ]
+      ],
+      "label": [
+        691.5,
+        371.5
+      ],
+      "entrances": [],
+      "construction": "log",
+      "destination": null,
+      "bookable": false
+    }
+  ],
+  "visual_context": {
+    "vegetation": "mature_oak_grove",
+    "oak_tree_coordinates": "not_measured",
+    "walkways": "not_surveyed",
+    "entrance_arrows": "only_where_explicitly_marked_on_owner_plan",
+    "satellite_alignment": "visual_reference_only; no cadastral accuracy or global geocoordinates"
+  },
+  "open_questions": [
+    "Уточнить расположение отдельных крупных дубов и дорожек по месту.",
+    "Проверить условные входы по стрелкам на участках со скрытыми деталями.",
+    "Подтвердить привязку отдельных домов к категориям room/cottage/bedrooms/family перед формированием ссылки с параметром.",
+    "Спутниковые снимки и схему с номерами при необходимости передать Codex как эталон для визуального сравнения; raster images intentionally not stored in repo."
+  ]
+}

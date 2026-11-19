@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 876" role="img" aria-labelledby="map-title map-desc">
+<title id="map-title">Рублёвка — техническая схема 30 объектов</title>
+<desc id="map-desc">План по пользовательской нумерации. Красные стрелки — отмеченные владельцем входы. Номер 7 исключён. Масштаб условный, не геодезический.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#b72e2e"/></marker></defs>
+<rect width="1180" height="876" fill="#f6f0df"/>
+<rect width="906" height="876" fill="#e7eed6"/>
+<path d="M2 300 L110 270" stroke="#959991" stroke-width="30" fill="none" opacity=".7"/>
+<path d="M 120 264 Q 225 237 275 265 T 485 330 L 634 389" stroke="#fefbef" stroke-width="11" stroke-linecap="round" fill="none" opacity=".8"/>
+<polygon points="10,99 616,13 780,650 865,638 897,747 176,848" fill="none" stroke="#992a29" stroke-width="4" stroke-linejoin="round"/>
+<g font-family="Georgia,serif" text-anchor="middle">
+<g id="object-01" data-number="1" data-category="reception"><title>№1 — Ресепшн</title><polygon points="54,301 72,296 79,331 103,328 107,347 70,356" fill="#c8d3b7" stroke="#526743" stroke-width="3" stroke-linejoin="round"/><text x="80.8" y="332.5" font-size="19" font-weight="700" fill="#526743">1</text>
+</g>
+<g id="object-02" data-number="2" data-category="lodging"><title>№2 — Двухместный модульный дом №1</title><polygon points="76,389 115,380 121,409 81,419" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="98.3" y="405.3" font-size="19" font-weight="700" fill="#6c4b2d">2</text>
+</g>
+<g id="object-03" data-number="3" data-category="lodging"><title>№3 — Двухместный модульный дом №2</title><polygon points="83,425 122,415 129,443 91,452" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="106.3" y="439.8" font-size="19" font-weight="700" fill="#6c4b2d">3</text>
+</g>
+<g id="object-04" data-number="4" data-category="lodging"><title>№4 — Двухместный модульный дом №3</title><polygon points="90,459 129,449 137,477 97,487" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="113.3" y="474.0" font-size="19" font-weight="700" fill="#6c4b2d">4</text>
+</g>
+<g id="object-05" data-number="5" data-category="lodging"><title>№5 — Двухместный модульный дом №4</title><polygon points="98,496 135,485 144,513 105,524" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="120.5" y="510.5" font-size="19" font-weight="700" fill="#6c4b2d">5</text>
+</g>
+<g id="object-06" data-number="6" data-category="lodging"><title>№6 — Десятиместный дом №1 «баня»</title><polygon points="194,733 295,713 315,807 218,826" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="255.5" y="775.8" font-size="19" font-weight="700" fill="#6c4b2d">6</text>
+<path d="M283,688 L283,716" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-08" data-number="8" data-category="lodging"><title>№8 — Четырёхместный дом №3</title><polygon points="231,486 265,483 269,529 236,531" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="250.3" y="513.3" font-size="19" font-weight="700" fill="#6c4b2d">8</text>
+<path d="M245,451 L245,479" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-09" data-number="9" data-category="lodging"><title>№9 — Четырёхместный дом №4</title><polygon points="265,483 299,480 303,528 269,529" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="284" y="511.0" font-size="19" font-weight="700" fill="#6c4b2d">9</text>
+<path d="M296,557 L296,529" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-10" data-number="10" data-category="lodging"><title>№10 — Четырёхместный дом №6</title><polygon points="211,332 263,322 271,364 219,374" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="241" y="354.0" font-size="17" font-weight="700" fill="#6c4b2d">10</text>
+<path d="M298,335 L270,335" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-11" data-number="11" data-category="lodging"><title>№11 — Четырёхместный дом №5</title><polygon points="219,374 271,364 277,395 229,409" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="249" y="391.5" font-size="17" font-weight="700" fill="#6c4b2d">11</text>
+<path d="M197,405 L225,405" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-12" data-number="12" data-category="activity"><title>№12 — Теннисный стол</title><polygon points="393,426 461,412 465,453 402,464" fill="#e5d8ba" stroke="#886a2c" stroke-width="3" stroke-linejoin="round"/><text x="430.3" y="444.8" font-size="17" font-weight="700" fill="#886a2c">12</text>
+</g>
+<g id="object-13" data-number="13" data-category="activity"><title>№13 — Детская площадка</title><polygon points="364,515 482,488 493,544 375,566" fill="#e5d8ba" stroke="#886a2c" stroke-width="3" stroke-linejoin="round"/><text x="428.5" y="534.3" font-size="17" font-weight="700" fill="#886a2c">13</text>
+</g>
+<g id="object-14" data-number="14" data-category="landmark"><title>№14 — Мельница</title><polygon points="518,450 557,438 565,483 526,491" fill="#dcbf9c" stroke="#7b512f" stroke-width="3" stroke-linejoin="round"/><text x="541.5" y="471.5" font-size="17" font-weight="700" fill="#7b512f">14</text>
+</g>
+<g id="object-15" data-number="15" data-category="activity"><title>№15 — Костровая зона со скамейками</title><polygon points="585,451 613,440 624,472 591,483" fill="#e5d8ba" stroke="#886a2c" stroke-width="3" stroke-linejoin="round"/><text x="603.3" y="467.5" font-size="17" font-weight="700" fill="#886a2c">15</text>
+</g>
+<g id="object-16" data-number="16" data-category="gazebo"><title>№16 — «Зелёная» беседка</title><polygon points="585,493 640,481 653,554 598,567" fill="#f2e0b5" stroke="#8a5b35" stroke-width="3" stroke-linejoin="round"/><text x="619" y="529.8" font-size="17" font-weight="700" fill="#8a5b35">16</text>
+<path d="M590,458 L590,486" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-17" data-number="17" data-category="lodging"><title>№17 — Дом №10: двухэтажная гостиница, четыре двухместных номера</title><polygon points="158,100 212,91 218,137 163,139" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="187.8" y="122.8" font-size="17" font-weight="700" fill="#6c4b2d">17</text>
+<path d="M197,167 L197,139" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-18" data-number="18" data-category="gazebo"><title>№18 — «Бежевая» беседка</title><polygon points="253,84 305,78 312,130 259,135" fill="#f2e0b5" stroke="#8a5b35" stroke-width="3" stroke-linejoin="round"/><text x="282.3" y="112.8" font-size="17" font-weight="700" fill="#8a5b35">18</text>
+<path d="M290,160 L290,132" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-19" data-number="19" data-category="lodging"><title>№19 — Дом №9: двухэтажная гостиница, четыре двухместных номера</title><polygon points="341,82 402,74 405,129 342,132" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="372.5" y="110.3" font-size="17" font-weight="700" fill="#6c4b2d">19</text>
+<path d="M376,158 L376,130" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-20" data-number="20" data-category="gazebo"><title>№20 — «Круглая» беседка</title><polygon points="328,203 381,192 385,234 333,242" fill="#f2e0b5" stroke="#8a5b35" stroke-width="3" stroke-linejoin="round"/><text x="356.8" y="223.8" font-size="17" font-weight="700" fill="#8a5b35">20</text>
+<path d="M411,223 L383,223" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-21" data-number="21" data-category="banquet"><title>№21 — Малый банкетный зал</title><polygon points="408,170 487,159 497,222 421,234" fill="#d9bcaa" stroke="#763f30" stroke-width="3" stroke-linejoin="round"/><text x="453.3" y="202.3" font-size="17" font-weight="700" fill="#763f30">21</text>
+<path d="M386,209 L414,209" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-22" data-number="22" data-category="banquet"><title>№22 — Большой банкетный зал</title><polygon points="569,191 615,181 645,193 655,252 638,281 673,304 682,351 653,376 593,391 565,375 574,317 590,281 564,264 550,216" fill="#d9bcaa" stroke="#763f30" stroke-width="3" stroke-linejoin="round"/><text x="611.9" y="289.8" font-size="17" font-weight="700" fill="#763f30">22</text>
+<path d="M535,348 L563,348" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+<path d="M634,417 L634,389" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-23" data-number="23" data-category="activity"><title>№23 — Площадка для торжеств</title><polygon points="641,405 689,390 708,451 661,467" fill="#e5d8ba" stroke="#886a2c" stroke-width="3" stroke-linejoin="round"/><text x="674.8" y="434.3" font-size="17" font-weight="700" fill="#886a2c">23</text>
+</g>
+<g id="object-24" data-number="24" data-category="pool"><title>№24 — Малый бассейн</title><polygon points="677,496 701,488 716,552 689,558" fill="#a8dce7" stroke="#287f99" stroke-width="3" stroke-linejoin="round"/><text x="695.8" y="529.5" font-size="17" font-weight="700" fill="#287f99">24</text>
+</g>
+<g id="object-25" data-number="25" data-category="pool"><title>№25 — Большой бассейн</title><polygon points="705,635 750,616 780,729 733,745" fill="#a8dce7" stroke="#287f99" stroke-width="3" stroke-linejoin="round"/><text x="742" y="687.3" font-size="17" font-weight="700" fill="#287f99">25</text>
+</g>
+<g id="object-26" data-number="26" data-category="lodging"><title>№26 — VIP-дом №2</title><polygon points="624,678 672,665 692,725 646,739" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="658.5" y="707.8" font-size="17" font-weight="700" fill="#6c4b2d">26</text>
+<path d="M703,684 L675,684" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-27" data-number="27" data-category="lodging"><title>№27 — Двухэтажный шестиместный дом №8</title><polygon points="448,733 486,729 491,786 450,790" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="468.8" y="765.5" font-size="17" font-weight="700" fill="#6c4b2d">27</text>
+<path d="M466,704 L466,732" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-28" data-number="28" data-category="lodging"><title>№28 — Двухэтажный шестиместный дом №7</title><polygon points="342,742 388,737 390,790 343,798" fill="#ead7ae" stroke="#6c4b2d" stroke-width="3" stroke-linejoin="round"/><text x="365.8" y="772.8" font-size="17" font-weight="700" fill="#6c4b2d">28</text>
+<path d="M365,711 L365,739" stroke="#b72e2e" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+</g>
+<g id="object-29" data-number="29" data-category="gazebo"><title>№29 — «Оранжевая» беседка</title><polygon points="341,630 383,629 389,660 346,663" fill="#f2e0b5" stroke="#8a5b35" stroke-width="3" stroke-linejoin="round"/><text x="364.8" y="651.5" font-size="17" font-weight="700" fill="#8a5b35">29</text>
+</g>
+<g id="object-30" data-number="30" data-category="utility"><title>№30 — Кирпичный хозяйственный дом — не для проживания</title><polygon points="397,628 443,624 446,658 401,662" fill="#d7d7ce" stroke="#77756b" stroke-width="3" stroke-linejoin="round"/><text x="421.8" y="649.0" font-size="17" font-weight="700" fill="#77756b">30</text>
+</g>
+<g id="object-31" data-number="31" data-category="utility"><title>№31 — Уличный туалет</title><polygon points="679,360 699,355 705,383 683,388" fill="#d7d7ce" stroke="#77756b" stroke-width="3" stroke-linejoin="round"/><text x="691.5" y="377.5" font-size="17" font-weight="700" fill="#77756b">31</text>
+</g>
+</g>
+<rect x="910" width="270" height="876" fill="#fff9ed"/>
+<text x="934" y="42" font-family="Georgia,serif" fill="#712826" font-size="26" font-weight="bold">РУБЛЁВКА</text>
+<text x="934" y="71" font-family="sans-serif" fill="#665a4d" font-size="14">Техническая карта · v1</text>
+<path d="M934 87 L1151 87" stroke="#c3b99f"/>
+<text x="934" y="119" font-size="16" font-family="sans-serif" font-weight="bold" fill="#392c28">30 действующих объектов</text>
+<text x="934" y="145" font-size="14" font-family="sans-serif" fill="#96342d">№7 отсутствует — удалён</text>
+<rect x="936" y="175" width="22" height="22" fill="#ead7ae" stroke="#6c4b2d" stroke-width="2"/><text x="968" y="192" font-family="sans-serif" font-size="15" fill="#433d34">Жильё · 14</text>
+<rect x="936" y="214" width="22" height="22" fill="#f2e0b5" stroke="#8a5b35" stroke-width="2"/><text x="968" y="231" font-family="sans-serif" font-size="15" fill="#433d34">Беседки · 4</text>
+<rect x="936" y="253" width="22" height="22" fill="#d9bcaa" stroke="#763f30" stroke-width="2"/><text x="968" y="270" font-family="sans-serif" font-size="15" fill="#433d34">Залы · 2</text>
+<rect x="936" y="292" width="22" height="22" fill="#a8dce7" stroke="#287f99" stroke-width="2"/><text x="968" y="309" font-family="sans-serif" font-size="15" fill="#433d34">Бассейны · 2</text>
+<rect x="936" y="331" width="22" height="22" fill="#c8d3b7" stroke="#526743" stroke-width="2"/><text x="968" y="348" font-family="sans-serif" font-size="15" fill="#433d34">Ресепшн · 1</text>
+<rect x="936" y="370" width="22" height="22" fill="#e5d8ba" stroke="#886a2c" stroke-width="2"/><text x="968" y="387" font-family="sans-serif" font-size="15" fill="#433d34">Развлечения · 4</text>
+<rect x="936" y="409" width="22" height="22" fill="#dcbf9c" stroke="#7b512f" stroke-width="2"/><text x="968" y="426" font-family="sans-serif" font-size="15" fill="#433d34">Мельница · 1</text>
+<rect x="936" y="448" width="22" height="22" fill="#d7d7ce" stroke="#77756b" stroke-width="2"/><text x="968" y="465" font-family="sans-serif" font-size="15" fill="#433d34">Инфраструктура · 2</text>
+<path d="M934 517 L1151 517" stroke="#c3b99f"/>
+<text x="934" y="548" font-family="sans-serif" font-size="16" font-weight="bold" fill="#392c28">Условные обозначения</text>
+<path d="M936 579 L991 579" stroke="#b72e2e" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="1006" y="584" font-family="sans-serif" font-size="14" fill="#433d34">Вход (стрелка)</text>
+<path d="M936 620 L991 620" stroke="#992a29" stroke-width="4"/>
+<text x="1006" y="625" font-family="sans-serif" font-size="14" fill="#433d34">Граница</text>
+<text x="934" y="679" font-family="sans-serif" font-size="14" fill="#665a4d">Пропорции — по</text>
+<text x="934" y="698" font-family="sans-serif" font-size="14" fill="#665a4d">схеме владельца.</text>
+<text x="934" y="743" font-family="sans-serif" font-size="14" fill="#665a4d">Не геодезия.</text>
+<text x="934" y="766" font-family="sans-serif" font-size="14" fill="#665a4d">Дубы и дорожки:</text>
+<text x="934" y="786" font-family="sans-serif" font-size="14" fill="#665a4d">потребуют сверки.</text>
+<text x="934" y="849" font-family="sans-serif" font-size="11" fill="#786e60">Источник: разметка заказчика</text>
+</svg>

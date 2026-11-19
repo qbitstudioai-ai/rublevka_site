@@ -122,6 +122,9 @@ export function StoryBook({ chapters }: { chapters: readonly BookChapter[] }) {
             >
               Мероприятия
             </a>
+            <Link href="/karta" prefetch={false} onClick={() => rememberChapter(chapters[current].id)}>
+              Карта комплекса
+            </Link>
             {sectionIds.map((id) => (
               <Link
                 key={id}

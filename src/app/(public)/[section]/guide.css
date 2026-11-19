@@ -65,6 +65,9 @@
   max-width: var(--measure);
   margin: auto;
 }
+.guide-bar-inner {
+  padding-inline: clamp(1rem, 2vw, 2rem);
+}
 .guide-bar-inner,
 .wide-nav,
 .guide-footer {
@@ -86,6 +89,12 @@
   padding: 0.8rem 0.35rem;
   text-decoration: none;
   min-height: 44px;
+}
+.guide-bar .wide-nav {
+  gap: clamp(0.25rem, 0.65vw, 0.65rem);
+}
+.wide-nav a {
+  white-space: nowrap;
 }
 .wide-nav a[aria-current],
 .small-nav a[aria-current] {
@@ -318,7 +327,7 @@
   gap: 0.75rem;
   margin-top: 0.6rem;
 }
-@media (max-width: 69rem) {
+@media (max-width: 72rem) {
   .wide-nav {
     display: none;
   }

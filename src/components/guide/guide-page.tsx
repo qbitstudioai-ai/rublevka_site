@@ -14,7 +14,9 @@ import { MediaFrame } from "../ui/media-frame";
 import { BookReturn } from "./book-return";
 import { PhotoGallery } from "./gallery";
 
-function SectionLinks({ current }: { current?: SectionId }) {
+type GuideLocation = SectionId | "karta";
+
+function SectionLinks({ current }: { current?: GuideLocation }) {
   return (
     <>
       {sectionIds.map((id) => (
@@ -28,10 +30,13 @@ function SectionLinks({ current }: { current?: SectionId }) {
       ))}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- The mounted events app owns its own router. */}
       <a href="/meropriyatiya">Мероприятия</a>
+      <Link href="/karta" aria-current={current === "karta" ? "page" : undefined} prefetch={false}>
+        Карта комплекса
+      </Link>
     </>
   );
 }
-export function GuideHeader({ id }: { id?: SectionId }) {
+export function GuideHeader({ id }: { id?: GuideLocation }) {
   return (
     <header className="guide-bar">
       <div className="guide-bar-inner">
