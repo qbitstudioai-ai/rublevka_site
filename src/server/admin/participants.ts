@@ -22,10 +22,15 @@ export async function participants(
       paymentStatus: registrations.paymentStatus,
       total: registrations.total,
       hasQuote: registrations.hasQuote,
-      activities: sql<string[]>`array(select ${registrationActivities.title}
+      groupSize: registrations.groupSize,
+      activities: sql<
+        { title: string; price: number | null; priceSuffix: string }[]
+      >`coalesce((
+        select json_agg(json_build_object('title', ${registrationActivities.title}, 'price', ${registrationActivities.price},
+          'priceSuffix', ${registrationActivities.priceSuffix}) order by ${registrationActivities.position}, ${registrationActivities.title})
         from ${registrationActivities}
         where ${registrationActivities.registrationId} = ${registrations.id}
-        order by ${registrationActivities.title})`,
+      ), '[]'::json)`,
     })
     .from(registrations)
     .where(and(eq(registrations.eventId, eventId), filter))

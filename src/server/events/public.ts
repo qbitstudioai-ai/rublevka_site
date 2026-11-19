@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, asc, count, eq, gt, ne, or, sql } from "drizzle-orm";
+import { and, asc, eq, gt, isNotNull, ne, or, sql } from "drizzle-orm";
 import { db } from "./db";
 import {
   activities,
@@ -11,6 +11,8 @@ import {
 function published(now: Date) {
   return and(
     ne(events.status, "draft"),
+    isNotNull(events.termsVerifiedAt),
+    eq(events.reviewNote, ""),
     or(
       eq(events.archive, true),
       and(gt(events.endsAt, now), ne(events.status, "completed")),
@@ -49,17 +51,42 @@ export function pastEvent(event: ListedEvent, now: Date) {
 export const loadPublicEvent = cache(async (slug: string) => {
   if (!process.env.DATABASE_URL) return null;
   const [event] = await db
-    .select(publicFields)
+    .select({ ...publicFields, termsVerifiedAt: events.termsVerifiedAt })
     .from(events)
     .where(and(eq(events.slug, slug), published(new Date())))
     .limit(1);
-  if (!event) return null;
+  if (!event?.termsVerifiedAt) return null;
+  const { termsVerifiedAt, ...publicEvent } = event;
+  const serviceReservations = db
+    .select({
+      activityId: registrationActivities.activityId,
+      reserved: sql<number>`sum(${registrations.groupSize})`.as("reserved"),
+    })
+    .from(registrationActivities)
+    .innerJoin(
+      registrations,
+      eq(registrations.id, registrationActivities.registrationId),
+    )
+    .where(
+      and(
+        eq(registrations.eventId, event.id),
+        ne(registrations.status, "cancelled"),
+      ),
+    )
+    .groupBy(registrationActivities.activityId)
+    .as("service_reservations");
   const [options, counts] = await Promise.all([
     db
       .select({
         id: activities.id,
         title: activities.title,
         description: activities.description,
+        longDescription: activities.longDescription,
+        details: activities.details,
+        durationText: activities.durationText,
+        priceSuffix: activities.priceSuffix,
+        galleryIds: activities.galleryIds,
+        position: activities.position,
         imageId: activities.imageId,
         startsAt: activities.startsAt,
         price: activities.price,
@@ -67,16 +94,28 @@ export const loadPublicEvent = cache(async (slug: string) => {
         available: activities.available,
         capacity: activities.capacity,
         reserved:
-          sql<number>`(select count(*) from ${registrationActivities} join ${registrations} on ${registrations.id} = ${registrationActivities.registrationId}
-        where ${registrationActivities.activityId} = ${activities.id} and ${registrations.status} <> 'cancelled')`.mapWith(
+          sql<number>`coalesce(${serviceReservations.reserved}, 0)`.mapWith(
             Number,
           ),
       })
       .from(activities)
+      .leftJoin(
+        serviceReservations,
+        eq(serviceReservations.activityId, activities.id),
+      )
       .where(eq(activities.eventId, event.id))
-      .orderBy(asc(activities.startsAt), asc(activities.title)),
+      .orderBy(
+        asc(activities.position),
+        asc(activities.startsAt),
+        asc(activities.title),
+      ),
     db
-      .select({ reserved: count() })
+      .select({
+        reserved:
+          sql<number>`coalesce(sum(${registrations.groupSize}), 0)`.mapWith(
+            Number,
+          ),
+      })
       .from(registrations)
       .where(
         and(
@@ -86,15 +125,18 @@ export const loadPublicEvent = cache(async (slug: string) => {
       ),
   ]);
   const now = new Date();
-  const choices = options.map(
-    ({ capacity, reserved, available, ...fields }) => ({
+  const choices = options
+    .filter((option) => option.available)
+    .map(({ capacity, reserved, ...fields }) => ({
       ...fields,
-      available: available && (capacity === null || reserved < capacity),
-    }),
-  );
+      available: capacity === null || reserved < capacity,
+    }));
   const full =
     (event.capacity !== null && counts[0].reserved >= event.capacity) ||
-    choices.some((choice) => choice.required && !choice.available);
+    options.some(
+      ({ required, available, capacity, reserved }) =>
+        required && (!available || (capacity !== null && reserved >= capacity)),
+    );
   const status: ListedEvent["status"] =
     event.status === "cancelled"
       ? "cancelled"
@@ -105,5 +147,10 @@ export const loadPublicEvent = cache(async (slug: string) => {
           : event.status === "open" && full
             ? "full"
             : event.status;
-  return { ...event, status, options: choices };
+  return {
+    ...publicEvent,
+    termsVersion: termsVerifiedAt.getTime(),
+    status,
+    options: choices,
+  };
 });

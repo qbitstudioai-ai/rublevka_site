@@ -1,4 +1,4 @@
-import { and, count, eq, inArray, ne } from "drizzle-orm";
+import { and, asc, eq, inArray, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "./db";
 import {
@@ -28,6 +28,8 @@ const guestInput = z.object({
     .pipe(z.string().regex(/^\d{10,15}$/)),
   messenger: z.string().trim().max(160).optional(),
   consent: z.literal(true),
+  termsVersion: z.number().int().nonnegative(),
+  groupSize: z.number().int().min(1).max(1000000).optional(),
   activityIds: z.array(z.uuid()).max(100),
 });
 type GuestInput = Omit<z.input<typeof guestInput>, "consent"> & {
@@ -38,7 +40,18 @@ const receiptFields = {
   name: registrations.name,
   total: registrations.total,
   hasQuote: registrations.hasQuote,
+  groupSize: registrations.groupSize,
+  eventPrice: registrations.eventPrice,
 };
+const serviceFields = {
+  title: registrationActivities.title,
+  price: registrationActivities.price,
+  priceSuffix: registrationActivities.priceSuffix,
+  startsAt: registrationActivities.startsAt,
+  position: registrationActivities.position,
+};
+const occupiedPlaces =
+  sql<number>`coalesce(sum(${registrations.groupSize}), 0)`.mapWith(Number);
 const consentVersion = "events-test-v1";
 
 export async function registerGuest(input: GuestInput) {
@@ -61,6 +74,7 @@ export async function registerGuest(input: GuestInput) {
       .where(eq(events.id, guest.eventId))
       .for("update");
     if (!event) throw new GuestError("Мероприятие недоступно.");
+    const groupSize = guest.groupSize ?? 1;
     const [previous] = await tx
       .select()
       .from(registrations)
@@ -72,10 +86,17 @@ export async function registerGuest(input: GuestInput) {
       );
     if (previous) {
       const chosen = await tx
-        .select({ id: registrationActivities.activityId })
+        .select({ id: registrationActivities.activityId, ...serviceFields })
         .from(registrationActivities)
-        .where(eq(registrationActivities.registrationId, previous.id));
+        .where(eq(registrationActivities.registrationId, previous.id))
+        .orderBy(
+          asc(registrationActivities.position),
+          asc(registrationActivities.startsAt),
+          asc(registrationActivities.title),
+          asc(registrationActivities.activityId),
+        );
       if (
+        previous.groupSize !== groupSize ||
         previous.phone !== guest.phone ||
         previous.name !== guest.name ||
         previous.messenger !== messenger ||
@@ -87,28 +108,64 @@ export async function registerGuest(input: GuestInput) {
         );
       if (previous.status === "cancelled")
         throw new GuestError("Эта заявка отменена.");
-      const { id, name, total, hasQuote } = previous;
-      return { id, name, total, hasQuote };
+      const { id, name, total, hasQuote, eventPrice } = previous;
+      return {
+        id,
+        name,
+        total,
+        hasQuote,
+        groupSize,
+        eventPrice,
+        services: chosen.map(
+          ({ title, price, priceSuffix, startsAt, position }) => ({
+            title,
+            price,
+            priceSuffix,
+            startsAt,
+            position,
+          }),
+        ),
+      };
     }
 
-    if (event.status !== "open" || event.startsAt.getTime() <= Date.now())
+    if (
+      (event.group && guest.groupSize === undefined) ||
+      (!event.group && groupSize !== 1)
+    )
+      throw new GuestError("Проверьте количество участников.");
+    if (
+      !event.termsVerifiedAt ||
+      event.reviewNote ||
+      event.status !== "open" ||
+      event.startsAt.getTime() <= Date.now()
+    )
       throw new GuestError("Регистрация на это мероприятие закрыта.");
+    if (guest.termsVersion !== event.termsVerifiedAt.getTime())
+      throw new GuestError(
+        "Условия участия изменились. Обновите страницу и проверьте итоговую стоимость.",
+      );
     const counted = and(
       eq(registrations.eventId, event.id),
       ne(registrations.status, "cancelled"),
     );
     if (event.capacity !== null) {
       const [used] = await tx
-        .select({ places: count() })
+        .select({ places: occupiedPlaces })
         .from(registrations)
         .where(counted);
-      if (used.places >= event.capacity)
+      if (used.places + groupSize > event.capacity)
         throw new GuestError("Свободных мест на мероприятие больше нет.");
     }
     const options = await tx
       .select()
       .from(activities)
-      .where(eq(activities.eventId, event.id));
+      .where(eq(activities.eventId, event.id))
+      .orderBy(
+        asc(activities.position),
+        asc(activities.startsAt),
+        asc(activities.title),
+        asc(activities.id),
+      );
     const chosen = options.filter((option) => selectedIds.has(option.id));
     if (
       chosen.length !== selectedIds.size ||
@@ -122,7 +179,10 @@ export async function registerGuest(input: GuestInput) {
     const limited = chosen.filter((option) => option.capacity !== null);
     if (limited.length) {
       const counts = await tx
-        .select({ id: registrationActivities.activityId, places: count() })
+        .select({
+          id: registrationActivities.activityId,
+          places: occupiedPlaces,
+        })
         .from(registrationActivities)
         .innerJoin(
           registrations,
@@ -141,7 +201,8 @@ export async function registerGuest(input: GuestInput) {
       const taken = new Map(counts.map((row) => [row.id, row.places]));
       if (
         limited.some(
-          (option) => (taken.get(option.id) ?? 0) >= option.capacity!,
+          (option) =>
+            (taken.get(option.id) ?? 0) + groupSize > option.capacity!,
         )
       )
         throw new GuestError("На выбранную активность больше нет мест.");
@@ -160,20 +221,30 @@ export async function registerGuest(input: GuestInput) {
         name: guest.name,
         phone: guest.phone,
         messenger,
+        groupSize,
+        eventPrice: event.price,
         consentVersion,
         total,
         hasQuote,
       })
       .returning(receiptFields);
-    if (chosen.length)
+    const services = chosen.map(
+      ({ title, price, priceSuffix, startsAt, position }) => ({
+        title,
+        price,
+        priceSuffix,
+        startsAt,
+        position,
+      }),
+    );
+    if (services.length)
       await tx.insert(registrationActivities).values(
-        chosen.map((option) => ({
+        services.map((service, index) => ({
+          ...service,
           registrationId: receipt.id,
-          activityId: option.id,
-          title: option.title,
-          price: option.price,
+          activityId: chosen[index].id,
         })),
       );
-    return receipt;
+    return { ...receipt, services };
   });
 }

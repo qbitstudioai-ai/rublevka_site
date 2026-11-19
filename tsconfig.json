@@ -34,9 +34,12 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.mts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    ".next/mounted/types/**/*.ts",
+    ".next/mounted/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "events-original"
   ]
 }

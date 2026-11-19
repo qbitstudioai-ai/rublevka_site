@@ -15,6 +15,13 @@
       "when": 1795024533327,
       "tag": "0001_import_source",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795027145888,
+      "tag": "0002_legacy_services_and_group_sizes",
+      "breakpoints": true
     }
   ]
 }

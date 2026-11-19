@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# tests and reports
+playwright-report/
+test-results/
+
+# local environment
+.env
+.env.*
+!.env.example
+
+# editor and OS
+.DS_Store
+Thumbs.db
+*.log
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# SQLite и загруженные файлы (рабочие данные, не код)
+data/
+backups/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Данные e2e-тестов
+.e2e-data/
