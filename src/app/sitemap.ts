@@ -16,6 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...sectionIds.map((id) => publicContent(id)),
   ]);
   return [
+    { url: new URL("/karta", getSiteUrl()).href },
     ...(book.indexable
       ? [
           {
