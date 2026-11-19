@@ -7,12 +7,12 @@ import {
   nextDay,
   readStay,
   requestText,
-  roomLabels,
+  type Room,
   stayParams,
   validate,
   type Stay,
 } from "@/content/stay-request";
-import { reception } from "@/content/guest-guide";
+import type { MediaAsset } from "@/content/media";
 import { MediaFrame } from "../ui/media-frame";
 import { bookingAdapters, type ProviderMode } from "./provider";
 
@@ -24,7 +24,17 @@ const labels: Record<keyof Stay, string> = {
   children: "Дети",
   room: "Тип размещения",
 };
-export function StayForm({ mode }: { mode: ProviderMode }) {
+export function StayForm({
+  mode,
+  contact,
+  photo,
+  roomLabels,
+}: {
+  mode: ProviderMode;
+  contact: { tel: string; email: string };
+  photo: MediaAsset;
+  roomLabels: Record<Room, string>;
+}) {
   const [stay, setStay] = useState(initialStay),
     [submitted, setAttempt] = useState(false),
     [copied, setCopied] = useState(""),
@@ -67,7 +77,7 @@ export function StayForm({ mode }: { mode: ProviderMode }) {
   }, []);
   const errors = validate(stay, today),
     valid = !!today && !Object.keys(errors).length,
-    text = valid ? requestText(stay) : "",
+    text = valid ? requestText(stay, roomLabels) : "",
     Adapter = bookingAdapters[mode];
   function update(field: keyof Stay, value: string) {
     const next = { ...stay, [field]: value };
@@ -158,11 +168,7 @@ export function StayForm({ mode }: { mode: ProviderMode }) {
         </button>
       </form>
       <section className="stay-aside" aria-labelledby="stay-summary">
-        <MediaFrame
-          mediaId="house-oaks"
-          sizes="(max-width:700px) 94vw, 36vw"
-          eager
-        />
+        <MediaFrame asset={photo} sizes="(max-width:700px) 94vw, 36vw" eager />
         <div>
           <h2 id="stay-summary" tabIndex={-1}>
             Ваша поездка
@@ -180,11 +186,11 @@ export function StayForm({ mode }: { mode: ProviderMode }) {
             <Adapter stay={stay} />
           ) : (
             <>
-              <a href={reception.tel}>Позвонить администратору</a>
+              <a href={contact.tel}>Позвонить администратору</a>
               {valid && (
                 <>
                   <a
-                    href={`mailto:${reception.email}?subject=${encodeURIComponent("Запрос на проживание")}&body=${encodeURIComponent("Здравствуйте! Подскажите наличие и стоимость.\n" + text)}`}
+                    href={`mailto:${contact.email}?subject=${encodeURIComponent("Запрос на проживание")}&body=${encodeURIComponent("Здравствуйте! Подскажите наличие и стоимость.\n" + text)}`}
                   >
                     Написать администратору
                   </a>

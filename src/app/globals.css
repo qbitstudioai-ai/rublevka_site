@@ -85,6 +85,10 @@ button {
   text-decoration-thickness: 1px;
   text-underline-offset: .15em;
 }
+.spread [data-title] {
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
 .leaf {
   position: absolute;
   top: 0;
@@ -143,6 +147,12 @@ h2 {
   text-shadow: var(--ink-shadow);
   font-weight: 500;
   text-wrap: balance;
+}
+.spread h1 {
+  font-size: calc(min(11cqw, 18cqh) * var(--chapter-title-scale, 1));
+}
+.spread h2 {
+  font-size: calc(clamp(2rem, 4.4cqw, 6rem) * var(--chapter-title-scale, 1));
 }
 h1 {
   font: normal min(11cqw, 18cqh)/1 var(--title);
@@ -470,6 +480,12 @@ h2 {
   h2 {
     font-size: clamp(2.1rem, min(11cqw, 6cqh), 4rem);
   }
+  .spread h1 {
+    font-size: calc(min(24cqw, 14cqh) * var(--chapter-title-scale, 1));
+  }
+  .spread h2 {
+    font-size: calc(clamp(2.1rem, min(11cqw, 6cqh), 4rem) * var(--chapter-title-scale, 1));
+  }
   .rule {
     height: 1.6cqh;
     width: 55%;
@@ -594,3 +610,14 @@ h2 {
 
 .book-dates { display:inline-flex;align-items:center;justify-content:center;text-decoration:none; }
 .folio-nav .turn-next {font:inherit;text-decoration:underline;text-underline-offset:.2em;}
+.chapter-photo-caption {
+  position: absolute;
+  inset: auto 4% 4%;
+  z-index: 1;
+  padding: .4em .6em;
+  background: color-mix(in srgb, var(--table) 88%, transparent);
+  color: var(--paper);
+  font-size: clamp(.8rem, 1.5cqw, 1.25rem);
+  text-align: center;
+  overflow-wrap: anywhere;
+}

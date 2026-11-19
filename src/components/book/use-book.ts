@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Chapter } from "@/content/home";
+import type { BookChapter } from "./book-page";
 
-export function useBook(chapters: readonly Chapter[], closePanel: () => void) {
+export function useBook(chapters: readonly BookChapter[], closePanel: () => void) {
   const [current, setCurrent] = useState(0);
   const [previous, setPrevious] = useState<number | null>(null);
   const active = useRef(0);

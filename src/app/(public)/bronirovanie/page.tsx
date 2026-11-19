@@ -2,9 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GuideHeader } from "@/components/guide/guide-page";
 import { StayForm } from "@/components/booking/stay-form";
+import {
+  publicContent,
+  contactLinks,
+  catalogFor,
+  catalogAsset,
+} from "@/server/cms/public";
+import { roomLabels, type Room } from "@/content/stay-request";
 import { configuredMode } from "@/components/booking/provider";
 import "../[section]/guide.css";
 import "./stay.css";
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Выбор дат проживания",
   description:
@@ -12,7 +21,19 @@ export const metadata: Metadata = {
   alternates: { canonical: "/bronirovanie" },
   robots: { index: false, follow: false },
 };
-export default function Booking() {
+export default async function Booking() {
+  const [contacts, media, book, lodging] = await Promise.all([
+    publicContent("contacts"),
+    publicContent("media"),
+    publicContent("book"),
+    publicContent("prozhivanie"),
+  ]);
+  const { tel, email } = contactLinks(contacts);
+  const catalog = catalogFor(media.items);
+  const labels: Record<Room, string> = { ...roomLabels };
+  for (const item of lodging.items) {
+    if (item.room) labels[item.room] = item.name;
+  }
   return (
     <div className="guest-guide">
       <GuideHeader />
@@ -21,7 +42,15 @@ export default function Booking() {
           ← К домам и номерам
         </Link>
         <h1>Выбрать даты</h1>
-        <StayForm mode={configuredMode(process.env.BOOKING_PROVIDER)} />
+        <StayForm
+          mode={configuredMode(process.env.BOOKING_PROVIDER)}
+          contact={{ tel, email }}
+          roomLabels={labels}
+          photo={
+            catalog["house-oaks"] ??
+            catalogAsset(catalog, book.chapters[0].photo)
+          }
+        />
       </main>
     </div>
   );

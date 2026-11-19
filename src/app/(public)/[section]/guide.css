@@ -366,3 +366,5 @@
 .guide-date {font:600 .9rem/1.15 var(--utility);color:#ffdaa2!important;text-align:center;text-decoration:none;border:1px solid #ad8759;border-radius:.4rem;padding:.8rem .55rem;}
 @media(max-width:420px){.guide-bar-inner{gap:.35rem}.guide-brand{font-size:2rem}}
 .guide-object figure {width:100%;height:auto;aspect-ratio:3/2;margin:0 0 1rem;border:1px solid var(--edge);}
+
+.guide-editorial {max-width: 68ch; white-space: pre-line; font: 1rem/1.65 var(--utility);}

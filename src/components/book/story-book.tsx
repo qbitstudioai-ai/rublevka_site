@@ -2,14 +2,14 @@
 
 import { useCallback, useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import type { Chapter } from "@/content/home";
+import type { BookChapter } from "./book-page";
 import { sections, sectionIds } from "@/content/sections";
 import { rememberChapter } from "../guide/book-return";
 import { BookDialog } from "./book-dialog";
 import { BookPage, roman } from "./book-page";
 import { useBook } from "./use-book";
 
-export function StoryBook({ chapters }: { chapters: readonly Chapter[] }) {
+export function StoryBook({ chapters }: { chapters: readonly BookChapter[] }) {
   const [panel, setPanel] = useState(false);
   const closePanel = useCallback(() => setPanel(false), []);
   const { current, previous, book, select } = useBook(chapters, closePanel);

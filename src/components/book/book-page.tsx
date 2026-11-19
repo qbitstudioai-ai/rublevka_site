@@ -1,6 +1,11 @@
 import { MediaFrame } from "../ui/media-frame";
 import Link from "next/link";
-import type { Chapter } from "@/content/home";
+import type { CSSProperties } from "react";
+import type { SiteData } from "@/server/cms/model";
+import type { MediaAsset } from "@/content/media";
+export type BookChapter = SiteData["book"]["chapters"][number] & {
+  image: MediaAsset;
+};
 import { rememberChapter } from "../guide/book-return";
 
 export function roman(page: number) {
@@ -20,7 +25,7 @@ export function roman(page: number) {
 }
 
 type Props = {
-  chapter: Chapter;
+  chapter: BookChapter;
   index: number;
   count: number;
   active: boolean;
@@ -37,6 +42,8 @@ export function BookPage({
 }: Props) {
   const opening = chapter.layout === "opening";
   const Title = opening ? "h1" : "h2";
+  const titleLimit = opening ? 8 : chapter.layout === "index" ? 19 : 33;
+  const titleScale = Math.min(1, titleLimit / chapter.title.length);
   return (
     <section
       className={"spread " + chapter.layout}
@@ -54,7 +61,12 @@ export function BookPage({
               {roman(index + 1)}
             </span>
           )}
-          <Title data-title tabIndex={-1} id={chapter.id + "-title"}>
+          <Title
+            data-title
+            tabIndex={-1}
+            id={chapter.id + "-title"}
+            style={{ "--chapter-title-scale": titleScale } as CSSProperties}
+          >
             {chapter.title}
           </Title>
           <span className="rule" aria-hidden="true" />
@@ -119,10 +131,13 @@ export function BookPage({
       <div className="leaf recto-photo">
         <div className="carving">
           <MediaFrame
-            mediaId={chapter.photo}
+            asset={chapter.image}
             sizes="(max-width: 800px) 80vw, 42vw"
             eager={opening}
           />
+          {chapter.caption && (
+            <span className="chapter-photo-caption">{chapter.caption}</span>
+          )}
         </div>
       </div>
     </section>
