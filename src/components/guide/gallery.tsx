@@ -1,9 +1,9 @@
 "use client";
 import { useRef, useState } from "react";
-import { resolveMedia, type MediaId } from "@/content/media";
+import type { MediaAsset } from "@/content/media";
 import { MediaFrame } from "../ui/media-frame";
 
-export function PhotoGallery({ photos }: { photos: readonly MediaId[] }) {
+export function PhotoGallery({ photos }: { photos: readonly MediaAsset[] }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [index, setIndex] = useState(0);
   const move = (step: number) =>
@@ -11,10 +11,9 @@ export function PhotoGallery({ photos }: { photos: readonly MediaId[] }) {
   return (
     <>
       <ul className="photo-grid">
-        {photos.map((id, i) => {
-          const photo = resolveMedia(id);
+        {photos.map((photo, i) => {
           return (
-            <li key={id}>
+            <li key={photo.id}>
               <a
                 href={photo.src}
                 aria-haspopup="dialog"
@@ -33,7 +32,7 @@ export function PhotoGallery({ photos }: { photos: readonly MediaId[] }) {
                 }}
               >
                 <MediaFrame
-                  mediaId={id}
+                  asset={photo}
                   sizes="(max-width: 700px) 92vw, 32vw"
                 />
                 <span>
@@ -62,13 +61,13 @@ export function PhotoGallery({ photos }: { photos: readonly MediaId[] }) {
         >
           Закрыть ×
         </button>
-        <MediaFrame mediaId={photos[index]} sizes="90vw" />
+        <MediaFrame asset={photos[index]} sizes="90vw" />
         <div className="viewer-tools">
           <button onClick={() => move(-1)} aria-label="Предыдущее фото">
             ←
           </button>
           <p aria-live="polite">
-            {index + 1} / {photos.length} · {resolveMedia(photos[index]).alt}
+            {index + 1} / {photos.length} · {photos[index].alt}
           </p>
           <button onClick={() => move(1)} aria-label="Следующее фото">
             →

@@ -79,12 +79,12 @@ export function validate(
     errors.room = "Выберите тип размещения из списка.";
   return errors;
 }
-export function requestText(s: Stay) {
+export function requestText(s: Stay, labels: Record<Room, string> = roomLabels) {
   const date = (d: string) => d.split("-").reverse().join(".");
   return [
     `Заезд: ${date(s.arrival)} · Выезд: ${date(s.departure)}`,
     `Ночей: ${nights(s)}`,
     `Взрослых: ${s.adults} · Детей: ${s.children}`,
-    `Размещение: ${roomLabels[s.room as Room] ?? "Любой вариант"}`,
+    `Размещение: ${labels[s.room as Room] ?? "Любой вариант"}`,
   ].join("\n");
 }

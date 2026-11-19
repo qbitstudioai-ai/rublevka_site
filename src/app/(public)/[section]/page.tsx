@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { GuestGuide } from "@/components/guide/guide-page";
-import { guide, reception } from "@/content/guest-guide";
+import {
+  publicContent,
+  catalogFor,
+  catalogAsset,
+  contactLinks,
+} from "@/server/cms/public";
 import { sectionIds, type SectionId } from "@/content/sections";
-import { resolveMedia } from "@/content/media";
-import { getSiteUrl } from "@/server/site-url";
+
+import { getSiteUrl, isIndexingEnabled } from "@/server/site-url";
 import "./guide.css";
 
+export const dynamic = "force-dynamic";
 export const dynamicParams = false;
 export function generateStaticParams() {
   return sectionIds.map((section) => ({ section }));
@@ -20,15 +26,26 @@ async function sectionId({ params }: Props): Promise<SectionId> {
 }
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const id = await sectionId(props);
+  const page = await publicContent(id);
   return {
-    title: guide[id].title,
-    description: guide[id].description,
+    title: page.title,
+    description: page.description,
+    robots: {
+      index: isIndexingEnabled && page.indexable,
+      follow: isIndexingEnabled,
+    },
     alternates: { canonical: "/" + id },
   };
 }
 export default async function Page(props: Props) {
   const id = await sectionId(props),
-    page = guide[id],
+    [page, contacts, media] = await Promise.all([
+      publicContent(id),
+      publicContent("contacts"),
+      publicContent("media"),
+    ]),
+    reception = contactLinks(contacts),
+    catalog = catalogFor(media.items),
     base = getSiteUrl(),
     url = new URL("/" + id, base).href;
   const business = {
@@ -57,7 +74,7 @@ export default async function Page(props: Props) {
     inLanguage: "ru",
     about: business,
     image: (page.gallery ?? [page.photo]).map(
-      (media) => new URL(resolveMedia(media).src, base).href,
+      (media) => new URL(catalogAsset(catalog, media).src, base).href,
     ),
     breadcrumb: {
       "@type": "BreadcrumbList",
@@ -69,7 +86,7 @@ export default async function Page(props: Props) {
   };
   return (
     <>
-      <GuestGuide id={id} page={page} />
+      <GuestGuide id={id} page={page} contact={reception} catalog={catalog} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

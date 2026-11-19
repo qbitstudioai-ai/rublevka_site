@@ -1,12 +1,13 @@
 import EmbeddedPostgres from "embedded-postgres";
 import { randomBytes } from "node:crypto";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { createServer } from "node:net";
 import { spawn } from "node:child_process";
 
-const root = await mkdtemp(join(tmpdir(), "rublevka-events-"));
+const temp = resolve(tmpdir());
+const root = await mkdtemp(join(temp, "rublevka-events-"));
 const reservation = createServer();
 await new Promise((resolve, reject) =>
   reservation.once("error", reject).listen(0, "127.0.0.1", resolve),
@@ -24,7 +25,7 @@ const server = new EmbeddedPostgres({
   authMethod: "scram-sha-256",
   initdbFlags: ["--encoding=UTF8", "--locale=C"],
   postgresFlags: ["-h", "127.0.0.1"],
-  persistent: false,
+  persistent: true,
   onLog: () => {},
 });
 await server.initialise();
@@ -44,7 +45,17 @@ try {
   } else {
     const child = spawn(
       process.execPath,
-      ["--import", "tsx", "--test", "src/server/events/registration.test.ts"],
+      [
+        "--import",
+        "tsx",
+        "--test",
+        "--test-concurrency=1",
+        "src/server/events/registration.test.ts",
+        "src/server/cms/model.test.ts",
+        "src/server/cms/store.test.ts",
+        "src/server/cms/access.test.ts",
+        "src/server/cms/staff.test.ts",
+      ],
       {
         stdio: "inherit",
         env: { ...process.env, DATABASE_URL: url },
@@ -56,5 +67,19 @@ try {
     process.exitCode = code ?? 1;
   }
 } finally {
+  // The Windows runner can retain the embedded daemon's pipes after taskkill.
+  const postgres = process.platform === "win32" ? server.process : undefined;
   await server.stop();
+  postgres?.stdin?.destroy();
+  postgres?.stdout?.destroy();
+  postgres?.stderr?.destroy();
+
+  // Only remove the directory created for this cluster, retrying Windows file locks.
+  if (dirname(root) !== temp) throw new Error("Unexpected test database path.");
+  await rm(root, {
+    recursive: true,
+    force: true,
+    maxRetries: 5,
+    retryDelay: 200,
+  });
 }

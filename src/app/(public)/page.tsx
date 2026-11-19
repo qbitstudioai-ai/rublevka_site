@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
 
 import { HomeStory } from "@/components/home/home-story";
-import { getSiteUrl } from "@/server/site-url";
+import { publicContent } from "@/server/cms/public";
+import { getSiteUrl, isIndexingEnabled } from "@/server/site-url";
 
-export const metadata: Metadata = {
-  title: "Загородный комплекс в дубовом лесу",
-  description:
-    "Загородный отдых в дубовой роще под Волгоградом. Дома, беседки, два банкетных зала и баня в Краснослободске — фотографии и контакты «Рублевки».",
-  alternates: {
-    canonical: "/",
-  },
-};
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const book = await publicContent("book");
+  return {
+    title: book.title,
+    description: book.description,
+    alternates: { canonical: "/" },
+    robots: {
+      index: isIndexingEnabled && book.indexable,
+      follow: isIndexingEnabled,
+    },
+  };
+}
 
 export default function HomePage() {
   const siteUrl = getSiteUrl();

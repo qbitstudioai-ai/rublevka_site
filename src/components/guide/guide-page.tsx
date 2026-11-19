@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { siteDefaults } from "@/server/cms/defaults";
+import type { SiteData } from "@/server/cms/model";
 import {
-  reception,
-  mapHref,
-  type GuideItem,
-  type GuidePage as Page,
-} from "@/content/guest-guide";
+  catalogAsset,
+  type MediaCatalog,
+  type contactLinks,
+} from "@/server/cms/public";
+type Page = SiteData[SectionId];
+type GuideItem = Page["items"][number];
+type Contact = ReturnType<typeof contactLinks>;
 import { sections, sectionIds, type SectionId } from "@/content/sections";
 import { MediaFrame } from "../ui/media-frame";
 import { BookReturn } from "./book-return";
@@ -23,11 +27,7 @@ function SectionLinks({ current }: { current?: SectionId }) {
         </Link>
       ))}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- The mounted events app owns its own router. */}
-      <a
-        href="/meropriyatiya"
-      >
-        Мероприятия
-      </a>
+      <a href="/meropriyatiya">Мероприятия</a>
     </>
   );
 }
@@ -55,11 +55,17 @@ export function GuideHeader({ id }: { id?: SectionId }) {
     </header>
   );
 }
-function GuestAction({ action }: { action: Page["action"] }) {
+function GuestAction({
+  action,
+  contact,
+}: {
+  action: Page["action"];
+  contact: Contact;
+}) {
   const choices = {
     stay: ["/bronirovanie", "Выбрать даты"],
-    enquire: [reception.tel, "Позвонить администратору"],
-    map: [mapHref, "Открыть в Яндекс Картах"],
+    enquire: [contact.tel, "Позвонить администратору"],
+    map: [contact.mapHref, "Открыть в Яндекс Картах"],
     photos: ["#guide-details", "Смотреть фотографии"],
   } as const;
   const [href, label] = choices[action];
@@ -69,19 +75,31 @@ function GuestAction({ action }: { action: Page["action"] }) {
     </a>
   );
 }
-function PageHeading({ page }: { page: Page }) {
+function PageHeading({
+  page,
+  contact,
+  catalog,
+}: {
+  page: Page;
+  contact: Contact;
+  catalog: MediaCatalog;
+}) {
   return (
     <div className="guide-hero">
       <div className="guide-heading">
         <BookReturn />
         <span className="guide-birds" aria-hidden="true" />
         <h1>{page.heading}</h1>
-        <p>{page.intro}</p>
-        <GuestAction action={page.action} />
+        <p>
+          {page.action === "map" && page.intro === siteDefaults.kontakty.intro
+            ? contact.address + "."
+            : page.intro}
+        </p>
+        <GuestAction action={page.action} contact={contact} />
       </div>
       <div className="guide-plate">
         <MediaFrame
-          mediaId={page.photo}
+          asset={catalogAsset(catalog, page.photo)}
           sizes="(max-width: 700px) 92vw, 54vw"
           eager
         />
@@ -90,12 +108,18 @@ function PageHeading({ page }: { page: Page }) {
     </div>
   );
 }
-function ObjectCard({ item }: { item: GuideItem }) {
+function ObjectCard({
+  item,
+  catalog,
+}: {
+  item: GuideItem;
+  catalog: MediaCatalog;
+}) {
   return (
     <article className="guide-object">
       {item.photo && (
         <MediaFrame
-          mediaId={item.photo}
+          asset={catalogAsset(catalog, item.photo)}
           sizes="(max-width: 620px) 92vw, 280px"
         />
       )}
@@ -119,45 +143,70 @@ function ObjectCard({ item }: { item: GuideItem }) {
     </article>
   );
 }
-function ContactDetails() {
+function ContactDetails({ contact }: { contact: Contact }) {
   return (
     <dl className="contacts-list">
       <dt>Телефон</dt>
       <dd>
-        <a href={reception.tel}>{reception.phone}</a>
+        <a href={contact.tel}>{contact.phone}</a>
       </dd>
       <dt>Электронная почта</dt>
       <dd>
-        <a href={`mailto:${reception.email}`}>{reception.email}</a>
+        <a href={`mailto:${contact.email}`}>{contact.email}</a>
       </dd>
       <dt>Проживание</dt>
       <dd>
         <Link href="/bronirovanie">Выбрать даты поездки</Link>
       </dd>
+      {contact.socials.length > 0 && (
+        <>
+          <dt>Социальные сети</dt>
+          <dd>
+            {contact.socials.map((link) => (
+              <div key={link.url}>
+                <a href={link.url}>{link.name}</a>
+              </div>
+            ))}
+          </dd>
+        </>
+      )}
       <dt>Для навигатора</dt>
       <dd>
-        <a href={mapHref}>
-          {reception.latitude}, {reception.longitude}
+        <a href={contact.mapHref}>
+          {contact.latitude}, {contact.longitude}
         </a>
       </dd>
     </dl>
   );
 }
-function GuideFooter() {
+export function GuideFooter({ contact }: { contact: Contact }) {
   return (
     <footer className="guide-footer">
       <div>
         <BookReturn />
-        <address>{reception.address}</address>
+        <address>{contact.address}</address>
       </div>
-      <div>
-        <a href={reception.tel}>{reception.phone}</a>
-        <a href={`mailto:${reception.email}`}>{reception.email}</a>
+      <div className="guide-footer-contacts">
+        <a href={contact.tel}>{contact.phone}</a>
+        <a href={`mailto:${contact.email}`}>{contact.email}</a>
       </div>
+      <Link className="guide-staff-link" href="/admin/site/login">
+        Вход для сотрудников
+      </Link>
     </footer>
   );
 }
-export function GuestGuide({ id, page }: { id: SectionId; page: Page }) {
+export function GuestGuide({
+  id,
+  page,
+  contact,
+  catalog,
+}: {
+  id: SectionId;
+  page: Page;
+  contact: Contact;
+  catalog: MediaCatalog;
+}) {
   return (
     <div className="guest-guide">
       <a className="guide-skip" href="#guest-content">
@@ -165,7 +214,8 @@ export function GuestGuide({ id, page }: { id: SectionId; page: Page }) {
       </a>
       <GuideHeader id={id} />
       <main className="guide-body" id="guest-content">
-        <PageHeading page={page} />
+        <PageHeading page={page} contact={contact} catalog={catalog} />
+        {page.body && <p className="guide-editorial">{page.body}</p>}
         <section
           className="guide-details"
           id="guide-details"
@@ -173,19 +223,23 @@ export function GuestGuide({ id, page }: { id: SectionId; page: Page }) {
         >
           <h2 id="detail-title">{page.section}</h2>
           {page.gallery ? (
-            <PhotoGallery photos={page.gallery} />
+            <PhotoGallery
+              photos={page.gallery.map((id) => catalogAsset(catalog, id))}
+            />
           ) : id === "kontakty" ? (
-            <ContactDetails />
+            <ContactDetails contact={contact} />
           ) : (
             <div className="guide-objects">
-              {page.items.map((i) => (
-                <ObjectCard key={i.name} item={i} />
-              ))}
+              {page.items
+                .filter((item) => item.visible)
+                .map((i) => (
+                  <ObjectCard key={i.id} item={i} catalog={catalog} />
+                ))}
             </div>
           )}
         </section>
       </main>
-      <GuideFooter />
+      <GuideFooter contact={contact} />
     </div>
   );
 }

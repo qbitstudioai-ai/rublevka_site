@@ -1,19 +1,29 @@
 import Image from "next/image";
 
-import { resolveMedia, type MediaId } from "@/content/media";
+import { resolveMedia, type MediaId, type MediaAsset } from "@/content/media";
 
 type MediaFrameProps = {
-  mediaId: MediaId;
   sizes: string;
   className?: string;
   eager?: boolean;
-};
+} & (
+  { asset: MediaAsset; mediaId?: never } | { mediaId: MediaId; asset?: never }
+);
 
-export function MediaFrame({ mediaId, sizes, className = "", eager = false }: MediaFrameProps) {
-  const asset = resolveMedia(mediaId);
+export function MediaFrame({
+  mediaId,
+  asset: supplied,
+  sizes,
+  className = "",
+  eager = false,
+}: MediaFrameProps) {
+  const asset = supplied ?? resolveMedia(mediaId!);
 
   return (
-    <figure className={`media-frame ${className}`.trim()} data-media-id={asset.id}>
+    <figure
+      className={`media-frame ${className}`.trim()}
+      data-media-id={asset.id}
+    >
       <Image
         className="media-frame__image"
         src={asset.src}
@@ -21,6 +31,7 @@ export function MediaFrame({ mediaId, sizes, className = "", eager = false }: Me
         width={asset.width}
         height={asset.height}
         sizes={sizes}
+        unoptimized={asset.src.startsWith("/cms-media/")}
         loading={eager ? "eager" : "lazy"}
         style={{ objectPosition: asset.focalPoint }}
       />

@@ -1,0 +1,39 @@
+name: Check
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            events-original/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - name: Install original app dependencies
+        working-directory: events-original
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
+      - name: Build original events application
+        shell: bash
+        run: |
+          export DATABASE_PATH="$RUNNER_TEMP/events-original.sqlite"
+          export UPLOADS_DIR="$RUNNER_TEMP/events-original-uploads"
+          export APP_URL=http://localhost:3000
+          export ADMIN_USERNAME=ci
+          export ADMIN_PASSWORD="$(openssl rand -hex 24)"
+          export ADMIN_SESSION_SECRET="$(openssl rand -hex 32)"
+          npm --prefix events-original run db:migrate
+          npm --prefix events-original run build
