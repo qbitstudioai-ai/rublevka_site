@@ -3,13 +3,21 @@ import type { KeyboardEvent, MouseEvent } from "react";
 import type { TerritoryObject } from "@/content/territory-map-types";
 import type { Point } from "@/content/territory-view";
 
-const labels: Record<number, { text: string; position: Point; anchor?: "start" }> = {
-  1: { text: "Ресепшн", position: [92, 370], anchor: "start" },
-  21: { text: "Малый зал", position: [447, 251] },
-  22: { text: "Большой зал", position: [638, 166] },
-  25: { text: "Большой бассейн", position: [774, 763] },
-};
 const points = (line: readonly Point[]) => line.map((point) => point.join(",")).join(" ");
+
+function pinOffset(object: TerritoryObject): Point {
+  if (object.number === 15) return [13, 8];
+  const xs = object.shape.map(([left]) => left);
+  const width = Math.max(...xs) - Math.min(...xs);
+  const inn = object.number === 17 || object.number === 19;
+  return [-Math.min(width * (inn ? 0.72 : 0.43), inn ? 40 : 29), object.category === "pool" ? 12 : 8];
+}
+
+export function mapPinPosition(object: TerritoryObject): Point {
+  const [x, y] = object.marker;
+  const [dx, dy] = pinOffset(object);
+  return [x + dx, y + dy];
+}
 
 export function MapMarker({
   object,
@@ -22,11 +30,11 @@ export function MapMarker({
   visible: boolean;
   selected: boolean;
   select: (trigger: SVGGElement) => void;
-  reveal: () => void;
+  reveal: (point: Point) => void;
 }) {
   const [x, y] = object.marker;
-  const label = labels[object.number];
   const contour = points(object.shape);
+  const [dx, dy] = pinOffset(object);
 
   function onKeyDown(event: KeyboardEvent<SVGGElement>) {
     if (event.key === "Enter" || event.key === " ") {
@@ -54,7 +62,7 @@ export function MapMarker({
       onClick={onClick}
       onKeyDown={onKeyDown}
       onFocus={(event) => {
-        if (event.currentTarget.matches(":focus-visible")) reveal();
+        if (event.currentTarget.matches(":focus-visible")) reveal([x + dx, y + dy]);
       }}
     >
       <g data-map-layer="hit-zone" aria-hidden="true">
@@ -68,15 +76,10 @@ export function MapMarker({
             <title>Отмеченный вход</title>
           </path>
         ))}
-        <g className="map-pin-label">
+        <g className="map-pin-label" transform={`translate(${dx} ${dy})`}>
           <circle className="map-pin" cx={x} cy={y} r="14" />
           <text className="map-number" x={x} y={y + 0.75}>{object.number}</text>
         </g>
-        {label ? (
-          <text className="map-label" x={label.position[0]} y={label.position[1]} textAnchor={label.anchor ?? "middle"}>
-            {label.text}
-          </text>
-        ) : null}
       </g>
     </g>
   );

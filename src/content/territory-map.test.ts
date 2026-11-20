@@ -4,7 +4,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { MapBuildings } from "../components/territory-map/map-buildings";
-import { territoryObjects, matchesFilter } from "./territory-map";
+import { MapArt } from "../components/territory-map/map-art";
+import { territoryBoundary, territoryObjects, matchesFilter } from "./territory-map";
 import { fullView, transformView } from "./territory-view";
 
 test("карта сохраняет номера и порядок объектов владельца", () => {
@@ -44,15 +45,22 @@ test("карточки двух гостиничных домов разделя
   })));
 });
 
-test("только два гостиничных дома используют общий детальный векторный рисунок", () => {
+test("живописные постройки заменяются по ID и гостиничные дома делят один WebP", () => {
   const art = renderToStaticMarkup(createElement("svg", null, createElement(MapBuildings, { objects: territoryObjects })));
   const detailed = art.match(/data-map-layer="detailed-buildings"[^>]*>(.+)/)?.[1];
   assert.ok(detailed);
   assert.deepEqual(Array.from(detailed.matchAll(/data-map-art="(\d+)"/g), ([, number]) => Number(number)).sort(), [17, 19]);
-  assert.equal(Array.from(art.matchAll(/<symbol id="territory-carved-inn"/g)).length, 1);
-  assert.equal(Array.from(art.matchAll(/href="#territory-carved-inn"/g)).length, 2);
-  assert.doesNotMatch(art, /<image\b/);
+  assert.equal(Array.from(art.matchAll(/href="\/art\/territory\/inn\.webp"/g)).length, 2);
+  assert.equal(Array.from(art.matchAll(/href="\/art\/territory\/pool\.webp"/g)).length, 2);
+  assert.doesNotMatch(art, /<symbol\b|data:image|href="[^"]+\.png"/);
   assert.equal(Array.from(art.matchAll(/data-map-art="/g)).length, 30);
+});
+
+test("у живописного фона есть отдельный мобильный AVIF и контур из реестра", () => {
+  const art = renderToStaticMarkup(createElement("svg", null, createElement(MapArt, { boundary: territoryBoundary })));
+  assert.match(art, /<source media="\(max-width: 670px\)" srcSet="\/art\/territory\/grove-640\.avif"/i);
+  assert.match(art, /\/art\/territory\/grove-1254\.avif/);
+  assert.ok(art.includes(territoryBoundary.map((point) => point.join(",")).join(" ")));
 });
 
 test("стены залов сходятся под прямыми углами", () => {
