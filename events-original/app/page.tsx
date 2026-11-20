@@ -3,6 +3,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { CommunitySection } from "@/components/CommunitySection";
 import { EventCard } from "@/components/EventCard";
+import { PublicSiteHeader } from "@/components/PublicSiteHeader";
 import { BRAND_LOGO, MAIN_SITE_URL } from "@/lib/brand";
 import { todayIso } from "@/lib/format";
 import { getDb } from "@/lib/server/db";
@@ -27,7 +28,8 @@ export default async function Home() {
   const { community } = getPublicSettings(db);
 
   return (
-    <>
+    <div className="public-site-shell">
+      <PublicSiteHeader onIndex />
       <main>
         <header className="events-hero" aria-labelledby="events-title">
           <div className="events-hero-inner">
@@ -80,6 +82,6 @@ export default async function Home() {
       <footer className="site-footer">
         <p>Загородный комплекс «Рублёвка»</p>
       </footer>
-    </>
+    </div>
   );
 }

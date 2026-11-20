@@ -30,7 +30,7 @@ export default defineConfig({
       // Каждый запуск — с чистой тестовой БД; рабочая база data/ не затрагивается.
       // Сервер — production-артефакт .next/standalone/server.js, тот же, что в Docker-образе.
       command: "node scripts/e2e-prepare.mjs && node .next/standalone/server.js",
-      url: `${baseURL}/api/health`,
+      url: `${baseURL}/meropriyatiya/api/health`,
       reuseExistingServer: false,
       timeout: 120_000,
       env: {
@@ -40,6 +40,7 @@ export default defineConfig({
         APP_URL: baseURL,
         DATABASE_PATH: E2E_DATABASE_PATH,
         UPLOADS_DIR: E2E_UPLOADS_DIR,
+        EVENTS_ORIGINAL_TEST: "true",
         ADMIN_USERNAME: E2E_ADMIN.username,
         ADMIN_PASSWORD: E2E_ADMIN.password,
         ADMIN_SESSION_SECRET: E2E_ADMIN.secret,

@@ -1,8 +1,15 @@
 .stay-main {
-  padding-block: 1.2rem 3rem;
+  padding-block: clamp(1.5rem, 4vw, 3.5rem) clamp(3rem, 7vw, 6rem);
 }
 .stay-main h1 {
-  margin: 0.6rem 0 1.5rem;
+  max-width: none;
+  margin: 0.5rem 0 1.8rem;
+  color: var(--gold-light);
+  font-size: clamp(3.5rem, 7vw, 6.5rem);
+  text-shadow: 0 2px 0 #351a12;
+}
+.stay-main .back-to-book {
+  color: var(--gold-light) !important;
 }
 .stay-layout {
   display: grid;
@@ -12,15 +19,24 @@
 }
 .stay-form,
 .stay-aside {
-  border: 1px solid var(--edge);
-  background: #fff8e9;
+  color: var(--ink);
+  border: 4px double var(--edge);
+  border-radius: 0.9rem;
+  background: var(--paper-light) var(--paper-texture) center / 420px;
+  box-shadow: 0 0.8rem 2rem #09060469, inset 0 0 1.2rem #a86b2630;
+  overflow: hidden;
 }
 .stay-form,
 .stay-aside > div {
   padding: clamp(1rem, 3vw, 2rem);
 }
 .stay-main h2 {
+  margin: 0 0 1.5rem;
+  line-height: 1.05;
+  color: var(--wine);
   font-size: clamp(1.7rem, 3vw, 2.6rem);
+  text-align: left;
+  text-shadow: none;
 }
 .stay-fields {
   display: grid;
@@ -45,8 +61,9 @@
   min-height: 46px;
   background: white;
   color: var(--ink);
-  border: 1px solid var(--edge);
-  padding: 0.45rem;
+  border: 2px solid #9b7448;
+  border-radius: 0.35rem;
+  padding: 0.55rem 0.65rem;
   font: 1rem var(--utility);
 }
 .stay-fields small {
@@ -54,6 +71,7 @@
 }
 .stay-aside figure {
   height: clamp(8rem, 14vw, 12rem);
+  border-bottom: 2px solid var(--edge);
 }
 .stay-aside p {
   margin: 0 0 1rem;
@@ -69,12 +87,14 @@
   margin-right: 1rem;
   min-height: 44px;
   color: var(--wine);
+  font-weight: 700;
 }
 .stay-aside button {
   background: none;
   border: 0;
   text-decoration: underline;
   padding: 0;
+  cursor: pointer;
 }
 .stay-aside span {
   display: block;

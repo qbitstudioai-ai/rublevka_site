@@ -10,6 +10,17 @@ const demoDateLabel = () =>
 const activity = (page: Page, title: string) => page.getByRole("checkbox", { name: new RegExp(title) });
 
 test.describe("публичная анкета", () => {
+  test("общая навигация ведёт из приложения мероприятий на основной сайт", async ({ page }) => {
+    await page.goto("/meropriyatiya");
+    const toggle = page.locator(".public-site-menu summary");
+    if (await toggle.isVisible()) await toggle.click();
+    const navigation = page.getByRole("navigation", { name: "Разделы комплекса" });
+    await expect(navigation).toBeVisible();
+    await expect(navigation.getByRole("link", { name: "Проживание" })).toHaveAttribute("href", "/prozhivanie");
+    await expect(navigation.getByRole("link", { name: "Карта комплекса" })).toHaveAttribute("href", "/karta");
+    await expect(page.getByRole("link", { name: "Выбрать даты" }).first()).toHaveAttribute("href", "/bronirovanie");
+  });
+
   test("назначение страницы и данные мероприятия из БД", async ({ page }) => {
     await page.goto(DEMO);
     const h1 = page.getByRole("heading", { level: 1 });

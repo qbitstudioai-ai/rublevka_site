@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { CopyPhoneButton } from "@/components/CopyPhoneButton";
+import { PublicSiteHeader } from "@/components/PublicSiteHeader";
 import { BRAND_LOGO, PAYMENT_BANK_NAME } from "@/lib/brand";
 import { formatEventDate } from "@/lib/format";
 import { formatRub, paymentHeading } from "@/lib/money";
@@ -55,6 +56,8 @@ export default async function PaymentPage({ params }: PageProps) {
   const heading = paymentHeading(registration.event_price_kopecks, paidActivities.length > 0);
 
   return (
+    <div className="public-site-shell">
+    <PublicSiteHeader />
     <main className="payment-page">
       <header className="payment-header">
         <Link className="back-link" href={`/event/${event.slug}`}>
@@ -164,5 +167,6 @@ export default async function PaymentPage({ params }: PageProps) {
         </section>
       )}
     </main>
+    </div>
   );
 }
