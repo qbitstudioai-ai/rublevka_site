@@ -75,9 +75,6 @@ const descriptions: Partial<Record<number, string>> = {
 };
 
 function description(object: Input): string {
-  if (object.room_count === 4 && object.guests_per_room === 2) {
-    return "В корпусе четыре двухместных номера.";
-  }
   return descriptions[object.number] ??
     (object.construction === "log" ? "Деревянный сруб." :
       object.construction === "modular" ? "Отдельный модульный дом." :
@@ -90,6 +87,7 @@ function destination(path: string | null): MapDestination | null {
 
 export const territoryObjects: readonly TerritoryObject[] = source.objects.map((object) => {
   const [type, filter] = kinds[object.category as keyof typeof kinds];
+  const hotel = object.room_count === 4 && object.guests_per_room === 2;
   return {
     shape: footprint(object),
     id: object.id,
@@ -97,9 +95,10 @@ export const territoryObjects: readonly TerritoryObject[] = source.objects.map((
     name: object.name,
     category: object.category,
     marker: asPoint(object.label),
-    type,
+    ...(hotel ? { cardTitle: object.name.split(":", 1)[0] } : {}),
+    type: hotel ? "Гостиничный дом" : type,
     filter,
-    description: description(object),
+    description: hotel ? "Двухэтажный сруб на четыре двухместных номера." : description(object),
     capacity: object.capacity_guests ?? null,
     destination: destination(object.destination),
     entrances: object.entrances.map(({ tip, side }) => ({

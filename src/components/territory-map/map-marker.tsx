@@ -57,20 +57,27 @@ export function MapMarker({
         if (event.currentTarget.matches(":focus-visible")) reveal();
       }}
     >
-      <polygon className="map-footprint" points={contour} />
-      {object.entrances.map(({ tip, angle }) => (
-        <path key={tip.join(",")} className="map-entrance" d="M-4-13L0-7L4-13M0-16V-7" transform={`translate(${tip.join(" ")}) rotate(${angle})`}>
-          <title>Отмеченный вход</title>
-        </path>
-      ))}
-      <circle className="map-hit" cx={x} cy={y} r="18" />
-      <circle className="map-pin" cx={x} cy={y} r="14" />
-      <text className="map-number" x={x} y={y + 0.75}>{object.number}</text>
-      {label ? (
-        <text className="map-label" x={label.position[0]} y={label.position[1]} textAnchor={label.anchor ?? "middle"}>
-          {label.text}
-        </text>
-      ) : null}
+      <g data-map-layer="hit-zone" aria-hidden="true">
+        <polygon className="map-footprint" points={contour} />
+        <circle className="map-hit" cx={x} cy={y} r="18" />
+      </g>
+      <g className="map-marker-display" data-map-layer="marker" aria-hidden="true">
+        <polygon className="map-selection-outline" points={contour} />
+        {object.entrances.map(({ tip, angle }) => (
+          <path key={tip.join(",")} className="map-entrance" d="M-4-13L0-7L4-13M0-16V-7" transform={`translate(${tip.join(" ")}) rotate(${angle})`}>
+            <title>Отмеченный вход</title>
+          </path>
+        ))}
+        <g className="map-pin-label">
+          <circle className="map-pin" cx={x} cy={y} r="14" />
+          <text className="map-number" x={x} y={y + 0.75}>{object.number}</text>
+        </g>
+        {label ? (
+          <text className="map-label" x={label.position[0]} y={label.position[1]} textAnchor={label.anchor ?? "middle"}>
+            {label.text}
+          </text>
+        ) : null}
+      </g>
     </g>
   );
 }

@@ -1,7 +1,4 @@
 import type { Point } from "@/content/territory-view";
-import type { TerritoryObject } from "@/content/territory-map-types";
-
-import { MapBuildings } from "./map-buildings";
 
 export function AtlasOakSprig() {
   return (
@@ -47,16 +44,10 @@ const lanes = [
   "M376 697C339 698 313 690 283 708M665 672C688 671 701 653 708 633",
 ];
 
-export function MapArt({
-  boundary,
-  objects,
-}: {
-  boundary: readonly Point[];
-  objects: readonly TerritoryObject[];
-}) {
+export function MapArt({ boundary }: { boundary: readonly Point[] }) {
   const points = boundary.map((point) => point.join(",")).join(" ");
   return (
-    <g aria-hidden="true" className="map-art">
+    <g aria-hidden="true" className="map-art" data-map-layer="terrain">
       <defs>
         <linearGradient id="territory-land" x2="80%" y2="90%">
           <stop className="map-land-light" />
@@ -127,7 +118,6 @@ export function MapArt({
           />
         ))}
       </g>
-      <MapBuildings objects={objects} />
       <text className="map-grove-label" x="391" y="704" transform="rotate(-9 391 704)">
         Дубовая роща
       </text>

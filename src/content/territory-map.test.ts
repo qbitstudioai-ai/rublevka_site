@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
+import { MapBuildings } from "../components/territory-map/map-buildings";
 import { territoryObjects, matchesFilter } from "./territory-map";
 import { fullView, transformView } from "./territory-view";
 
@@ -24,10 +27,32 @@ test("карточки ведут к разделам без фиктивных 
   const byNumber = new Map(territoryObjects.map((object) => [object.number, object]));
   assert.equal(byNumber.get(1)?.destination, "/kontakty");
   assert.equal(byNumber.get(17)?.destination, "/prozhivanie");
-  assert.equal(byNumber.get(19)?.description, "В корпусе четыре двухместных номера.");
   assert.equal(byNumber.get(22)?.destination, "/banketnye-zaly");
   assert.equal(byNumber.get(25)?.destination, "/uslugi");
   assert.equal(byNumber.get(30)?.destination, null);
+});
+
+test("карточки двух гостиничных домов разделяют название, тип и состав номеров", () => {
+  const hotels = territoryObjects.filter(({ number }) => number === 17 || number === 19);
+  assert.deepEqual(hotels.map(({ cardTitle, type, description, destination }) => ({
+    cardTitle, type, description, destination,
+  })), ["Дом №10", "Дом №9"].map((cardTitle) => ({
+    cardTitle,
+    type: "Гостиничный дом",
+    description: "Двухэтажный сруб на четыре двухместных номера.",
+    destination: "/prozhivanie",
+  })));
+});
+
+test("только два гостиничных дома используют общий детальный векторный рисунок", () => {
+  const art = renderToStaticMarkup(createElement("svg", null, createElement(MapBuildings, { objects: territoryObjects })));
+  const detailed = art.match(/data-map-layer="detailed-buildings"[^>]*>(.+)/)?.[1];
+  assert.ok(detailed);
+  assert.deepEqual(Array.from(detailed.matchAll(/data-map-art="(\d+)"/g), ([, number]) => Number(number)).sort(), [17, 19]);
+  assert.equal(Array.from(art.matchAll(/<symbol id="territory-carved-inn"/g)).length, 1);
+  assert.equal(Array.from(art.matchAll(/href="#territory-carved-inn"/g)).length, 2);
+  assert.doesNotMatch(art, /<image\b/);
+  assert.equal(Array.from(art.matchAll(/data-map-art="/g)).length, 30);
 });
 
 test("стены залов сходятся под прямыми углами", () => {

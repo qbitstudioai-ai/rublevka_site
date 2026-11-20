@@ -190,7 +190,7 @@
   .territory-cartouche, .territory-sprig { display: none; }
 }
 
-.map-art { pointer-events: none; }
+.map-art, .map-buildings { pointer-events: none; }
 .map-land-light { stop-color: var(--map-land-light); }
 .map-land-middle { stop-color: var(--map-land-middle); }
 .map-land-shade { stop-color: var(--map-land); }
@@ -275,8 +275,10 @@
 
 .map-marker { cursor: pointer; }
 .map-marker:focus-visible { outline: none; }
-.map-marker > :not(.map-hit, .map-footprint, .map-pin) { pointer-events: none; }
+.map-marker-display { pointer-events: none; }
+.map-marker-display .map-pin { pointer-events: auto; }
 .map-footprint { fill: transparent; stroke: transparent; stroke-linejoin: round; }
+.map-selection-outline { fill: none; stroke: none; stroke-linejoin: round; }
 .map-entrance {
   stroke: var(--map-light);
   stroke-width: 2.8;
@@ -295,11 +297,11 @@
 }
 .map-marker[data-muted] * { pointer-events: none; }
 .map-marker[data-muted] :is(.map-pin, .map-number, .map-label, .map-entrance) { visibility: hidden; }
-.map-marker:is(:focus-visible, [aria-pressed="true"]) .map-footprint { stroke: var(--map-highlight); stroke-width: 4; }
+.map-marker:is(:focus-visible, [aria-pressed="true"]) .map-selection-outline { stroke: var(--map-highlight); stroke-width: 4; }
 .map-marker:is(:focus-visible, [aria-pressed="true"]) .map-pin { fill: var(--map-accent); stroke: var(--map-highlight); stroke-width: 3; }
 .map-marker:is(:focus-visible, [aria-pressed="true"]) .map-number { fill: var(--map-light); }
 @media (hover: hover) {
-  .map-marker:not([data-muted]):hover .map-footprint { stroke: var(--map-highlight); stroke-width: 4; }
+  .map-marker:not([data-muted]):hover .map-selection-outline { stroke: var(--map-highlight); stroke-width: 4; }
   .map-marker:not([data-muted]):hover .map-pin { fill: var(--map-accent); stroke: var(--map-highlight); stroke-width: 3; }
   .map-marker:not([data-muted]):hover .map-number { fill: var(--map-light); }
 }

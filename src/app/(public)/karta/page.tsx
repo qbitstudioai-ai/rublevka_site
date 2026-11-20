@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 
 import { GuideHeader } from "@/components/guide/guide-page";
 import { AtlasOakSprig, MapArt } from "@/components/territory-map/map-art";
+import { MapBuildings } from "@/components/territory-map/map-buildings";
 import { TerritoryMap } from "@/components/territory-map/territory-map";
 import { territoryBoundary, territoryObjects } from "@/content/territory-map";
 import { getSiteUrl, isIndexingEnabled } from "@/server/site-url";
 
 import "../[section]/guide.css";
 import "./territory.css";
+import "./carved-inn.css";
 
 const title = "Карта комплекса";
 const description = "Интерактивная карта Рублевки. Найдите дома, беседки, банкетные залы, бассейны и другие объекты на территории комплекса.";
@@ -40,7 +42,8 @@ export default function MapPage() {
           <p>Выберите объект на карте или найдите его в списке.</p>
         </header>
         <TerritoryMap objects={territoryObjects} ornament={<AtlasOakSprig />}>
-          <MapArt boundary={territoryBoundary} objects={territoryObjects} />
+          <MapArt boundary={territoryBoundary} />
+          <MapBuildings objects={territoryObjects} />
         </TerritoryMap>
       </main>
       <script

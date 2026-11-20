@@ -160,7 +160,7 @@ export function TerritoryMap({
             <p className="territory-card-meta">
               <span className="territory-card-number">№{selected.number}</span> {selected.type}
             </p>
-            <h2 id="territory-card-title">{selected.name}</h2>
+            <h2 id="territory-card-title">{selected.cardTitle ?? selected.name}</h2>
             <p className="territory-card-copy">{selected.description}</p>
             {selected.capacity ? <p className="territory-capacity">До {selected.capacity} гостей</p> : null}
             {selected.destination ? (

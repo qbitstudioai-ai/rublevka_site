@@ -1,5 +1,18 @@
+import type { ComponentType, ReactNode } from "react";
 import type { TerritoryObject } from "@/content/territory-map-types";
 import type { Point } from "@/content/territory-view";
+
+import { CarvedInn, CarvedInnDefinitions } from "./carved-inn";
+
+type DetailedModel = {
+  Artwork: ComponentType<{ object: TerritoryObject }>;
+  Definitions: ComponentType;
+};
+const carvedInn: DetailedModel = { Artwork: CarvedInnPlacement, Definitions: CarvedInnDefinitions };
+const detailedModels = new Map<string, DetailedModel>([
+  ["object-17", carvedInn],
+  ["object-19", carvedInn],
+]);
 
 const round = (value: number) => Math.round(value * 10) / 10;
 const points = (list: readonly Point[]) => list.map(([x, y]) => `${round(x)},${round(y)}`).join(" ");
@@ -13,6 +26,11 @@ function boxCoordinates(shape: readonly Point[]) {
     width: Math.hypot(b[0] - a[0], b[1] - a[1]),
     depth: Math.hypot(d[0] - a[0], d[1] - a[1]),
   };
+}
+
+function CarvedInnPlacement({ object }: { object: TerritoryObject }) {
+  const { transform, width, depth } = boxCoordinates(object.shape);
+  return <g transform={transform}><CarvedInn width={width} depth={depth} /></g>;
 }
 
 type Box = { width: number; depth: number; height: number; gallery?: boolean };
@@ -183,31 +201,58 @@ function Clearing({ object }: { object: TerritoryObject }) {
   );
 }
 
+function BuildingArt({ object, children }: { object: TerritoryObject; children: ReactNode }) {
+  return (
+    <g className="map-relief" data-map-art={object.number} data-kind={object.category} data-art-filter={object.filter}>
+      {children}
+    </g>
+  );
+}
+
+function StylizedBuilding({ object }: { object: TerritoryObject }) {
+  const { number, category, shape } = object;
+  if (shape.length > 4) return <SteppedBuilding object={object} />;
+  if (category === "activity") return <Clearing object={object} />;
+  const { transform, width, depth } = boxCoordinates(shape);
+  const height = category === "banquet" || number === 27 || number === 28 ? 19 : 10;
+  return (
+    <g transform={transform}>
+      {category === "pool" ? <Pool width={width} depth={depth} /> : category === "gazebo" ? (
+        <Pavilion width={width} depth={depth} height={10} />
+      ) : <Cabin width={width} depth={depth} height={height} />}
+      {category === "landmark" ? (
+        <path className="relief-mill" d="M8 0l17 20m1-20L8 20M7 1l5-4 7 7-5 4m5 5 5-4 7 8-5 4" />
+      ) : null}
+    </g>
+  );
+}
+
 export function MapBuildings({ objects }: { objects: readonly TerritoryObject[] }) {
   const frontEdge = (object: TerritoryObject) => Math.max(...object.shape.map(([, y]) => y));
+  const stylized: ReactNode[] = [];
+  const detailed: ReactNode[] = [];
+  const definitions = new Set<ComponentType>();
+
+  for (const object of objects.toSorted((a, b) => frontEdge(a) - frontEdge(b))) {
+    const model = detailedModels.get(object.id);
+    if (!model) {
+      stylized.push(<BuildingArt object={object} key={object.id}><StylizedBuilding object={object} /></BuildingArt>);
+      continue;
+    }
+    const { Artwork, Definitions } = model;
+    definitions.add(Definitions);
+    detailed.push(
+      <BuildingArt object={object} key={object.id}>
+        <Artwork object={object} />
+      </BuildingArt>,
+    );
+  }
+
   return (
     <g className="map-buildings" aria-hidden="true">
-      {objects.toSorted((a, b) => frontEdge(a) - frontEdge(b)).map((object) => {
-        const { number, category, shape } = object;
-        const { transform, width, depth } = boxCoordinates(shape);
-        const height = category === "banquet" || [17, 19, 27, 28].includes(number) ? 19 : 10;
-        return (
-          <g key={object.id} className="map-relief" data-map-art={number} data-kind={category} data-art-filter={object.filter}>
-            {shape.length > 4 ? <SteppedBuilding object={object} /> : category === "activity" ? (
-              <Clearing object={object} />
-            ) : (
-              <g transform={transform}>
-                {category === "pool" ? <Pool width={width} depth={depth} /> : category === "gazebo" ? (
-                  <Pavilion width={width} depth={depth} height={10} />
-                ) : <Cabin width={width} depth={depth} height={height} />}
-                {category === "landmark" ? (
-                  <path className="relief-mill" d="M8 0l17 20m1-20L8 20M7 1l5-4 7 7-5 4m5 5 5-4 7 8-5 4" />
-                ) : null}
-              </g>
-            )}
-          </g>
-        );
-      })}
+      <defs>{Array.from(definitions, (Definitions, index) => <Definitions key={index} />)}</defs>
+      <g data-map-layer="stylized-buildings">{stylized}</g>
+      <g data-map-layer="detailed-buildings">{detailed}</g>
     </g>
   );
 }
