@@ -30,6 +30,7 @@ export default async function Booking() {
   ]);
   const contact = contactLinks(contacts);
   const catalog = catalogFor(media.items);
+  const cover = book.chapters[0];
   const labels: Record<Room, string> = { ...roomLabels };
   for (const item of lodging.items) {
     if (item.room) labels[item.room] = item.name;
@@ -48,7 +49,7 @@ export default async function Booking() {
           roomLabels={labels}
           photo={
             catalog["house-oaks"] ??
-            catalogAsset(catalog, book.chapters[0].photo)
+            catalogAsset(catalog, cover.layout === "manifesto" ? lodging.photo : cover.photo)
           }
         />
       </main>

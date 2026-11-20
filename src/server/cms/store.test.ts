@@ -6,7 +6,7 @@ import { db, pool } from "../events/db";
 import { cmsSiteStaff } from "./auth-schema";
 import { siteDefaults } from "./defaults";
 import { CmsError } from "./model";
-import { cmsSiteContentAudit } from "./schema";
+import { cmsSiteContentAudit, cmsSiteDocuments } from "./schema";
 import {
   publishDraft,
   readDocument,
@@ -53,6 +53,40 @@ before(async () => {
   editor = staff.find((user) => user.role === "editor")!.id;
 });
 after(() => pool.end());
+
+test("a three-chapter PostgreSQL record keeps existing edits and publishes chapter IV through review", async () => {
+  const published = {
+    ...siteDefaults.book,
+    chapters: structuredClone(siteDefaults.book.chapters.slice(0, 3)),
+  };
+  published.chapters[0].title = "Старая обложка";
+  const draft = structuredClone(published);
+  draft.chapters[0].title = "Обложка в черновике";
+  const key = eq(cmsSiteDocuments.key, "book");
+  await db.update(cmsSiteDocuments).set({ published, draft, state: "draft" }).where(key);
+
+  const legacy = await readDocument("book");
+  assert.deepEqual(legacy.draft.chapters.slice(0, 3), draft.chapters);
+  assert.deepEqual(legacy.published.chapters.slice(0, 3), published.chapters);
+  const [untouched] = await db.select().from(cmsSiteDocuments).where(key);
+  assert.deepEqual(untouched.published, published);
+  assert.deepEqual(untouched.draft, draft);
+  assert.equal(untouched.state, "draft");
+  assert.equal(untouched.revision, legacy.revision);
+  await assert.rejects(saveDraft("book", draft, legacy.revision, admin), CmsError);
+
+  const chapter = legacy.draft.chapters[3];
+  assert.ok(chapter.layout === "manifesto");
+  chapter.subtitle = "Тепло и внимание к каждому Гостю!";
+  const saved = await saveDraft("book", legacy.draft, legacy.revision, admin);
+  assert.deepEqual(await readPublished("book"), legacy.published);
+  const review = await submitDraft("book", saved.revision, admin);
+  const live = await publishDraft("book", review.revision, admin);
+  assert.deepEqual(await readPublished("book"), legacy.draft);
+
+  await restorePublished("book", live.revision, admin);
+  assert.deepEqual(await readPublished("book"), legacy.published);
+});
 
 test("editing and review preserve the public page until an administrator publishes, with rollback", async () => {
   const current = await readDocument("prozhivanie");

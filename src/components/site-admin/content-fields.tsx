@@ -1,4 +1,6 @@
 import type { SiteData } from "@/server/cms/model";
+import type { ManifestoChapter } from "@/content/home";
+import { Fragment } from "react";
 import { sectionIds, sections, type SectionId } from "@/content/sections";
 import { Field, MoveButtons, moveAt, Photo, PhotosField } from "./fields";
 
@@ -125,43 +127,79 @@ export function BookFields({ value, change, items, publishedMedia }: Change<Book
     <section className="sa-panel">
       <h2>Главы книги</h2>
       {value.chapters.map((chapter, index) => {
-        const update = (patch: Partial<Book["chapters"][number]>) => change({
+        const update = (updated: Book["chapters"][number]) => change({
           ...value,
-          chapters: value.chapters.map((entry) => entry.id === chapter.id ? { ...entry, ...patch } : entry),
+          chapters: value.chapters.map((entry) => entry.id === chapter.id ? updated : entry),
         });
         return (
           <details className="sa-item" key={chapter.id} open={index === 0 ? true : undefined}>
             <summary>Глава {index + 1} · {chapter.title}</summary>
             <div className="sa-stack">
-              <Field label="Название главы" value={chapter.title} onChange={(title) => update({ title })} />
-              <Field label="Подпись в оглавлении" value={chapter.label} onChange={(label) => update({ label })} />
-              <Field label="Короткое описание" multiline value={chapter.text} onChange={(text) => update({ text })} />
-              <PhotosField label="Фотография главы" value={chapter.photo} items={items}
-                publishedMedia={publishedMedia} onChange={(photo) => update({ photo })} />
-              <Field label="Подпись к фотографии" value={chapter.caption} onChange={(caption) => update({ caption })} />
-              {chapter.entries?.map((entry, index, entries) => (
-                <div className="sa-fields" key={index}>
-                  <Field label={`Текст ссылки ${index + 1}`} value={entry.title}
-                    onChange={(title) => update({
-                      entries: entries.map((item, i) => i === index ? { ...item, title } : item),
-                    })} />
-                  <label className="sa-field">
-                    Раздел сайта
-                    <select value={entry.section} onChange={(event) => update({
-                      entries: entries.map((item, i) => i === index
-                        ? { ...item, section: event.target.value as SectionId }
-                        : item),
-                    })}>
-                      {sectionIds.map((id) => <option key={id} value={id}>{sections[id]}</option>)}
-                    </select>
-                  </label>
-                </div>
-              ))}
+              <Field label="Название главы" value={chapter.title} onChange={(title) => update({ ...chapter, title })} />
+              <Field label="Подпись в оглавлении" value={chapter.label} onChange={(label) => update({ ...chapter, label })} />
+              {chapter.layout === "manifesto" ? (
+                <ManifestoFields value={chapter} change={update} />
+              ) : (
+                <>
+                  <Field label="Короткое описание" multiline value={chapter.text}
+                    onChange={(text) => update({ ...chapter, text })} />
+                  <PhotosField label="Фотография главы" value={chapter.photo} items={items}
+                    publishedMedia={publishedMedia} onChange={(photo) => update({ ...chapter, photo })} />
+                  <Field label="Подпись к фотографии" value={chapter.caption}
+                    onChange={(caption) => update({ ...chapter, caption })} />
+                  {chapter.entries?.map((entry, index, entries) => (
+                    <div className="sa-fields" key={index}>
+                      <Field label={`Текст ссылки ${index + 1}`} value={entry.title}
+                        onChange={(title) => update({
+                          ...chapter,
+                          entries: entries.map((item, i) => i === index ? { ...item, title } : item),
+                        })} />
+                      <label className="sa-field">
+                        Раздел сайта
+                        <select value={entry.section} onChange={(event) => update({
+                          ...chapter,
+                          entries: entries.map((item, i) => i === index
+                            ? { ...item, section: event.target.value as SectionId }
+                            : item),
+                        })}>
+                          {sectionIds.map((id) => <option key={id} value={id}>{sections[id]}</option>)}
+                        </select>
+                      </label>
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
           </details>
         );
       })}
     </section>
+  );
+}
+
+function ManifestoFields({ value, change }: Change<ManifestoChapter>) {
+  return (
+    <>
+      <Field label="Подзаголовок" multiline value={value.subtitle}
+        onChange={(subtitle) => change({ ...value, subtitle })} />
+      {value.paragraphs.map((paragraph, index) => (
+        <Fragment key={index}>
+          <Field label={`Абзац ${index + 1}`} multiline value={paragraph}
+            onChange={(next) => change({
+              ...value,
+              paragraphs: value.paragraphs.map((item, i) => i === index ? next : item),
+            })} />
+          {index === 2 && (
+            <Field label="Ключевая фраза" value={value.emphasis}
+              onChange={(emphasis) => change({ ...value, emphasis })} />
+          )}
+        </Fragment>
+      ))}
+      <Field label="Заключительная фраза" value={value.closing}
+        onChange={(closing) => change({ ...value, closing })} />
+      <Field label="Цитата под гравюрой" multiline value={value.quote}
+        onChange={(quote) => change({ ...value, quote })} />
+    </>
   );
 }
 
