@@ -18,7 +18,6 @@
   background: var(--map-forest);
 }
 
-.territory-page .guide-bar,
 .territory-intro,
 .territory-filters,
 .territory-card,
@@ -30,26 +29,12 @@
   box-shadow: 0 7px 18px var(--map-shadow), inset 0 0 14px #ad702b40;
 }
 
-.territory-page .guide-bar {
-  margin-inline: var(--map-gutter);
-  border-start-start-radius: 0;
-  border-start-end-radius: 0;
-}
-.territory-page .guide-bar-inner { max-width: 90rem; }
-.territory-page .guide-brand { color: var(--map-wine) !important; }
-.territory-page .wide-nav a {
-  font-family: var(--map-reading);
-  font-size: 1rem;
-}
-.territory-page :is(.wide-nav, .small-nav) a[aria-current] { color: var(--map-wine); }
-.territory-page .guide-date,
 .territory-cta {
   color: var(--map-pale) !important;
   background: var(--map-wine);
   border: 3px double var(--map-highlight);
   border-radius: 0.55rem;
 }
-.territory-page .guide-date { min-width: max-content; }
 .territory-page :focus-visible { outline-color: var(--map-focus); }
 .territory-workspace { position: relative; }
 
@@ -357,29 +342,8 @@
   .territory-svg { max-height: 72svh; }
   .territory-svg:not([data-zoomed]) { touch-action: pan-y; }
 }
-@media (max-width: 1240px) {
-  .territory-page .wide-nav { display: none; }
-  .territory-page .small-nav { display: block; }
-  .territory-page .small-nav summary { cursor: pointer; }
-  .territory-page .small-nav nav {
-    display: grid;
-    position: absolute;
-    z-index: 4;
-    right: var(--map-gutter);
-    max-height: calc(100dvh - 5rem);
-    min-width: 12rem;
-    padding: 0.4rem 1rem;
-    overflow-y: auto;
-    background: var(--map-paper);
-    border: 1px solid var(--map-gold);
-    border-radius: 0.55rem;
-  }
-}
 @media (max-width: 670px) {
   .territory-page { --map-grove: url("/art/territory/grove-640.avif"); }
-  .territory-page .guide-bar { margin-inline: 0; }
-  .territory-page .guide-bar-inner { padding-inline: 0.65rem; }
-  .territory-page .guide-date { font-size: 0.8rem; }
   .territory-toolbar { gap: 0.4rem; }
   .territory-intro { padding: 0.75rem; }
   .territory-intro p { margin-top: 0.3rem; font-size: 0.92rem; }

@@ -9,30 +9,35 @@ import {
 type Page = SiteData[SectionId];
 type GuideItem = Page["items"][number];
 type Contact = ReturnType<typeof contactLinks>;
-import { sections, sectionIds, type SectionId } from "@/content/sections";
+import { type SectionId } from "@/content/sections";
+import {
+  bookingHref,
+  publicNavigation,
+  type PublicNavigationId,
+} from "@/content/public-nav";
 import { MediaFrame } from "../ui/media-frame";
 import { BookReturn } from "./book-return";
 import { PhotoGallery } from "./gallery";
 
-type GuideLocation = SectionId | "karta";
+type GuideLocation = PublicNavigationId;
 
 function SectionLinks({ current }: { current?: GuideLocation }) {
   return (
     <>
-      {sectionIds.map((id) => (
-        <Link
-          key={id}
-          href={"/" + id}
-          aria-current={id === current ? "page" : undefined}
-        >
-          {sections[id]}
-        </Link>
-      ))}
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- The mounted events app owns its own router. */}
-      <a href="/meropriyatiya">Мероприятия</a>
-      <Link href="/karta" aria-current={current === "karta" ? "page" : undefined} prefetch={false}>
-        Карта комплекса
-      </Link>
+      {publicNavigation.map((item) =>
+        item.id === "meropriyatiya" ? (
+          <a key={item.id} href={item.href}>{item.label}</a>
+        ) : (
+          <Link
+            key={item.id}
+            href={item.href}
+            aria-current={item.id === current ? "page" : undefined}
+            prefetch={item.id === "karta" ? false : undefined}
+          >
+            {item.label}
+          </Link>
+        ),
+      )}
     </>
   );
 }
@@ -46,13 +51,16 @@ export function GuideHeader({ id }: { id?: GuideLocation }) {
         <nav className="wide-nav" aria-label="Разделы комплекса">
           <SectionLinks current={id} />
         </nav>
-        <Link href="/bronirovanie" className="guide-date">
+        <Link href={bookingHref} className="guide-date">
           Выбрать даты
         </Link>
         <details className="small-nav">
-          <summary>Разделы ☰</summary>
+          <summary>
+            <span>Меню</span>
+            <span className="guide-menu-icon" aria-hidden="true" />
+          </summary>
           <nav aria-label="Разделы комплекса">
-            <Link href="/bronirovanie">Выбрать даты проживания</Link>
+            <Link className="small-nav-date" href={bookingHref}>Выбрать даты проживания</Link>
             <SectionLinks current={id} />
           </nav>
         </details>
@@ -105,7 +113,7 @@ function PageHeading({
       <div className="guide-plate">
         <MediaFrame
           asset={catalogAsset(catalog, page.photo)}
-          sizes="(max-width: 700px) 92vw, 54vw"
+          sizes="(max-width: 760px) 94vw, 100vw"
           eager
         />
         <p>{page.caption}</p>
@@ -121,13 +129,14 @@ function ObjectCard({
   catalog: MediaCatalog;
 }) {
   return (
-    <article className="guide-object">
+    <article className="guide-object" data-photo={Boolean(item.photo)}>
       {item.photo && (
         <MediaFrame
           asset={catalogAsset(catalog, item.photo)}
-          sizes="(max-width: 620px) 92vw, 280px"
+          sizes="(max-width: 760px) 92vw, (max-width: 1000px) 45vw, 27vw"
         />
       )}
+      <div className="guide-object-copy">
       <h3>{item.name}</h3>
       {item.detail && (
         <dl className="guide-facts">
@@ -145,6 +154,7 @@ function ObjectCard({
           Выбрать даты →
         </Link>
       )}
+      </div>
     </article>
   );
 }
@@ -213,7 +223,7 @@ export function GuestGuide({
   catalog: MediaCatalog;
 }) {
   return (
-    <div className="guest-guide">
+    <div className={`guest-guide guide-${id}`} data-section={id}>
       <a className="guide-skip" href="#guest-content">
         К содержанию
       </a>
