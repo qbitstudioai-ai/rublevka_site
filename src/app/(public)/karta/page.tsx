@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 import { GuideHeader } from "@/components/guide/guide-page";
-import { AtlasOakSprig, MapArt } from "@/components/territory-map/map-art";
+import { MapArt } from "@/components/territory-map/map-art";
+import { MapBuildings } from "@/components/territory-map/map-buildings";
 import { TerritoryMap } from "@/components/territory-map/territory-map";
 import { territoryBoundary, territoryObjects } from "@/content/territory-map";
 import { getSiteUrl, isIndexingEnabled } from "@/server/site-url";
@@ -35,12 +36,14 @@ export default function MapPage() {
       <a className="guide-skip" href="#territory-content">К карте</a>
       <GuideHeader id="karta" />
       <main className="territory-frame" id="territory-content">
-        <header className="territory-intro">
-          <h1>{title}</h1>
-          <p>Выберите объект на карте или найдите его в списке.</p>
-        </header>
-        <TerritoryMap objects={territoryObjects} ornament={<AtlasOakSprig />}>
-          <MapArt boundary={territoryBoundary} objects={territoryObjects} />
+        <TerritoryMap objects={territoryObjects} intro={
+          <header className="territory-intro">
+            <h1>{title}</h1>
+            <p>Дома и места отдыха в дубовой роще</p>
+          </header>
+        }>
+          <MapArt boundary={territoryBoundary} />
+          <MapBuildings objects={territoryObjects} />
         </TerritoryMap>
       </main>
       <script

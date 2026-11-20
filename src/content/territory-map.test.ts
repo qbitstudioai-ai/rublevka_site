@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
-import { territoryObjects, matchesFilter } from "./territory-map";
+import { MapBuildings } from "../components/territory-map/map-buildings";
+import { MapArt } from "../components/territory-map/map-art";
+import { territoryBoundary, territoryObjects, matchesFilter } from "./territory-map";
 import { fullView, transformView } from "./territory-view";
 
 test("карта сохраняет номера и порядок объектов владельца", () => {
@@ -24,10 +28,39 @@ test("карточки ведут к разделам без фиктивных 
   const byNumber = new Map(territoryObjects.map((object) => [object.number, object]));
   assert.equal(byNumber.get(1)?.destination, "/kontakty");
   assert.equal(byNumber.get(17)?.destination, "/prozhivanie");
-  assert.equal(byNumber.get(19)?.description, "В корпусе четыре двухместных номера.");
   assert.equal(byNumber.get(22)?.destination, "/banketnye-zaly");
   assert.equal(byNumber.get(25)?.destination, "/uslugi");
   assert.equal(byNumber.get(30)?.destination, null);
+});
+
+test("карточки двух гостиничных домов разделяют название, тип и состав номеров", () => {
+  const hotels = territoryObjects.filter(({ number }) => number === 17 || number === 19);
+  assert.deepEqual(hotels.map(({ cardTitle, type, description, destination }) => ({
+    cardTitle, type, description, destination,
+  })), ["Дом №10", "Дом №9"].map((cardTitle) => ({
+    cardTitle,
+    type: "Гостиничный дом",
+    description: "Двухэтажный сруб на четыре двухместных номера.",
+    destination: "/prozhivanie",
+  })));
+});
+
+test("живописные постройки заменяются по ID и гостиничные дома делят один WebP", () => {
+  const art = renderToStaticMarkup(createElement("svg", null, createElement(MapBuildings, { objects: territoryObjects })));
+  const detailed = art.match(/data-map-layer="detailed-buildings"[^>]*>(.+)/)?.[1];
+  assert.ok(detailed);
+  assert.deepEqual(Array.from(detailed.matchAll(/data-map-art="(\d+)"/g), ([, number]) => Number(number)).sort(), [17, 19]);
+  assert.equal(Array.from(art.matchAll(/href="\/art\/territory\/inn\.webp"/g)).length, 2);
+  assert.equal(Array.from(art.matchAll(/href="\/art\/territory\/pool\.webp"/g)).length, 2);
+  assert.doesNotMatch(art, /<symbol\b|data:image|href="[^"]+\.png"/);
+  assert.equal(Array.from(art.matchAll(/data-map-art="/g)).length, 30);
+});
+
+test("у живописного фона есть отдельный мобильный AVIF и контур из реестра", () => {
+  const art = renderToStaticMarkup(createElement("svg", null, createElement(MapArt, { boundary: territoryBoundary })));
+  assert.match(art, /<source media="\(max-width: 670px\)" srcSet="\/art\/territory\/grove-640\.avif"/i);
+  assert.match(art, /\/art\/territory\/grove-1254\.avif/);
+  assert.ok(art.includes(territoryBoundary.map((point) => point.join(",")).join(" ")));
 });
 
 test("стены залов сходятся под прямыми углами", () => {

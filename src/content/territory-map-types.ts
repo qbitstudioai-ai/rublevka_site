@@ -25,6 +25,7 @@ export type TerritoryObject = {
   id: string;
   number: number;
   name: string;
+  cardTitle?: string;
   category: string;
   type: string;
   filter: Exclude<MapFilter, "all">;
