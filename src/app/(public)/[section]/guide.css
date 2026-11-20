@@ -218,7 +218,7 @@
   width: min(33rem, 48%);
   margin-block: 1.3rem;
   margin-left: clamp(1.2rem, 4.5vw, 4.5rem);
-  padding: clamp(1.3rem, 3.2vw, 3rem);
+  padding: clamp(1.2rem, 2.3vw, 2rem);
   color: var(--ink);
   background: var(--paper) var(--paper-texture) center / 420px;
   border: 4px double var(--edge);
@@ -253,17 +253,16 @@
   text-wrap: balance;
 }
 .guest-guide h1 {
-  max-width: 10ch;
   margin: 0.2rem 0 0;
   color: var(--wine);
-  font-size: clamp(2.75rem, 4.7vw, 4.7rem);
+  font-size: clamp(2.55rem, 4.3vw, 4.25rem);
   line-height: 0.98;
   overflow-wrap: anywhere;
 }
 .guide-heading > p {
   max-width: 34ch;
   margin: 1rem 0 1.2rem;
-  font: 600 clamp(1rem, 1.45vw, 1.3rem)/1.45 var(--reading);
+  font: 600 clamp(1rem, 1.32vw, 1.21rem)/1.45 var(--reading);
 }
 .guest-guide .guide-action { gap: 0.8rem; padding: 0.72rem 1.1rem; }
 .guide-editorial {
@@ -486,7 +485,7 @@
     box-shadow: none;
   }
   .guide-heading::after { height: 1.2rem; margin-bottom: -0.35rem; }
-  .guest-guide h1 { max-width: 11ch; font-size: clamp(2.7rem, 12.5vw, 3.25rem); }
+  .guest-guide h1 { font-size: clamp(2.4rem, 11.8vw, 3.15rem); }
   .guide-heading > p { margin-block: 0.75rem 1rem; font-size: 1rem; }
   .guide-details { padding-top: 3.2rem; }
   .guide-details > h2 { font-size: clamp(2.35rem, 10.5vw, 3.3rem); }
@@ -501,6 +500,11 @@
   .contacts-list dd { margin-bottom: 0.7rem; }
   .guide-footer { grid-template-columns: 1fr; align-items: start; gap: 1rem; background-size: auto 60%; }
   .guide-footer .back-to-book { color: var(--paper-light) !important; }
+}
+
+@media (max-width: 349px) {
+  .guide-brand { font-size: 1.55rem; }
+  .guide-bar-inner { gap: 0.3rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
