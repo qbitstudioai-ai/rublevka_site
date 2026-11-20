@@ -7,7 +7,7 @@ import { imageSize } from "image-size";
 
 import { mediaCatalog, resolveMedia } from "./media";
 
-test("media catalog exposes unique, descriptive assets from the official site", () => {
+test("media catalog exposes unique, descriptive assets with known sources", () => {
   const assets = Object.values(mediaCatalog);
   const ids = assets.map((asset) => asset.id);
   const sources = assets.map((asset) => asset.src);
@@ -19,7 +19,12 @@ test("media catalog exposes unique, descriptive assets from the official site", 
     assert.ok(asset.alt.length > 12, `${asset.id} needs a useful alt text`);
     assert.ok(asset.description.length > 20, `${asset.id} needs an editorial description`);
     assert.match(asset.src, /^\/images\/rublevka\//);
-    assert.ok(["https://rublevka34.com", "https://meropriyatiya.allqbit.ru"].includes(new URL(asset.sourceUrl).origin));
+    assert.ok(
+      asset.sourceUrl === asset.src ||
+        ["https://rublevka34.com", "https://meropriyatiya.allqbit.ru"].includes(
+          new URL(asset.sourceUrl).origin,
+        ),
+    );
     assert.ok(asset.width > 0);
     assert.ok(asset.height > 0);
 

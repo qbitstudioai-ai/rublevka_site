@@ -224,7 +224,7 @@ async function change(
       updatedAt: now,
     };
     if (action === "save") {
-      const data = parseSiteData(key, input);
+      const data = parseSiteData(key, input, { allowLegacyBook: false });
       assertStableItems(key, row.draft, data);
       next.draft = data;
       next.state = "draft";
