@@ -97,3 +97,23 @@ test("утверждённые миниатюры показывают один 
     ["10 11", ["/art/territory/object-10-11-map.webp"]],
   ]);
 });
+
+test("новая партия миниатюр привязана к шести отдельным объектам", () => {
+  const art = renderToStaticMarkup(createElement("svg", null, createElement(MapBuildings, { objects: territoryObjects })));
+  const sprites = [
+    [16, "object-16-map"],
+    [18, "object-18-map"],
+    [26, "object-26-map"],
+    [27, "object-27-28-shared-map"],
+    [28, "object-27-28-shared-map"],
+    [29, "object-29-map"],
+  ] as const;
+  for (const [number, sprite] of sprites) {
+    const artwork = art.split(`data-map-art="${number}"`).slice(1);
+    assert.equal(artwork.length, 1);
+    const group = artwork[0].split("</g>", 1)[0];
+    assert.deepEqual(Array.from(group.matchAll(/href="([^"]+)"/g), ([, href]) => href), [
+      `/art/territory/${sprite}.webp`,
+    ]);
+  }
+});

@@ -6,6 +6,8 @@ const sizes = {
   pool: [244, 158], play: [244, 186], mill: [244, 317],
   fire: [244, 191], tennis: [244, 158], platform: [244, 174], inn: [360, 255],
   "object-10-11-map": [540, 272], "object-21-map": [420, 227], "object-22-map": [510, 225],
+  "object-16-map": [512, 384], "object-18-map": [512, 384], "object-26-map": [512, 384],
+  "object-27-28-shared-map": [512, 384], "object-29-map": [512, 384],
 } as const;
 
 type Sprite = keyof typeof sizes;
@@ -15,7 +17,9 @@ const byId: Partial<Record<string, Sprite>> = {
   "object-10": "object-10-11-map", "object-11": "object-10-11-map",
   "object-21": "object-21-map", "object-22": "object-22-map",
   "object-12": "tennis", "object-13": "play", "object-14": "mill", "object-15": "fire",
-  "object-17": "inn", "object-19": "inn", "object-23": "platform",
+  "object-16": "object-16-map", "object-17": "inn", "object-18": "object-18-map",
+  "object-19": "inn", "object-23": "platform", "object-26": "object-26-map",
+  "object-27": "object-27-28-shared-map", "object-28": "object-27-28-shared-map", "object-29": "object-29-map",
 };
 
 const byCategory: Partial<Record<string, Sprite>> = {
