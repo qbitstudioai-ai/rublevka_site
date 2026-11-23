@@ -53,7 +53,7 @@ test("живописные постройки заменяются по ID и г
   assert.equal(Array.from(art.matchAll(/href="\/art\/territory\/inn\.webp"/g)).length, 2);
   assert.equal(Array.from(art.matchAll(/href="\/art\/territory\/pool\.webp"/g)).length, 2);
   assert.doesNotMatch(art, /<symbol\b|data:image|href="[^"]+\.png"/);
-  assert.equal(Array.from(art.matchAll(/data-map-art="/g)).length, 30);
+  assert.equal(Array.from(art.matchAll(/data-map-art="/g)).length, 29);
 });
 
 test("у живописного фона есть отдельный мобильный AVIF и контур из реестра", () => {
@@ -85,4 +85,35 @@ test("приближение сохраняет точку под курсоро
   assert.equal(panned.x, fullView.x + fullView.width - zoomed.width);
   assert.equal(panned.y, fullView.y);
   assert.deepEqual(transformView(zoomed, 0.1, [300, 240], [0, 0]), fullView);
+});
+
+test("утверждённые миниатюры показывают один общий сруб и по одному изображению каждого зала", () => {
+  const art = renderToStaticMarkup(createElement("svg", null, createElement(MapBuildings, { objects: territoryObjects })));
+  const sprites = Array.from(art.matchAll(/data-map-art="([^"]+)"[^>]*>((?:<image[^>]*><\/image>)+)<\/g>/g),
+    ([, numbers, images]) => [numbers, Array.from(images.matchAll(/href="([^"]+)"/g), ([, href]) => href)]);
+  assert.deepEqual(sprites.filter(([numbers]) => /^(10 11|10|11|21|22)$/.test(String(numbers))), [
+    ["21", ["/art/territory/object-21-map.webp"]],
+    ["22", ["/art/territory/object-22-map.webp"]],
+    ["10 11", ["/art/territory/object-10-11-map.webp"]],
+  ]);
+});
+
+test("новая партия миниатюр привязана к шести отдельным объектам", () => {
+  const art = renderToStaticMarkup(createElement("svg", null, createElement(MapBuildings, { objects: territoryObjects })));
+  const sprites = [
+    [16, "object-16-map"],
+    [18, "object-18-map"],
+    [26, "object-26-map"],
+    [27, "object-27-28-shared-map"],
+    [28, "object-27-28-shared-map"],
+    [29, "object-29-map"],
+  ] as const;
+  for (const [number, sprite] of sprites) {
+    const artwork = art.split(`data-map-art="${number}"`).slice(1);
+    assert.equal(artwork.length, 1);
+    const group = artwork[0].split("</g>", 1)[0];
+    assert.deepEqual(Array.from(group.matchAll(/href="([^"]+)"/g), ([, href]) => href), [
+      `/art/territory/${sprite}.webp`,
+    ]);
+  }
 });
