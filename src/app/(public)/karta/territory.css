@@ -155,6 +155,7 @@
 .territory-svg:focus-visible { outline-offset: -4px; }
 .map-art, .map-buildings { pointer-events: none; }
 .map-relief image { pointer-events: var(--map-illustration-pointer, visiblePainted); cursor: pointer; }
+.map-relief[data-map-art="10 11"] image { pointer-events: none; }
 .territory-terrain,
 .territory-terrain img { display: block; width: 100%; height: 100%; }
 .territory-terrain {
