@@ -65,11 +65,15 @@ export function useBook(chapters: readonly BookChapter[], closePanel: () => void
   const lastFocused = useRef(0);
   useEffect(() => {
     if (lastFocused.current !== current) {
-      book.current
-        ?.querySelector<HTMLElement>("[data-active] [data-title]")
-        ?.focus({ preventScroll: true });
+      const spread = book.current?.querySelector<HTMLElement>("[data-active]");
+      const title = spread?.querySelector<HTMLElement>("[data-title]");
+      if (spread && chapters[current].layout === "manifesto") {
+        spread.scrollTop = 0;
+        title?.closest(".manifesto-copy")?.scrollTo({ top: 0 });
+      }
+      title?.focus({ preventScroll: true });
       lastFocused.current = current;
     }
-  }, [current]);
+  }, [chapters, current]);
   return { current, previous, book, select };
 }

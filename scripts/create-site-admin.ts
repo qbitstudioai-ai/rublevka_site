@@ -1,8 +1,15 @@
 ﻿import { emitKeypressEvents } from "node:readline";
 import { stdin, stderr } from "node:process";
-import { pool } from "../src/server/events/db";
+import { compare } from "bcryptjs";
+import { eq } from "drizzle-orm";
+import { db, pool } from "../src/server/events/db";
 import { normalizeSiteLogin } from "../src/server/cms/access";
-import { provisionSiteStaff, SiteAccessError } from "../src/server/cms/staff";
+import { cmsSiteStaff } from "../src/server/cms/auth-schema";
+import {
+  provisionSiteStaff,
+  SiteAccessError,
+  updateSiteStaff,
+} from "../src/server/cms/staff";
 
 async function readPassword(): Promise<string> {
   stdin.setEncoding("utf8");
@@ -49,14 +56,46 @@ async function readPassword(): Promise<string> {
 }
 
 async function main() {
-  const [login, ...extra] = process.argv.slice(2);
+  const [argument, ...extra] = process.argv.slice(2);
+  const fromEnv = argument === "--from-env";
+  const login = fromEnv
+    ? normalizeSiteLogin(process.env.SITE_ADMIN_USERNAME ?? "")
+    : argument;
   if (!login || !normalizeSiteLogin(login) || extra.length)
     throw new SiteAccessError(
-      "Использование: npm run site:admin:create -- логин",
+      "Укажите логин или задайте SITE_ADMIN_USERNAME и используйте --from-env.",
     );
   if (!process.env.DATABASE_URL)
     throw new SiteAccessError("Укажите DATABASE_URL для PostgreSQL.");
-  await provisionSiteStaff(null, login, await readPassword(), "admin");
+  const password = fromEnv
+    ? process.env.SITE_ADMIN_PASSWORD
+    : await readPassword();
+  if (!password)
+    throw new SiteAccessError("Укажите пароль администратора сайта.");
+  if (fromEnv) {
+    const [current] = await db
+      .select()
+      .from(cmsSiteStaff)
+      .where(eq(cmsSiteStaff.login, login));
+    if (current) {
+      if (!current.active || current.role !== "admin")
+        throw new SiteAccessError(
+          "Этот логин занят другой или отключённой учётной записью.",
+        );
+      if (!(await compare(password, current.passwordHash))) {
+        await updateSiteStaff(current.id, current.id, {
+          role: "admin",
+          active: true,
+          password,
+        });
+        console.log("Пароль администратора сайта обновлён.");
+      } else {
+        console.log("Данные администратора сайта уже совпадают с .env.");
+      }
+      return;
+    }
+  }
+  await provisionSiteStaff(null, login, password, "admin");
   console.log("Администратор сайта создан.");
 }
 

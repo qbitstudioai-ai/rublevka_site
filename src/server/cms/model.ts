@@ -1,6 +1,12 @@
 import { z } from "zod";
 import type { GuideItem, GuidePage } from "@/content/guest-guide";
-import type { Chapter } from "@/content/home";
+import {
+  eventsChapter,
+  manifestoChapter,
+  type EventsChapter,
+  type ManifestoChapter,
+  type PhotoChapter,
+} from "@/content/home";
 import { mediaCatalog, type MediaAsset } from "@/content/media";
 import { sections, type SectionId } from "@/content/sections";
 import { roomLabels } from "@/content/stay-request";
@@ -17,10 +23,16 @@ export type CmsGuide = Omit<GuidePage, "items" | "photo" | "gallery"> & {
   body?: string;
   indexable: boolean;
 };
-export type CmsChapter = Omit<Chapter, "photo"> & {
+export type CmsRequiredPhotoChapter = Omit<PhotoChapter, "photo"> & {
   photo: string;
   caption?: string;
 };
+export type CmsEventsChapter = Omit<EventsChapter, "photo"> & {
+  photo?: string;
+  caption?: string;
+};
+export type CmsPhotoChapter = CmsRequiredPhotoChapter | CmsEventsChapter;
+export type CmsChapter = CmsPhotoChapter | ManifestoChapter;
 export type CmsBook = {
   chapters: CmsChapter[];
   title: string;
@@ -107,26 +119,42 @@ const guideSchema = z.object({
   gallery: z.array(id).max(250).optional(),
 });
 
-const layouts = ["opening", "index", "closing"] as const;
+const requiredPhotoLayouts = ["opening", "index", "closing"] as const;
+const layouts = ["opening", "events", "index", "closing", "manifesto"] as const;
+const chapterHeading = { id, label: text(80), title: text(80) };
 const bookSchema = z.object({
   ...seo,
   chapters: z
     .array(
-      z.object({
-        id,
-        layout: z.enum(layouts),
-        label: text(80),
-        title: text(80),
-        text: optionalText(180),
-        photo: id,
-        caption: optionalText(160),
-        entries: z
-          .array(z.object({ title: text(40), section }))
-          .max(4)
-          .optional(),
-      }),
+      z.discriminatedUnion("layout", [
+        z.object({
+          ...chapterHeading,
+          layout: z.enum(requiredPhotoLayouts),
+          text: optionalText(180),
+          photo: id,
+          caption: optionalText(160),
+          entries: z.array(z.object({ title: text(40), section })).max(4).optional(),
+        }),
+        z.object({
+          ...chapterHeading,
+          layout: z.literal("events"),
+          text: text(180),
+          photo: id.optional(),
+          caption: optionalText(160),
+        }),
+        z.strictObject({
+          ...chapterHeading,
+          layout: z.literal("manifesto"),
+          subtitle: text(140),
+          paragraphs: z.array(text(350)).length(5),
+          emphasis: text(100),
+          closing: text(120),
+          quote: text(200),
+        }),
+      ]),
     )
-    .length(3),
+    .min(3)
+    .max(layouts.length),
 });
 
 const socialHosts = [
@@ -189,21 +217,19 @@ const mediaSchema = z.object({
           focalPoint: z.string().regex(/^(?:100|\d{1,2})% (?:100|\d{1,2})%$/),
         })
         .refine((item) => {
+          const uploadedFile =
+            /^\/cms-media\/[a-f0-9]{64}\.webp$/.test(item.src) &&
+            item.sourceUrl === item.src;
           if (Object.hasOwn(mediaCatalog, item.id)) {
             const asset = mediaCatalog[item.id as keyof typeof mediaCatalog];
-            return (
+            const original =
               item.src === asset.src &&
               item.sourceUrl === asset.sourceUrl &&
               item.width === asset.width &&
-              item.height === asset.height
-            );
+              item.height === asset.height;
+            return original || uploadedFile;
           }
-          const filename = /^upload-([a-f0-9]{64})$/.exec(item.id)?.[1];
-          return (
-            !!filename &&
-            item.src === `/cms-media/${filename}.webp` &&
-            item.sourceUrl === item.src
-          );
+          return /^upload-[a-f0-9]{64}$/.test(item.id) && uploadedFile;
         }, "Путь и размеры фотографии связаны с файлом из медиатеки."),
     )
     .max(1000),
@@ -213,9 +239,33 @@ function unique(items: readonly string[]) {
   return new Set(items).size === items.length;
 }
 
+function normalizeLegacyBook(input: unknown) {
+  if (!input || typeof input !== "object") return input;
+  const candidate = structuredClone(input) as {
+    chapters?: Array<Record<string, unknown>>;
+  };
+  const legacyLayouts = candidate.chapters?.map((chapter) => chapter.layout);
+  const legacyLayoutKey = legacyLayouts?.join(",");
+  if (
+    legacyLayoutKey !== "opening,index,closing,manifesto" &&
+    legacyLayoutKey !== "opening,index,closing"
+  ) return candidate;
+  const chapters = candidate.chapters;
+  if (!chapters) return candidate;
+
+  candidate.chapters = [
+    chapters[0],
+    structuredClone(eventsChapter),
+    ...chapters.slice(1),
+    ...(legacyLayoutKey === "opening,index,closing" ? [structuredClone(manifestoChapter)] : []),
+  ].map((chapter, index) => ({ ...chapter, id: `chapter-${index + 1}` }));
+  return candidate;
+}
+
 export function parseSiteData<K extends SiteKey>(
   key: K,
   input: unknown,
+  { allowLegacyBook = true } = {},
 ): SiteData[K] {
   if (key === "contacts") {
     const result = contactsSchema.safeParse(input);
@@ -235,23 +285,24 @@ export function parseSiteData<K extends SiteKey>(
     return result.data as SiteData[K];
   }
   if (key === "book") {
-    const result = bookSchema.safeParse(input);
+    const result = bookSchema.safeParse(allowLegacyBook ? normalizeLegacyBook(input) : input);
     if (
       !result.success ||
+      result.data.chapters.length !== layouts.length ||
       result.data.chapters.some(
         (chapter, index) =>
           chapter.id !== `chapter-${index + 1}` ||
           chapter.layout !== layouts[index] ||
-          (chapter.entries &&
-            !unique(chapter.entries.map((entry) => entry.section))) ||
-          (index === 1
-            ? chapter.entries?.length !== 4
-            : !!chapter.entries?.length) ||
+          (chapter.layout === "index"
+            ? chapter.entries?.length !== 4 ||
+              !unique(chapter.entries.map((entry) => entry.section))
+            : chapter.layout !== "manifesto" &&
+              !!(chapter as { entries?: unknown[] }).entries?.length) ||
           (index === 0 && chapter.title.length > 22),
       )
     ) {
       throw new CmsError(
-        "Проверьте три главы, ссылки, длину названий и поля SEO. Глава на обложке допускает до 22 символов.",
+        "Проверьте пять глав, их текст, ссылки и поля SEO. Глава на обложке допускает до 22 символов.",
       );
     }
     return result.data as SiteData[K];
@@ -294,7 +345,9 @@ export function parseSiteData<K extends SiteKey>(
 
 export function photoReferences(key: SiteKey, data: SiteData[SiteKey]) {
   if (key === "book")
-    return (data as CmsBook).chapters.map((chapter) => chapter.photo);
+    return (data as CmsBook).chapters.flatMap((chapter) =>
+      chapter.layout !== "manifesto" && chapter.photo ? [chapter.photo] : [],
+    );
   if (key === "contacts" || key === "media") return [];
   const guide = data as CmsGuide;
   return [

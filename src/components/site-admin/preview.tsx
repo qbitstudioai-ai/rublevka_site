@@ -1,6 +1,7 @@
 import type { CmsMedia, SiteData, SiteKey } from "@/server/cms/model";
 import { sections, type SectionId } from "@/content/sections";
 import { Photo } from "./fields";
+import { ManifestoText } from "../book/manifesto-text";
 
 export function ContentPreview({
   document, data, media, seoOnly,
@@ -47,12 +48,25 @@ export function ContentPreview({
         {chapters.map((chapter) => (
           <article key={chapter.id} className="sa-panel">
             <h3>{chapter.title}</h3>
-            {chapter.text && <p>{chapter.text}</p>}
-            {photo(chapter.photo)}
-            {chapter.caption && <p>{chapter.caption}</p>}
-            {chapter.entries?.map((entry, index) => (
-              <p key={index}>{entry.title} → {sections[entry.section]}</p>
-            ))}
+            {chapter.layout === "manifesto" ? (
+              <>
+                <ManifestoText chapter={chapter} />
+                <blockquote>{chapter.quote}</blockquote>
+              </>
+            ) : (
+              <>
+                {chapter.text && <p>{chapter.text}</p>}
+                {chapter.photo ? photo(chapter.photo) : chapter.layout === "events" ? (
+                  <div className="sa-media-card" aria-label="Фотография пока не выбрана">
+                    <span className="sa-hint">Фотография пока не выбрана</span>
+                  </div>
+                ) : null}
+                {chapter.caption && chapter.photo && <p>{chapter.caption}</p>}
+                {chapter.layout === "index" && chapter.entries?.map((entry, index) => (
+                  <p key={index}>{entry.title} → {sections[entry.section]}</p>
+                ))}
+              </>
+            )}
           </article>
         ))}
       </section>

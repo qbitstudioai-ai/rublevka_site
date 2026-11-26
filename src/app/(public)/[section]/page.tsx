@@ -11,12 +11,9 @@ import { sectionIds, type SectionId } from "@/content/sections";
 
 import { getSiteUrl, isIndexingEnabled } from "@/server/site-url";
 import "./guide.css";
+import "./lodging.css";
 
 export const dynamic = "force-dynamic";
-export const dynamicParams = false;
-export function generateStaticParams() {
-  return sectionIds.map((section) => ({ section }));
-}
 type Props = { params: Promise<{ section: string }> };
 async function sectionId({ params }: Props): Promise<SectionId> {
   const { section } = await params;

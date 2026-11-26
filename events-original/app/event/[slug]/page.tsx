@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { CommunitySection } from "@/components/CommunitySection";
 import { RegistrationExperience } from "@/components/RegistrationExperience";
 import { PublicSiteHeader } from "@/components/PublicSiteHeader";
+import { GroveFooter } from "@/components/GroveFooter";
 import { BRAND_LOGO } from "@/lib/brand";
 import { isPastEvent } from "@/lib/format";
 import { getDb } from "@/lib/server/db";
@@ -48,9 +49,7 @@ export default async function EventPage({ params }: PageProps) {
         <RegistrationExperience event={toEventView(event)} activities={activities} logo={BRAND_LOGO} closed={closed} />
         <CommunitySection community={community} />
       </main>
-      <footer className="site-footer">
-        <p>Загородный комплекс «Рублёвка»</p>
-      </footer>
+      <GroveFooter />
     </div>
   );
 }

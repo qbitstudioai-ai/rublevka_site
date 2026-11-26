@@ -9,16 +9,16 @@
     "dev": "node scripts/dev.mjs",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test src/content/*.test.ts src/components/events/*.test.ts",
+    "test": "tsx --test src/content/*.test.ts src/components/book/*.test.tsx src/components/events/*.test.ts src/components/site-admin/*.test.tsx src/components/territory-map/*.test.tsx",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm test && npm run test:db && npm run build",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "node --env-file-if-exists=.env node_modules/drizzle-kit/bin.cjs migrate",
     "events:import": "tsx scripts/import-events.ts",
     "admin:create": "tsx scripts/create-admin.ts",
     "test:db": "node scripts/test-events-db.mjs",
-    "site:admin:create": "tsx scripts/create-site-admin.ts",
-    "site:seed": "tsx scripts/seed-site-cms.ts"
+    "site:admin:create": "node --env-file-if-exists=.env --import tsx scripts/create-site-admin.ts",
+    "site:seed": "node --env-file-if-exists=.env --import tsx scripts/seed-site-cms.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

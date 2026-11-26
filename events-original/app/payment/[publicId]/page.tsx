@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { CopyPhoneButton } from "@/components/CopyPhoneButton";
 import { PublicSiteHeader } from "@/components/PublicSiteHeader";
+import { GroveFooter } from "@/components/GroveFooter";
 import { BRAND_LOGO, PAYMENT_BANK_NAME } from "@/lib/brand";
 import { formatEventDate } from "@/lib/format";
 import { formatRub, paymentHeading } from "@/lib/money";
@@ -167,6 +168,7 @@ export default async function PaymentPage({ params }: PageProps) {
         </section>
       )}
     </main>
+    <GroveFooter />
     </div>
   );
 }

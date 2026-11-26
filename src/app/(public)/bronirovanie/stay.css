@@ -20,10 +20,10 @@
 .stay-form,
 .stay-aside {
   color: var(--ink);
-  border: 4px double var(--edge);
-  border-radius: 0.9rem;
-  background: var(--paper-light) var(--paper-texture) center / 420px;
-  box-shadow: 0 0.8rem 2rem #09060469, inset 0 0 1.2rem #a86b2630;
+  border: var(--grove-frame);
+  border-radius: var(--grove-radius);
+  background: var(--grove-paper);
+  box-shadow: var(--grove-shadow);
   overflow: hidden;
 }
 .stay-form,
@@ -73,6 +73,7 @@
   height: clamp(8rem, 14vw, 12rem);
   border-bottom: 2px solid var(--edge);
 }
+.stay-aside figure img { width: 100%; height: 100%; object-fit: cover; }
 .stay-aside p {
   margin: 0 0 1rem;
   font: 1rem/1.55 var(--utility);

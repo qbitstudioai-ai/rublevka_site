@@ -3,13 +3,14 @@ import type { CmsMedia, SiteData } from "@/server/cms/model";
 import { Field, moveAt, MoveButtons, Photo } from "./fields";
 
 export function MediaLibrary({
-  value, change, publishedMedia, uploading, setUploading,
+  value, change, draftMedia, uploading, setUploading, uploadPhoto,
 }: {
   value: SiteData["media"];
   change: Dispatch<SetStateAction<SiteData["media"]>>;
-  publishedMedia: string[];
+  draftMedia: string[];
   uploading: boolean;
   setUploading: (uploading: boolean) => void;
+  uploadPhoto: (file: File, currentId?: string) => Promise<string>;
 }) {
   const [selected, setSelected] = useState(value.items[0]?.id);
   const [query, setQuery] = useState("");
@@ -73,7 +74,7 @@ export function MediaLibrary({
               aria-pressed={selected === photo.id} onClick={() => setSelected(photo.id)}>
               <Photo asset={photo} />
               <strong>{photo.name}</strong>
-              {!publishedMedia.includes(photo.id) && <span className="sa-hint">Черновик</span>}
+              {draftMedia.includes(photo.id) && <span className="sa-hint">Черновик</span>}
             </button>
           ))}
         </div>
@@ -86,6 +87,24 @@ export function MediaLibrary({
               move={(step) => change({ ...value, items: moveAt(value.items, selectedIndex, step) })} />
           </div>
           <Photo asset={asset} small />
+          <label className="sa-button sa-file-button">
+            <span aria-live="polite">
+              {uploading ? "Загрузка…" : "Выбрать фото"}
+            </span>
+            <input className="sa-file-input" type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              disabled={uploading}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void uploadPhoto(file, asset.id)
+                  .then(() => setNotice({ text: "Новый файл добавлен в черновик медиатеки." }))
+                  .catch((error: unknown) => setNotice({
+                    text: error instanceof Error ? error.message : "Не удалось загрузить фотографию.",
+                    error: true,
+                  }));
+                event.target.value = "";
+              }} />
+          </label>
           <Field label="Название изображения" value={asset.name} onChange={(name) => patch({ name })} />
           <Field label="Описание изображения" multiline value={asset.description}
             onChange={(description) => patch({ description })} />

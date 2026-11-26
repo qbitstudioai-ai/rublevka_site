@@ -1,3 +1,5 @@
+@import "./grove-shell.css";
+
 @font-face {
   font-family: "Balkara";
   src: url("/meropriyatiya/fonts/BalkaraFreeCond.ttf") format("truetype");
@@ -29,6 +31,8 @@
 }
 
 .public-site-shell {
+  --grove-display: var(--heading-font);
+  --grove-paper-image: url("/meropriyatiya/art/grove-paper.webp");
   --peach: #f1d29a;
   --peach-deep: #d5aa63;
   --peach-light: #fae9c2;
@@ -42,7 +46,7 @@
   --muted: #6f5a43;
   --line: #a87b43;
   --field-border: #91683a;
-  --paper: #132419;
+  --paper: var(--grove-ground);
   --white: #fae9c2;
   --gold: #b8833f;
   --gold-light: #f0ce86;
@@ -52,8 +56,7 @@
   --container: 1320px;
   min-height: 100dvh;
   color: var(--gold-light);
-  background: var(--paper) url("/meropriyatiya/art/grove-640.avif") center top / cover fixed;
-  background-blend-mode: soft-light;
+  background: var(--grove-ground);
 }
 
 * { box-sizing: border-box; }
@@ -753,8 +756,6 @@ h1 { margin: 0; font-weight: 400; }
   border: 0;
 }
 
-.site-footer { padding: 22px 24px; color: var(--muted); text-align: center; font-size: 13px; border-top: 1px solid var(--line); }
-.site-footer p { margin: 0; }
 
 /* ---------- Подробности активности ---------- */
 
@@ -978,104 +979,6 @@ h1 { margin: 0; font-weight: 400; }
 
 /* ---------- Единая публичная оболочка комплекса ---------- */
 
-.public-site-header {
-  position: sticky;
-  z-index: 30;
-  top: 0;
-  margin-inline: clamp(6px, 1.2vw, 18px);
-  color: var(--ink);
-  background: var(--peach) url("/meropriyatiya/art/paper-grain.webp") center / 420px;
-  border: 4px double var(--line);
-  border-top: 0;
-  border-radius: 0 0 16px 16px;
-  box-shadow: 0 8px 24px rgba(18, 10, 5, 0.48), inset 0 0 18px rgba(151, 91, 30, 0.18);
-}
-.public-site-header-inner {
-  width: min(100%, 1536px);
-  min-height: 76px;
-  display: flex;
-  align-items: center;
-  gap: clamp(10px, 1.3vw, 20px);
-  margin-inline: auto;
-  padding-inline: clamp(12px, 1.6vw, 24px);
-}
-.public-site-brand {
-  flex: none;
-  color: var(--green) !important;
-  font: 400 clamp(38px, 3.2vw, 54px)/0.8 var(--heading-font);
-  letter-spacing: 0.015em;
-  text-decoration: none;
-}
-.public-site-nav {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(4px, 0.65vw, 11px);
-  margin-left: auto;
-}
-.public-site-nav a,
-.public-site-menu a {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  color: var(--ink);
-  font: 600 clamp(12px, 0.9vw, 15px)/1.2 Georgia, "Times New Roman", serif;
-  text-decoration: none;
-  white-space: nowrap;
-}
-.public-site-nav a:hover,
-.public-site-nav a[aria-current],
-.public-site-menu a:hover,
-.public-site-menu a[aria-current] {
-  color: var(--green);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 6px;
-}
-.public-site-booking {
-  flex: none;
-  min-height: 48px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 13px;
-  color: #fff0c9;
-  background: var(--green);
-  border: 3px double var(--gold-light);
-  border-radius: 9px;
-  font-weight: 700;
-  line-height: 1.15;
-  text-align: center;
-  text-decoration: none;
-}
-.public-site-booking:hover { background: var(--green-brand); }
-.public-site-menu { display: none; margin-left: auto; }
-.public-site-menu summary {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  color: var(--ink);
-  cursor: pointer;
-  list-style: none;
-}
-.public-site-menu summary::-webkit-details-marker { display: none; }
-.public-site-menu-icon,
-.public-site-menu-icon::before,
-.public-site-menu-icon::after {
-  width: 22px;
-  height: 2px;
-  display: block;
-  border-radius: 99px;
-  background: currentColor;
-}
-.public-site-menu-icon { position: relative; }
-.public-site-menu-icon::before,
-.public-site-menu-icon::after { position: absolute; left: 0; content: ""; }
-.public-site-menu-icon::before { top: -7px; }
-.public-site-menu-icon::after { top: 7px; }
-
 /* Public pages use quiet parchment surfaces over the forest, while admin CSS remains separate. */
 .events-hero,
 .hero,
@@ -1091,25 +994,37 @@ h1 { margin: 0; font-weight: 400; }
 .status-card {
   color: var(--ink);
   background-color: var(--peach-light);
-  background-image: url("/meropriyatiya/art/paper-grain.webp");
+  background-image: var(--grove-paper-image);
   background-position: center top;
-  background-size: 820px auto;
+  background-size: 32rem auto;
 }
 .events-hero {
   width: min(calc(100% - 32px), var(--container));
   margin: 22px auto 0;
-  border: 4px double var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 18px 48px rgba(8, 5, 3, 0.38), inset 0 0 24px rgba(151, 91, 30, 0.16);
+  border: var(--grove-frame);
+  border-radius: var(--grove-radius);
+  box-shadow: var(--grove-shadow);
 }
 .events-hero-inner { padding-block: clamp(34px, 5vw, 62px); }
 .events-hero .hero-title { color: var(--green); font-size: clamp(54px, 7vw, 92px); }
 .events-hero .hero-kicker { color: #6f4a28; }
-.events-section { padding-block: clamp(30px, 5vw, 64px); }
+.events-section { padding-block: 0 clamp(30px, 5vw, 64px); }
+.events-section::before {
+  --crest-width: clamp(5rem, 10.5vw, 11rem);
+  --line-width: calc((100% - var(--crest-width) - 2rem) / 2);
+  display: block;
+  height: clamp(2.35rem, 3.55vw, 4.3rem);
+  margin-block: 0.6rem 0.75rem;
+  content: "";
+  background:
+    url("/meropriyatiya/art/grove-crest.webp") center / var(--crest-width) auto no-repeat,
+    linear-gradient(90deg, transparent, var(--grove-gold) 60%) left center / var(--line-width) 2px no-repeat,
+    linear-gradient(270deg, transparent, var(--grove-gold) 60%) right center / var(--line-width) 2px no-repeat;
+}
 .event-card {
-  border: 4px double var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 14px 36px rgba(8, 5, 3, 0.35);
+  border: var(--grove-frame);
+  border-radius: var(--grove-radius);
+  box-shadow: var(--grove-shadow);
 }
 .event-card-photo,
 .event-card-poster { border-right: 2px solid var(--line); }
@@ -1119,7 +1034,7 @@ h1 { margin: 0; font-weight: 400; }
 .events-empty h2 { color: var(--green); font-size: clamp(34px, 4vw, 48px); font-weight: 400; letter-spacing: 0; }
 
 .hero { border-bottom: 4px double var(--line); }
-.hero-copy { background-image: url("/meropriyatiya/art/paper-grain.webp"); background-size: 420px auto; }
+.hero-copy { background: var(--grove-paper); }
 .hero-title { color: var(--green); }
 .hero-kicker { color: #6f4a28; }
 .hero-back { color: var(--green-dark); }
@@ -1141,7 +1056,6 @@ h1 { margin: 0; font-weight: 400; }
 .activity-card:hover { border-color: var(--green); }
 .select-control span { border-color: var(--green-dark); color: var(--green-dark); background: #fffaf0; }
 .summary-section { border: 4px double var(--line); box-shadow: 0 18px 44px rgba(8, 5, 3, 0.32); }
-.public-site-shell .button-primary { color: #fff0c9; border: 3px double var(--gold-light); box-shadow: inset 0 0 0 1px #451117; }
 .public-site-shell .button-secondary { color: var(--green-dark); background: #fff6df; border-color: var(--green-dark); }
 .public-site-shell .button-secondary:hover,
 .select-control:hover span,
@@ -1151,11 +1065,12 @@ h1 { margin: 0; font-weight: 400; }
 .community-copy h2 { color: var(--gold-light); }
 .community-copy .eyebrow { color: #d8ae68; }
 .community-platform,
-.community-qr { color: var(--ink); background: var(--peach-light) url("/meropriyatiya/art/paper-grain.webp") center / 420px; border: 2px solid var(--line); }
+.community-qr { color: var(--ink); background: var(--grove-paper); border: var(--grove-frame); }
 .community-platform:hover { border-color: var(--gold-light); background: var(--peach); }
-.site-footer { color: var(--gold-light); background: #2d190f; border-color: var(--gold); }
 
 .payment-page { background: transparent; }
+.public-site-shell .status-page { min-height: 60dvh; background: transparent; }
+.public-site-shell .status-card { border: var(--grove-frame); border-radius: var(--grove-radius); }
 .payment-header { color: var(--gold-light); }
 .payment-header .back-link { color: var(--gold-light); }
 .payment-card { border: 4px double var(--line); box-shadow: 0 18px 44px rgba(8, 5, 3, 0.42); }
@@ -1164,35 +1079,8 @@ h1 { margin: 0; font-weight: 400; }
 .payment-phone { border-color: var(--line); background: #fff6df; }
 .payment-qr img { border: 4px double var(--line); background: white; }
 
-@media (max-width: 1320px) {
-  .public-site-nav { display: none; }
-  .public-site-menu { display: block; }
-  .public-site-menu nav {
-    position: absolute;
-    z-index: 4;
-    top: calc(100% - 7px);
-    right: 12px;
-    width: min(368px, calc(100vw - 24px));
-    max-height: calc(100dvh - 88px);
-    display: grid;
-    overflow-y: auto;
-    padding: 10px 16px 16px;
-    background: var(--peach-light) url("/meropriyatiya/art/paper-grain.webp") center / 420px;
-    border: 3px double var(--line);
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 18px 36px rgba(18, 10, 5, 0.5);
-  }
-  .public-site-menu a { border-bottom: 1px solid rgba(141, 94, 44, 0.25); }
-  .public-site-menu-booking { color: var(--green) !important; font-weight: 800 !important; }
-}
-
 @media (max-width: 700px) {
   .public-site-shell { --space-section: 48px; background-attachment: scroll; }
-  .public-site-header { margin-inline: 0; border-radius: 0 0 10px 10px; }
-  .public-site-header-inner { min-height: 66px; gap: 7px; padding-inline: 10px; }
-  .public-site-brand { font-size: clamp(28px, 9.2vw, 37px); }
-  .public-site-booking { min-height: 44px; margin-left: auto; padding: 8px 10px; font-size: 12px; }
-  .public-site-menu { margin-left: 0; }
   .events-hero { width: calc(100% - 20px); margin-top: 10px; }
   .events-hero-inner { width: calc(100% - 28px); }
   .events-hero .hero-title { font-size: clamp(35px, 9.6vw, 48px); overflow-wrap: anywhere; }

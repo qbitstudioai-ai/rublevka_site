@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { getSiteUrl, isIndexingEnabled } from "@/server/site-url";
 import { publicContent } from "@/server/cms/public";
 import { sectionIds } from "@/content/sections";
+import { privacyLinks } from "../../events-original/lib/shared/privacy-links";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
   return [
     { url: new URL("/karta", getSiteUrl()).href },
+    ...privacyLinks.map(({ href }) => ({ url: new URL(href, getSiteUrl()).href })),
     ...(book.indexable
       ? [
           {

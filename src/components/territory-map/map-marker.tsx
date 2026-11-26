@@ -1,23 +1,11 @@
 import type { KeyboardEvent, MouseEvent } from "react";
 
-import type { TerritoryObject } from "@/content/territory-map-types";
+import { mapPinOffset, type TerritoryObject } from "@/content/territory-map-types";
 import type { Point } from "@/content/territory-view";
 
+export { mapPinPosition } from "@/content/territory-map-types";
+
 const points = (line: readonly Point[]) => line.map((point) => point.join(",")).join(" ");
-
-function pinOffset(object: TerritoryObject): Point {
-  if (object.number === 15) return [13, 8];
-  const xs = object.shape.map(([left]) => left);
-  const width = Math.max(...xs) - Math.min(...xs);
-  const inn = object.number === 17 || object.number === 19;
-  return [-Math.min(width * (inn ? 0.72 : 0.43), inn ? 40 : 29), object.category === "pool" ? 12 : 8];
-}
-
-export function mapPinPosition(object: TerritoryObject): Point {
-  const [x, y] = object.marker;
-  const [dx, dy] = pinOffset(object);
-  return [x + dx, y + dy];
-}
 
 export function MapMarker({
   object,
@@ -34,7 +22,7 @@ export function MapMarker({
 }) {
   const [x, y] = object.marker;
   const contour = points(object.shape);
-  const [dx, dy] = pinOffset(object);
+  const [dx, dy] = mapPinOffset(object);
 
   function onKeyDown(event: KeyboardEvent<SVGGElement>) {
     if (event.key === "Enter" || event.key === " ") {

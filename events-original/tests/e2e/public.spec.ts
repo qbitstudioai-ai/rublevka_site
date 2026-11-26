@@ -35,6 +35,10 @@ test.describe("публичная анкета", () => {
   test("главная — список мероприятий, неизвестный slug — 404", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/$/);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      new URL("/meropriyatiya", page.url()).href,
+    );
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Ближайшие мероприятия");
     // Логотип ведёт на основной сайт, справа — вход в админпанель (без сессии — страница входа).
     await expect(page.getByRole("link", { name: /основной сайт/ })).toHaveAttribute("href", "https://rublevka34.com/");

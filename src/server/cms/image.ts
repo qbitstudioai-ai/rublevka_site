@@ -108,6 +108,23 @@ export async function hasCmsImage(filename: string) {
   }
 }
 
+export async function cmsImageMetadata(filename: string) {
+  if (!cmsImageName.test(filename)) return null;
+  try {
+    // Reading the file first avoids keeping a Windows file handle open in
+    // libvips after metadata inspection (important for cleanup and replaces).
+    const bytes = await readFile(
+      /*turbopackIgnore: true*/ join(directory(), filename),
+    );
+    const metadata = await sharp(bytes).metadata();
+    if (!metadata.width || !metadata.height) return null;
+    return { width: metadata.width, height: metadata.height };
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  }
+}
+
 export async function storeCmsImage(filename: string, bytes: Buffer) {
   if (!cmsImageName.test(filename)) throw new Error("Invalid media name.");
   const dir = directory();

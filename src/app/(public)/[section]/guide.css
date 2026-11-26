@@ -1,3 +1,5 @@
+@import "../../../../events-original/app/grove-shell.css";
+
 @font-face {
   font-family: "Grove Balkara";
   src: url("/art/territory/display.ttf") format("truetype");
@@ -6,6 +8,9 @@
 
 .guest-guide {
   --title: "Grove Balkara", Georgia, serif;
+  --grove-display: var(--title);
+  --grove-paper-image: url("/art/territory/paper.webp");
+  --grove-crest: url("/art/territory/lodging-oak-crest.webp");
   --forest-night: #132419;
   --forest: #1d3422;
   --forest-soft: #304b31;
@@ -24,15 +29,9 @@
   --reading: Georgia, "Times New Roman", serif;
   --measure: 90rem;
   --gutter: clamp(1rem, 3.2vw, 3rem);
-  --paper-texture: url("/art/book/paper-grain.webp");
   min-height: 100dvh;
   color: var(--paper-light);
-  background-color: var(--forest-night);
-  background-image: var(--paper-texture), url("/art/territory/grove-1254.avif");
-  background-position: center, center top;
-  background-size: 420px, cover;
-  background-attachment: scroll, fixed;
-  background-blend-mode: multiply, soft-light;
+  background: var(--grove-ground);
 }
 
 .guest-guide *,
@@ -53,7 +52,7 @@
   white-space: nowrap;
 }
 .guide-skip:focus {
-  z-index: 20;
+  z-index: 40;
   top: 0.5rem;
   left: 0.5rem;
   width: auto;
@@ -65,117 +64,22 @@
   background: var(--paper-light);
 }
 
-.guide-bar {
-  position: sticky;
-  z-index: 12;
-  top: 0;
-  margin-inline: clamp(0.35rem, 1.2vw, 1.2rem);
-  color: var(--ink);
-  background: var(--paper) var(--paper-texture) center / 420px;
-  border: 4px double var(--edge);
-  border-top: 0;
-  border-radius: 0 0 1rem 1rem;
-  box-shadow: 0 0.45rem 1.4rem #100b0780, inset 0 0 1rem #b7792c30;
-}
-.guide-bar-inner {
-  display: flex;
-  align-items: center;
-  gap: clamp(0.65rem, 1.5vw, 1.35rem);
-  width: min(100%, 96rem);
-  min-height: 4.7rem;
-  margin-inline: auto;
-  padding-inline: clamp(0.8rem, 1.6vw, 1.5rem);
-}
-.guide-brand {
-  flex: 0 0 auto;
-  padding-block: 0.7rem;
-  color: var(--wine) !important;
-  font: 400 clamp(2.4rem, 3.2vw, 3.5rem)/0.8 var(--title);
-  letter-spacing: 0.015em;
-  text-decoration: none;
-}
-.wide-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(0.2rem, 0.62vw, 0.72rem);
-  min-width: 0;
-  margin-left: auto;
-}
-.wide-nav a,
-.small-nav a,
-.small-nav summary {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  color: var(--ink);
-  font: 600 clamp(0.78rem, 0.9vw, 0.93rem)/1.2 var(--reading);
-  text-decoration: none;
-}
-.wide-nav a { padding-inline: 0.12rem; white-space: nowrap; }
-.wide-nav a:hover,
-.wide-nav a[aria-current="page"],
-.small-nav a:hover,
-.small-nav a[aria-current="page"] {
-  color: var(--wine);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.38em;
-}
-.guide-date,
-.guest-guide .guide-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  border: 3px double var(--gold-light);
-  border-radius: 0.55rem;
-  color: #fff0c9 !important;
-  background: var(--wine);
-  font: 700 0.9rem/1.15 var(--utility);
-  text-decoration: none;
-  box-shadow: inset 0 0 0 1px #4f1118;
-  transition: background-color 160ms ease, transform 160ms ease;
-}
-.guide-date { flex: 0 0 auto; padding: 0.65rem 0.8rem; text-align: center; }
-.guide-date:hover,
-.guest-guide .guide-action:hover { background: var(--wine-bright); }
-.guide-date:active,
-.guest-guide .guide-action:active { transform: translateY(1px); }
-.small-nav { display: none; margin-left: auto; }
-.small-nav summary {
-  gap: 0.55rem;
-  padding-inline: 0.35rem;
-  cursor: pointer;
-  list-style: none;
-}
-.small-nav summary::-webkit-details-marker { display: none; }
-.guide-menu-icon,
-.guide-menu-icon::before,
-.guide-menu-icon::after {
-  width: 1.3rem;
-  height: 2px;
-  display: block;
-  border-radius: 999px;
-  background: currentColor;
-}
-.guide-menu-icon { position: relative; }
-.guide-menu-icon::before,
-.guide-menu-icon::after { position: absolute; left: 0; content: ""; }
-.guide-menu-icon::before { top: -0.38rem; }
-.guide-menu-icon::after { top: 0.38rem; }
-
 #guest-content,
-#guide-details { scroll-margin-top: 6rem; }
+#guide-details,
+#territory-content { scroll-margin-top: 6rem; }
 .guide-body {
   width: min(100%, var(--measure));
   margin-inline: auto;
   padding: clamp(1rem, 2vw, 1.8rem) var(--gutter) clamp(3rem, 7vw, 6rem);
 }
+.guest-guide[data-section] .guide-body {
+  width: 100%;
+  padding: 0 0 clamp(3rem, 7vw, 6rem);
+}
 .guide-hero {
   position: relative;
   display: grid;
-  grid-template-rows: minmax(clamp(27rem, 38vw, 36rem), auto);
+  grid-template-rows: minmax(clamp(27rem, 36.65vw, 43rem), auto);
   isolation: isolate;
 }
 .guide-plate,
@@ -186,9 +90,6 @@
   overflow: hidden;
   margin: 0;
   background: var(--wood);
-  border: 4px double var(--gold);
-  border-radius: 1.1rem;
-  box-shadow: 0 1.2rem 3.2rem #08060480;
 }
 .guide-plate figure { position: absolute; inset: 0; width: 100%; height: 100%; }
 .guide-plate img { width: 100%; height: 100%; object-fit: cover; }
@@ -213,26 +114,27 @@
 }
 .guide-heading {
   z-index: 2;
-  align-self: center;
+  position: relative;
+  align-self: end;
   justify-self: start;
-  width: min(33rem, 48%);
-  margin-block: 1.3rem;
-  margin-left: clamp(1.2rem, 4.5vw, 4.5rem);
+  width: min(36rem, 49%);
+  margin: 2rem 0 clamp(2rem, 4vw, 4.75rem) clamp(1.1rem, 2vw, 2.4rem);
   padding: clamp(1.2rem, 2.3vw, 2rem);
   color: var(--ink);
-  background: var(--paper) var(--paper-texture) center / 420px;
-  border: 4px double var(--edge);
-  border-radius: 1rem;
-  box-shadow: 0 0.8rem 2.5rem #130b0670, inset 0 0 1.3rem #b7782c35;
+  background: var(--grove-paper);
+  border: var(--grove-frame);
+  border-radius: var(--grove-radius);
+  box-shadow: var(--grove-shadow);
 }
 .guide-heading::after {
-  display: block;
-  width: min(12rem, 55%);
-  height: 1.4rem;
-  margin: 0.9rem auto -0.45rem;
+  position: absolute;
+  inset: auto -5% -10% auto;
+  width: clamp(5.5rem, 10vw, 11rem);
+  aspect-ratio: 1.28;
   content: "";
-  background: url("/art/book/rule.webp") center / 100% 100% no-repeat;
-  opacity: 0.72;
+  background: url("/art/territory/lodging-oak.webp") center / contain no-repeat;
+  pointer-events: none;
+  filter: drop-shadow(0 0.25rem 0.25rem #21200c66);
 }
 .back-to-book {
   min-height: 44px;
@@ -243,7 +145,6 @@
   text-decoration: none;
 }
 .back-to-book:hover { text-decoration: underline; }
-.guide-birds { display: none; }
 .guest-guide h1,
 .guest-guide h2,
 .guest-guide h3 {
@@ -270,14 +171,19 @@
   margin: clamp(1.5rem, 4vw, 3.5rem) auto 0;
   padding: clamp(1rem, 2.4vw, 2rem);
   color: var(--ink);
-  background: var(--paper-light) var(--paper-texture) center / 420px;
-  border: 2px solid var(--edge);
-  border-radius: 0.65rem;
+  width: calc(100% - 2 * var(--grove-gutter));
+  background: var(--grove-paper);
+  border: var(--grove-frame);
+  border-radius: var(--grove-radius);
   white-space: pre-line;
   font: 1.02rem/1.7 var(--reading);
 }
 
-.guide-details { padding-top: clamp(2rem, 3.2vw, 3rem); }
+.guide-details {
+  width: min(100%, 120rem);
+  margin-inline: auto;
+  padding: 0 var(--grove-gutter);
+}
 .guide-details > h2 {
   margin: 0 0 clamp(1.4rem, 3vw, 2.4rem);
   color: var(--gold-light);
@@ -287,14 +193,17 @@
   text-align: center;
   text-shadow: 0 2px 0 #351a12;
 }
-.guide-details > h2::after {
+.guide-details::before {
   display: block;
-  width: min(25rem, 70%);
-  height: 2.3rem;
-  margin: 0.75rem auto 0;
+  height: clamp(2.35rem, 3.55vw, 4.3rem);
+  margin: 0.6rem clamp(0.5rem, 4.5vw, 5rem) 0.75rem;
   content: "";
-  background: url("/art/book/rule.webp") center / 100% 100% no-repeat;
-  filter: sepia(0.5) saturate(0.8) brightness(1.4);
+  --crest-width: clamp(5rem, 10.5vw, 11rem);
+  --line-width: calc((100% - var(--crest-width) - 2rem) / 2);
+  background:
+    var(--grove-crest) center / var(--crest-width) auto no-repeat,
+    linear-gradient(90deg, transparent, var(--grove-gold) 60%) left center / var(--line-width) 2px no-repeat,
+    linear-gradient(270deg, transparent, var(--grove-gold) 60%) right center / var(--line-width) 2px no-repeat;
 }
 .guide-objects {
   display: grid;
@@ -306,16 +215,18 @@
   min-width: 0;
   overflow: hidden;
   color: var(--ink);
-  background: var(--paper-light) var(--paper-texture) center / 420px;
-  border: 4px double var(--edge);
-  border-radius: 0.9rem;
-  box-shadow: 0 0.8rem 2rem #09060469, inset 0 0 1.2rem #a86b2630;
+  background: var(--grove-paper);
+  border: var(--grove-frame);
+  border-radius: var(--grove-radius);
+  box-shadow: var(--grove-shadow);
 }
+.guide-object[data-photo="true"] { padding: 0.55rem; }
 .guide-object figure {
   width: 100%;
   aspect-ratio: 4 / 3;
   margin: 0;
-  border-bottom: 2px solid var(--edge);
+  overflow: hidden;
+  border-radius: calc(var(--grove-radius) - 0.45rem);
 }
 .guide-object-copy { padding: 1.25rem; }
 .guide-object img { width: 100%; height: 100%; object-fit: cover; }
@@ -369,13 +280,14 @@
   display: block;
   overflow: hidden;
   color: var(--ink);
-  background: var(--paper-light) var(--paper-texture) center / 420px;
-  border: 3px double var(--edge);
-  border-radius: 0.75rem;
+  padding: 0.45rem;
+  background: var(--grove-paper);
+  border: var(--grove-frame);
+  border-radius: var(--grove-radius);
   text-decoration: none;
   box-shadow: 0 0.7rem 1.8rem #09060460;
 }
-.photo-grid figure { aspect-ratio: 4 / 3; }
+.photo-grid figure { aspect-ratio: 4 / 3; overflow: hidden; border-radius: calc(var(--grove-radius) - 0.4rem); }
 .photo-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform 260ms ease; }
 .photo-grid a:hover img { transform: scale(1.025); }
 .photo-grid span {
@@ -416,79 +328,32 @@
   margin-inline: auto;
   padding: clamp(1.3rem, 3vw, 2.5rem);
   color: var(--ink);
-  background: var(--paper-light) var(--paper-texture) center / 420px;
-  border: 4px double var(--edge);
-  border-radius: 0.9rem;
+  background: var(--grove-paper);
+  border: var(--grove-frame);
+  border-radius: var(--grove-radius);
   font: 1.06rem/1.55 var(--reading);
   box-shadow: 0 0.8rem 2rem #09060460;
 }
 .contacts-list dt { font-weight: 700; }
 .contacts-list dd { margin: 0; overflow-wrap: anywhere; }
 .contacts-list a { color: var(--wine); font-weight: 700; }
-.guide-footer {
-  display: grid;
-  grid-template-columns: 1.3fr auto auto;
-  align-items: center;
-  gap: 2rem;
-  padding: clamp(1.4rem, 3vw, 2.4rem) max(var(--gutter), calc((100vw - var(--measure)) / 2 + var(--gutter)));
-  color: var(--paper-light);
-  background: #2d190f url("/art/book/carving.webp") right center / auto 100% no-repeat;
-  border-top: 4px double var(--gold);
-  font: 0.92rem/1.5 var(--utility);
-}
-.guide-footer address { font-style: normal; }
-.guide-footer .back-to-book { color: var(--paper-light) !important; }
-.guide-footer-contacts { display: grid; gap: 0.25rem; }
-.guide-staff-link { min-height: 44px; display: inline-flex; align-items: center; color: var(--gold-light) !important; }
-
-@media (max-width: 82rem) {
-  .wide-nav { display: none; }
-  .small-nav { display: block; }
-  .small-nav nav {
-    position: absolute;
-    z-index: 5;
-    top: calc(100% - 0.45rem);
-    right: 0.8rem;
-    display: grid;
-    width: min(23rem, calc(100vw - 1.6rem));
-    max-height: calc(100dvh - 5.5rem);
-    overflow-y: auto;
-    padding: 0.65rem 1rem 1rem;
-    color: var(--ink);
-    background: var(--paper-light) var(--paper-texture) center / 420px;
-    border: 3px double var(--edge);
-    border-radius: 0 0 0.75rem 0.75rem;
-    box-shadow: 0 1rem 2rem #100b0790;
-  }
-  .small-nav a { padding-inline: 0.35rem; border-bottom: 1px solid #9c6c3438; }
-  .small-nav-date { color: var(--wine) !important; font-weight: 800 !important; }
-}
-
 @media (max-width: 760px) {
-  .guest-guide { background-attachment: scroll; background-image: var(--paper-texture), url("/art/territory/grove-640.avif"); }
-  .guide-bar { margin-inline: 0; border-radius: 0 0 0.65rem 0.65rem; }
-  .guide-bar-inner { min-height: 4.1rem; gap: 0.45rem; padding-inline: 0.7rem; }
-  .guide-brand { font-size: clamp(1.75rem, 9.2vw, 2.3rem); }
-  .guide-date { min-height: 44px; margin-left: auto; padding: 0.55rem 0.65rem; font-size: 0.76rem; }
-  .small-nav { margin-left: 0; }
-  .small-nav summary { width: 44px; justify-content: center; padding: 0; }
-  .small-nav summary > span:first-child { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; }
   .guide-body { padding-inline: 0.75rem; padding-top: 0.75rem; }
   .guide-hero { min-height: 0; display: flex; flex-direction: column; }
-  .guide-plate { order: -1; min-height: 13.5rem; border-radius: 0.75rem 0.75rem 0 0; }
-  .guide-plate > p { right: 0.55rem; bottom: 0.45rem; max-width: calc(100% - 1.1rem); font-size: 0.75rem; }
+  .guide-plate { order: -1; min-height: clamp(13.5rem, 57vw, 20rem); }
+  .guide-plate > p { right: 0.55rem; bottom: 1.65rem; max-width: calc(100% - 1.1rem); font-size: 0.75rem; }
   .guide-heading {
-    width: 100%;
-    margin: -0.2rem 0 0;
-    padding: 1.25rem 1rem 1.35rem;
-    border-radius: 0 0 0.75rem 0.75rem;
-    box-shadow: none;
+    align-self: center;
+    width: calc(100% - 2 * var(--grove-gutter));
+    margin: -1.25rem 0 0;
+    padding: 1.25rem 1rem 1.7rem;
+    border-radius: var(--grove-radius);
   }
-  .guide-heading::after { height: 1.2rem; margin-bottom: -0.35rem; }
+  .guide-heading::after { inset: auto 0.15rem -1.8rem auto; width: 4.3rem; }
   .guest-guide h1 { font-size: clamp(2.4rem, 11.8vw, 3.15rem); }
   .guide-heading > p { margin-block: 0.75rem 1rem; font-size: 1rem; }
-  .guide-details { padding-top: 3.2rem; }
-  .guide-details > h2 { font-size: clamp(2.35rem, 10.5vw, 3.3rem); }
+  .guide-details::before { margin-top: 1.25rem; }
+  .guide-details > h2 { font-size: clamp(1.9rem, 8.2vw, 3.3rem); }
   .guide-objects,
   .guide-prozhivanie .guide-objects,
   .guide-banketnye-zaly .guide-objects { grid-template-columns: 1fr; }
@@ -498,13 +363,6 @@
   .photo-grid li:nth-child(4) { grid-column: auto; }
   .contacts-list { grid-template-columns: 1fr; gap: 0.25rem; }
   .contacts-list dd { margin-bottom: 0.7rem; }
-  .guide-footer { grid-template-columns: 1fr; align-items: start; gap: 1rem; background-size: auto 60%; }
-  .guide-footer .back-to-book { color: var(--paper-light) !important; }
-}
-
-@media (max-width: 349px) {
-  .guide-brand { font-size: 1.55rem; }
-  .guide-bar-inner { gap: 0.3rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

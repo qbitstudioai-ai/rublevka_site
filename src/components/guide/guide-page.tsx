@@ -10,6 +10,7 @@ type Page = SiteData[SectionId];
 type GuideItem = Page["items"][number];
 type Contact = ReturnType<typeof contactLinks>;
 import { type SectionId } from "@/content/sections";
+import { mediaCatalog } from "@/content/media";
 import {
   bookingHref,
   publicNavigation,
@@ -18,6 +19,7 @@ import {
 import { MediaFrame } from "../ui/media-frame";
 import { BookReturn } from "./book-return";
 import { PhotoGallery } from "./gallery";
+import { GroveFooter } from "../../../events-original/components/GroveFooter";
 
 type GuideLocation = PublicNavigationId;
 
@@ -92,31 +94,42 @@ function PageHeading({
   page,
   contact,
   catalog,
+  lodging,
 }: {
   page: Page;
   contact: Contact;
   catalog: MediaCatalog;
+  lodging: boolean;
 }) {
+  const photo = catalogAsset(catalog, page.photo);
+  const defaultHouse = mediaCatalog["house-oaks"];
+  const defaultLodgingCrop =
+    lodging && photo.src === defaultHouse.src && photo.focalPoint === defaultHouse.focalPoint;
+
   return (
     <div className="guide-hero">
       <div className="guide-heading">
-        <BookReturn />
-        <span className="guide-birds" aria-hidden="true" />
+        {!lodging && <BookReturn />}
         <h1>{page.heading}</h1>
         <p>
           {page.action === "map" && page.intro === siteDefaults.kontakty.intro
             ? contact.address + "."
             : page.intro}
         </p>
-        <GuestAction action={page.action} contact={contact} />
+        {!lodging && <GuestAction action={page.action} contact={contact} />}
       </div>
       <div className="guide-plate">
         <MediaFrame
-          asset={catalogAsset(catalog, page.photo)}
-          sizes="(max-width: 760px) 94vw, 100vw"
+          asset={photo}
+          className={defaultLodgingCrop ? "lodging-default-crop" : undefined}
+          sizes={
+            lodging
+              ? "(max-width: 760px) 100vw, 73vw"
+              : "(max-width: 760px) 94vw, 100vw"
+          }
           eager
         />
-        <p>{page.caption}</p>
+        <p className={lodging ? "visually-hidden" : undefined}>{page.caption}</p>
       </div>
     </div>
   );
@@ -124,36 +137,42 @@ function PageHeading({
 function ObjectCard({
   item,
   catalog,
+  lodging,
 }: {
   item: GuideItem;
   catalog: MediaCatalog;
+  lodging: boolean;
 }) {
   return (
     <article className="guide-object" data-photo={Boolean(item.photo)}>
       {item.photo && (
         <MediaFrame
           asset={catalogAsset(catalog, item.photo)}
-          sizes="(max-width: 760px) 92vw, (max-width: 1000px) 45vw, 27vw"
+          sizes={
+            lodging
+              ? "(max-width: 760px) 92vw, (width < 1000px) 48vw, 28vw"
+              : "(max-width: 760px) 92vw, (max-width: 1000px) 45vw, 27vw"
+          }
         />
       )}
       <div className="guide-object-copy">
-      <h3>{item.name}</h3>
-      {item.detail && (
-        <dl className="guide-facts">
-          <dt className="visually-hidden">Характеристика объекта</dt>
-          <dd>{item.detail}</dd>
-        </dl>
-      )}
-      <p>{item.description}</p>
-      {item.room && (
-        <Link
-          className="guide-action"
-          href={`/bronirovanie?room=${item.room}`}
-          aria-label={`Выбрать даты: ${item.name}`}
-        >
-          Выбрать даты →
-        </Link>
-      )}
+        <h3>{item.name}</h3>
+        {!lodging && item.detail && (
+          <dl className="guide-facts">
+            <dt className="visually-hidden">Характеристика объекта</dt>
+            <dd>{item.detail}</dd>
+          </dl>
+        )}
+        {!lodging && <p>{item.description}</p>}
+        {item.room && (
+          <Link
+            className="guide-action"
+            href={`/bronirovanie?room=${item.room}`}
+            aria-label={`Выбрать даты: ${item.name}`}
+          >
+            Выбрать даты{!lodging && " →"}
+          </Link>
+        )}
       </div>
     </article>
   );
@@ -194,22 +213,8 @@ function ContactDetails({ contact }: { contact: Contact }) {
     </dl>
   );
 }
-export function GuideFooter({ contact }: { contact: Contact }) {
-  return (
-    <footer className="guide-footer">
-      <div>
-        <BookReturn />
-        <address>{contact.address}</address>
-      </div>
-      <div className="guide-footer-contacts">
-        <a href={contact.tel}>{contact.phone}</a>
-        <a href={`mailto:${contact.email}`}>{contact.email}</a>
-      </div>
-      <Link className="guide-staff-link" href="/admin/site/login">
-        Вход для сотрудников
-      </Link>
-    </footer>
-  );
+export function GuideFooter({ contact }: { contact?: Contact }) {
+  return <GroveFooter contact={contact} bookReturn={<BookReturn />} staff />;
 }
 export function GuestGuide({
   id,
@@ -222,6 +227,9 @@ export function GuestGuide({
   contact: Contact;
   catalog: MediaCatalog;
 }) {
+  const lodging = id === "prozhivanie";
+  const items = page.items.filter((item) => item.visible);
+
   return (
     <div className={`guest-guide guide-${id}`} data-section={id}>
       <a className="guide-skip" href="#guest-content">
@@ -229,14 +237,14 @@ export function GuestGuide({
       </a>
       <GuideHeader id={id} />
       <main className="guide-body" id="guest-content">
-        <PageHeading page={page} contact={contact} catalog={catalog} />
-        {page.body && <p className="guide-editorial">{page.body}</p>}
+        <PageHeading page={page} contact={contact} catalog={catalog} lodging={lodging} />
+        {!lodging && page.body && <p className="guide-editorial">{page.body}</p>}
         <section
           className="guide-details"
           id="guide-details"
           aria-labelledby="detail-title"
         >
-          <h2 id="detail-title">{page.section}</h2>
+          <h2 id="detail-title" className={lodging ? "visually-hidden" : undefined}>{page.section}</h2>
           {page.gallery ? (
             <PhotoGallery
               photos={page.gallery.map((id) => catalogAsset(catalog, id))}
@@ -245,14 +253,26 @@ export function GuestGuide({
             <ContactDetails contact={contact} />
           ) : (
             <div className="guide-objects">
-              {page.items
-                .filter((item) => item.visible)
-                .map((i) => (
-                  <ObjectCard key={i.id} item={i} catalog={catalog} />
-                ))}
+              {items.map((item) => (
+                <ObjectCard key={item.id} item={item} catalog={catalog} lodging={lodging} />
+              ))}
             </div>
           )}
         </section>
+        {lodging && items.length > 0 && (
+          <details className="lodging-facts">
+            <summary>Подробнее о вариантах размещения</summary>
+            <dl>
+              {items.map((item) => (
+                <div key={item.id}>
+                  <dt>{item.name}</dt>
+                  <dd>{item.detail && <strong>{item.detail}. </strong>}{item.description}</dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        )}
+        {lodging && page.body && <p className="guide-editorial">{page.body}</p>}
       </main>
       <GuideFooter contact={contact} />
     </div>
