@@ -9,10 +9,11 @@ export async function HomeStory() {
   const catalog = catalogFor(media.items);
   return (
     <StoryBook
-      chapters={chapters.map((chapter) => ({
-        ...chapter,
-        image: catalogAsset(catalog, chapter.photo),
-      }))}
+      chapters={chapters.map((chapter) =>
+        chapter.layout === "manifesto" || !chapter.photo
+          ? chapter
+          : { ...chapter, image: catalogAsset(catalog, chapter.photo) },
+      )}
     />
   );
 }

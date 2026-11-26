@@ -1,6 +1,7 @@
 @font-face {
-  font-family: Rublevka;
-  src: url("/art/book/title.woff2") format("woff2");
+  font-family: Balkara;
+  src: url("/art/book/BalkaraFreeCond.ttf") format("truetype");
+  font-weight: 400;
   font-display: swap;
 }
 :root {
@@ -11,7 +12,7 @@
   --paper: #f3d9aa;
   --table: #301a13;
   --type: Georgia, "Times New Roman", serif;
-  --title: Rublevka, Georgia, serif;
+  --title: Balkara, Georgia, serif;
   --binding: url("/art/book/spread.webp");
   --folio: url("/art/book/folio.webp");
   --carving: url("/art/book/carving.webp");
@@ -141,6 +142,10 @@ button {
   width: 52%;
   height: 2.4cqh;
 }
+:is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--title);
+  font-synthesis: none;
+}
 h1,
 h2 {
   color: var(--red);
@@ -148,20 +153,17 @@ h2 {
   font-weight: 500;
   text-wrap: balance;
 }
-.spread h1 {
-  font-size: calc(min(11cqw, 18cqh) * var(--chapter-title-scale, 1));
-}
 .spread h2 {
   font-size: calc(clamp(2rem, 4.4cqw, 6rem) * var(--chapter-title-scale, 1));
 }
-h1 {
-  font: normal min(11cqw, 18cqh)/1 var(--title);
+.opening h1 {
+  font: normal calc(min(7.4cqw, 14cqh) * var(--chapter-title-scale, 1))/1 var(--title);
   letter-spacing: 0;
 }
 h2 {
   font-size: clamp(2rem, 4.4cqw, 6rem);
   line-height: 0.99;
-  letter-spacing: -0.045em;
+  letter-spacing: 0;
 }
 .motto {
   font-size: clamp(1.25rem, 2.45cqw, 3.3rem);
@@ -216,13 +218,17 @@ h2 {
   z-index: 12;
   top: 4.6%;
   right: 6%;
-  width: var(--tap);
-  height: 3.6rem;
+  width: clamp(7.5rem, 10cqw, 10rem);
+  height: 4rem;
   display: grid;
   place-items: center;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
-  padding: 0 0 0.5rem;
-  font-size: 1.45rem;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 86%, 0 100%);
+  padding: 0 1rem 0.65rem;
+  font-family: var(--title);
+  font-size: clamp(0.95rem, 1.25cqw, 1.2rem);
+  line-height: 1;
+  letter-spacing: 0.025em;
+  text-align: center;
 }
 .bookmark:focus-visible {
   background: #184659;
@@ -245,6 +251,16 @@ h2 {
   inset: 20% 7.15% 13.6% 6.55%;
   overflow: hidden;
   border-radius: 2%;
+}
+.carving-empty-paper {
+  position: absolute;
+  inset: 20% 7.15% 13.6% 6.55%;
+  display: block;
+  border-radius: 2%;
+  background:
+    radial-gradient(circle at 48% 42%, color-mix(in srgb, var(--paper) 94%, white), transparent 62%),
+    var(--folio) center / cover;
+  box-shadow: inset 0 0 1.2rem color-mix(in srgb, var(--ink) 18%, transparent);
 }
 .media-frame__image {
   display: block;
@@ -317,9 +333,188 @@ h2 {
 .closing .inscription {
   margin-top: 2cqh;
 }
+.events .inscription { justify-content: center; }
+.events .motto { max-width: 24ch; overflow-wrap: anywhere; }
+.book-events {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 1.4em;
+  text-align: center;
+  text-decoration: none;
+}
 .closing .motto {
   margin-top: 1cqh;
   font-style: italic;
+}
+.manifesto {
+  --manifesto-gap: clamp(0.45rem, 1cqh, 0.8rem);
+  --manifesto-border: #aa7950;
+  --manifesto-gilding: #a7702c;
+  --manifesto-glow: #fff1ca88;
+  --manifesto-body: clamp(1rem, min(1.25cqw, 2.05cqh), 1.3rem);
+}
+.manifesto .recto-copy {
+  padding: 8cqh 4cqw 14.75cqh 7.25cqw;
+}
+.manifesto .recto-copy::before {
+  content: "";
+  position: absolute;
+  inset: 7% 0.7% 8.5% 9%;
+  background: var(--binding) 91% 50% / 246% 120% no-repeat;
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 91%, transparent),
+    linear-gradient(to bottom, transparent, #000 9%, #000 90%, transparent);
+  mask-composite: intersect;
+  pointer-events: none;
+}
+.manifesto-copy {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  text-align: center;
+}
+.manifesto-copy .numeral {
+  display: block;
+  color: var(--manifesto-gilding);
+  font-size: clamp(1.2rem, min(2cqw, 3.2cqh), 2.2rem);
+}
+.manifesto h2[data-title] {
+  margin: var(--manifesto-gap) auto 0;
+  font: normal clamp(1.8rem, min(2.65cqw, 4.6cqh), 3.1rem)/1.05 var(--title);
+  overflow-wrap: anywhere;
+}
+.manifesto h2[data-title]:focus-visible {
+  text-decoration: none;
+}
+.manifesto .rule {
+  width: 46%;
+  height: clamp(0.75rem, 2cqh, 1.3rem);
+  margin: var(--manifesto-gap) auto;
+}
+.manifesto h2[data-title]:focus-visible + .rule {
+  outline: 1px dotted var(--wine);
+  outline-offset: 0.2rem;
+}
+.manifesto-subtitle {
+  margin: 0 auto calc(var(--manifesto-gap) * 1.25);
+  max-width: 31em;
+  color: var(--wine);
+  font-size: calc(var(--manifesto-body) * 1.08);
+  font-style: italic;
+  line-height: 1.36;
+  text-wrap: balance;
+}
+.manifesto-prose {
+  display: grid;
+  gap: var(--manifesto-gap);
+  text-align: start;
+  font-size: var(--manifesto-body);
+  line-height: 1.33;
+  overflow-wrap: anywhere;
+}
+.manifesto-emphasis {
+  display: grid;
+  place-items: center;
+  gap: 0.22em;
+  padding-block: 0.25em;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--wine);
+  font-size: 1.07em;
+}
+.manifesto-emphasis::before {
+  content: "";
+  width: 7em;
+  height: 0.8em;
+  background: var(--manifesto-gilding);
+  mask: url("/art/book/rule.webp") center / contain no-repeat;
+}
+.manifesto-closing {
+  color: var(--wine);
+}
+.manifesto .recto-photo {
+  align-items: center;
+  padding: 9cqh 6.6cqw 10cqh 2cqw;
+}
+.manifesto-engraving {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  background: radial-gradient(ellipse at 51% 42%, var(--manifesto-glow), transparent 66%);
+}
+.manifesto-engraving img {
+  display: block;
+  width: min(100%, 58cqh);
+  height: auto;
+}
+.manifesto-engraving blockquote {
+  margin: 0;
+  max-width: 25em;
+  color: var(--wine);
+  font-size: clamp(1.15rem, min(1.7cqw, 2.8cqh), 1.8rem);
+  font-style: italic;
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.folio-nav .manifesto-return {
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.folio-nav .manifesto-return span::before,
+.folio-nav .manifesto-return span::after {
+  content: none;
+}
+@media (max-aspect-ratio: 1/1), (max-width: 640px) {
+  .manifesto.spread {
+    --manifesto-body: clamp(1rem, 4.5cqw, 1.17rem);
+    padding: max(env(safe-area-inset-top), 3.4cqh)
+      max(env(safe-area-inset-right), 8.2cqw) 0
+      max(env(safe-area-inset-left), 8.2cqw);
+    background: var(--paper) var(--binding) 91% 50% / 246% 120% no-repeat;
+    border: 0 solid var(--table);
+    border-image: var(--folio) 70 46 / 5.5cqw stretch;
+    overscroll-behavior-y: contain;
+    scroll-padding-block-end: calc(var(--tap) + 0.8rem);
+    touch-action: pan-y pinch-zoom;
+  }
+  .manifesto-copy,
+  .manifesto-engraving {
+    flex: none;
+  }
+  .manifesto-copy {
+    overflow: visible;
+  }
+  .manifesto .recto-copy::before {
+    display: none;
+  }
+  .manifesto-prose {
+    line-height: 1.42;
+  }
+  .manifesto h2[data-title] {
+    font-size: clamp(1.7rem, 7.4cqw, 2.4rem);
+  }
+  .manifesto-engraving {
+    order: 1;
+    margin-block: 1rem;
+  }
+  .manifesto-engraving img {
+    width: min(100%, 21rem);
+  }
+  .manifesto .folio-nav {
+    position: sticky;
+    bottom: 0;
+    width: calc(100% + 0.3rem);
+    min-height: var(--tap);
+    padding: 0 0 max(env(safe-area-inset-bottom), 0.33rem);
+    border-top: 1px solid var(--manifesto-border);
+    background: var(--paper) var(--folio) center 50% / 140% 600%;
+  }
 }
 .book-dialog {
   position: fixed;
@@ -474,14 +669,11 @@ h2 {
     height: 7cqh;
     width: 42%;
   }
-  h1 {
-    font-size: min(24cqw, 14cqh);
+  .opening h1 {
+    font-size: calc(min(17cqw, 12cqh) * var(--chapter-title-scale, 1));
   }
   h2 {
     font-size: clamp(2.1rem, min(11cqw, 6cqh), 4rem);
-  }
-  .spread h1 {
-    font-size: calc(min(24cqw, 14cqh) * var(--chapter-title-scale, 1));
   }
   .spread h2 {
     font-size: calc(clamp(2.1rem, min(11cqw, 6cqh), 4rem) * var(--chapter-title-scale, 1));
@@ -544,8 +736,10 @@ h2 {
   .bookmark {
     top: max(env(safe-area-inset-top), 1.1%);
     right: max(env(safe-area-inset-right), 6%);
-    height: var(--tap);
-    font-size: 1.2rem;
+    width: min(36cqw, 8.75rem);
+    height: 3.4rem;
+    padding: 0 0.65rem 0.55rem;
+    font-size: clamp(0.9rem, 4cqw, 1.05rem);
   }
   [data-turn] .leaf {
     animation: none !important;

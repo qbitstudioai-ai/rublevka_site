@@ -1,0 +1,39 @@
+.legal-page {
+  --legal-width: 52rem;
+  --legal-spacing: clamp(0.85rem, 2vw, 1.5rem);
+  --legal-heading-size: clamp(1.85rem, 4vw, 3rem);
+
+  padding: calc(2 * var(--legal-spacing)) var(--grove-gutter);
+}
+
+.legal-document {
+  display: grid;
+  gap: var(--legal-spacing);
+  max-width: var(--legal-width);
+  margin-inline: auto;
+  padding: calc(1.5 * var(--legal-spacing));
+  border: var(--grove-frame);
+  border-radius: var(--grove-radius);
+  color: var(--grove-ink);
+  background: var(--grove-paper);
+  box-shadow: var(--grove-shadow);
+  font: 1rem/1.6 var(--grove-type);
+  overflow-wrap: anywhere;
+}
+
+.legal-document h1 {
+  font-size: var(--legal-heading-size);
+  line-height: 1.12;
+}
+
+.legal-document :is(h2, h3) { line-height: 1.25; }
+.legal-document ul { padding-inline-start: calc(1.5 * var(--legal-spacing)); }
+.legal-table { max-width: 100%; overflow-x: auto; }
+.legal-table table { width: 100%; border-collapse: collapse; }
+
+.legal-table :is(th, td) {
+  padding: calc(0.65 * var(--legal-spacing));
+  border: 1px solid var(--grove-gold);
+  vertical-align: top;
+  text-align: start;
+}

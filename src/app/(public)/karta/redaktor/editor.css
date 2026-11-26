@@ -1,0 +1,150 @@
+.territory-editor {
+  --editor-panel: var(--map-paper);
+  --editor-outline: var(--map-gold);
+  --editor-ink: var(--map-ink);
+  --editor-accent: var(--map-wine);
+  --editor-focus: var(--map-highlight);
+  --editor-control: 2.65rem;
+  --editor-gap: 0.75rem;
+  --editor-padding: clamp(0.75rem, 2vw, 1.5rem);
+  --editor-radius: 0.4rem;
+  --editor-sidebar: 18rem;
+  min-height: 100svh;
+  background: var(--map-forest);
+  font-family: var(--map-reading);
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--editor-gap);
+  padding: var(--editor-gap) var(--editor-padding);
+  background: var(--editor-panel);
+  border-bottom: 1px solid var(--editor-outline);
+}
+
+.editor-header h1 {
+  margin: 0;
+  color: var(--editor-ink);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.editor-actions,
+.editor-zoom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--editor-gap) / 2);
+}
+
+.territory-editor :is(.editor-header, .editor-workspace) :is(button, input, select) {
+  min-height: var(--editor-control);
+  border: 1px solid var(--editor-outline);
+  border-radius: var(--editor-radius);
+  padding: 0 calc(var(--editor-gap) * 0.85);
+  background: var(--editor-panel);
+  color: var(--editor-ink);
+  font: 600 0.875rem/1.25 var(--utility);
+}
+
+.territory-editor :is(.editor-header, .editor-workspace) button:not(:disabled) { cursor: pointer; }
+.territory-editor .editor-header button:disabled { opacity: 0.52; }
+.territory-editor :is(.editor-header, .editor-workspace) button:is([aria-pressed="true"], .editor-export) {
+  background: var(--editor-accent);
+  color: var(--map-pale);
+}
+
+.editor-message {
+  margin: 0;
+  padding: var(--editor-gap) var(--editor-padding);
+  color: var(--map-pale);
+}
+
+.editor-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--editor-sidebar);
+  padding: var(--editor-padding);
+  gap: var(--editor-gap);
+  align-items: start;
+}
+
+.editor-inspector {
+  min-width: 0;
+  display: grid;
+  gap: var(--editor-gap);
+  padding: var(--editor-padding);
+  background: var(--editor-panel);
+  border: var(--map-frame);
+  border-radius: var(--map-radius);
+}
+
+.editor-inspector p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.editor-modes,
+.editor-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--editor-gap) / 2);
+}
+
+.editor-inspector label {
+  display: grid;
+  gap: calc(var(--editor-gap) / 3);
+  font: 600 0.8rem/1.25 var(--utility);
+}
+
+.editor-inspector :is(input, select) {
+  width: 100%;
+  min-width: 0;
+}
+
+.editor-canvas {
+  position: relative;
+  min-width: 0;
+  background: var(--map-grove) center / cover;
+  border: var(--map-frame);
+  border-radius: var(--map-radius);
+  overflow: clip;
+}
+
+.territory-editor .editor-svg {
+  width: 100%;
+  height: min(76svh, 56rem);
+  max-height: none;
+  touch-action: none;
+}
+
+.territory-editor .editor-svg .map-relief image { pointer-events: none; }
+.editor-zoom {
+  position: absolute;
+  bottom: var(--editor-gap);
+  right: var(--editor-gap);
+}
+
+.editor-drag-area,
+.editor-handle {
+  fill: color-mix(in srgb, var(--editor-focus) 14%, transparent);
+  stroke: var(--editor-focus);
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+  cursor: move;
+}
+
+.editor-handle {
+  fill: var(--map-pale);
+  stroke: var(--editor-accent);
+}
+
+.editor-handle[data-active="true"] { fill: var(--editor-focus); }
+.editor-handles rect + circle { cursor: nwse-resize; }
+.editor-drag-area:active,
+.editor-handle:active { cursor: grabbing; }
+
+@media (max-width: 760px) {
+  .editor-workspace { grid-template-columns: minmax(0, 1fr); }
+  .territory-editor .editor-svg { height: auto; min-height: 21rem; }
+}

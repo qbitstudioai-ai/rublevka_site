@@ -52,6 +52,7 @@ try {
         "--test-concurrency=1",
         "src/server/events/registration.test.ts",
         "src/server/cms/model.test.ts",
+        "src/server/cms/media-replacement.test.ts",
         "src/server/cms/store.test.ts",
         "src/server/cms/access.test.ts",
         "src/server/cms/staff.test.ts",

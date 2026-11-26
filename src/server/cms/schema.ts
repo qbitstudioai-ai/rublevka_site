@@ -61,3 +61,21 @@ export const cmsSiteContentAudit = pgTable(
     ),
   ],
 );
+
+export const cmsSiteDocumentMediaDrafts = pgTable(
+  "cms_site_document_media_drafts",
+  {
+    documentKey: text("document_key")
+      .$type<SiteKey>()
+      .primaryKey()
+      .references(() => cmsSiteDocuments.key, { onDelete: "cascade" }),
+    mediaRevision: integer("media_revision").notNull(),
+    updatedAt: instant("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    check(
+      "cms_site_document_media_revision_positive",
+      sql`${table.mediaRevision} > 0`,
+    ),
+  ],
+);

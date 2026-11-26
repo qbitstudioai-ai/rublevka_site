@@ -1,0 +1,264 @@
+.entry {
+  --cover-duration: 1.35s;
+  --cover-ease: cubic-bezier(0.45, 0.02, 0.2, 1);
+  --cover-gold: var(--gold);
+  --cover-deep: var(--wine);
+  position: relative;
+  perspective: 1900px;
+}
+
+.entry :global(.binding) {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.74) rotateX(5deg);
+  transform-origin: center;
+  transition:
+    opacity calc(var(--cover-duration) * 0.58) ease calc(var(--cover-duration) * 0.2),
+    transform calc(var(--cover-duration) * 0.78) var(--cover-ease)
+      calc(var(--cover-duration) * 0.12);
+}
+
+.entry[data-entry="opening"] :global(.binding),
+.entry[data-entry="open"] :global(.binding) {
+  opacity: 1;
+  transform: scale(1) rotateX(0);
+}
+
+.entry[data-entry="open"] :global(.binding) {
+  pointer-events: auto;
+}
+
+.entry :global(.book-cover-scene) {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  perspective: 1900px;
+}
+
+.entry :global(.book-cover-scene[hidden]) {
+  display: none;
+}
+
+.entry :global(.closed-book) {
+  position: relative;
+  width: min(78vw, 128vh, 82rem);
+  aspect-ratio: 1140 / 750;
+  container-type: inline-size;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 1.8rem 1.6rem color-mix(in srgb, var(--table) 80%, transparent));
+}
+
+.entry :global(.book-page-block) {
+  position: absolute;
+  z-index: -1;
+  inset: 2.3% 1.1% -2.1% 1.8%;
+  border-radius: 0.6rem 0.9rem 1.1rem 0.7rem;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--paper) 82%, white) 0 2px,
+      color-mix(in srgb, var(--paper) 68%, var(--ink)) 2px 3px
+    );
+  box-shadow:
+    inset 0 -0.45rem 0.9rem color-mix(in srgb, var(--ink) 32%, transparent),
+    0 0.9rem 0 color-mix(in srgb, var(--wine) 82%, var(--table));
+  transform: translateY(1.3%);
+  transition: opacity calc(var(--cover-duration) * 0.16) ease;
+}
+
+.entry[data-entry="opening"] :global(.book-page-block) {
+  opacity: 0;
+}
+
+.entry :global(.book-front-cover) {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 1.2% 1.8% 1.8% 1.2%;
+  background: var(--cover-deep) url("/art/book/cover-oak.webp") center / 100% 100%
+    no-repeat;
+  box-shadow:
+    inset 0 0 1.2rem color-mix(in srgb, var(--table) 45%, transparent),
+    0 0.2rem 0.4rem color-mix(in srgb, var(--table) 72%, transparent);
+  transform-origin: 1.7% center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, filter;
+}
+
+.entry[data-entry="opening"] :global(.book-front-cover) {
+  animation: open-cover var(--cover-duration) var(--cover-ease) both;
+  pointer-events: none;
+}
+
+.entry :global(.book-cover-copy) {
+  position: absolute;
+  inset: 17% 13% 9%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.25rem, 1.2cqi, 1rem);
+  color: color-mix(in srgb, var(--cover-gold) 88%, var(--paper));
+  text-align: center;
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--paper) 28%, transparent),
+    0 0.15em 0.22em color-mix(in srgb, var(--table) 72%, transparent);
+}
+
+.entry :global(.book-cover-title) {
+  display: grid;
+  gap: 0.05em;
+  color: inherit;
+  font-family: var(--title);
+  font-size: clamp(1.5rem, 4.03cqi, 4.15rem);
+  font-weight: 400;
+  line-height: 0.96;
+  text-shadow: inherit;
+}
+
+.entry :global(.book-cover-title) span {
+  font-family: var(--type);
+  font-size: 0.47em;
+  letter-spacing: 0.025em;
+}
+
+.entry :global(.book-cover-title) strong {
+  font-size: 1.5em;
+  font-weight: 400;
+}
+
+.entry :global(.book-cover-rule) {
+  width: min(52%, 18rem);
+  height: 0.85rem;
+  background: var(--cover-gold);
+  mask: url("/art/book/rule.webp") center / contain no-repeat;
+}
+
+.entry :global(.book-cover-motto) {
+  max-width: 25em;
+  font-size: clamp(1.02rem, 2.15cqi, 2.21rem);
+  font-style: italic;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.entry :global(.book-open-button) {
+  min-height: var(--tap);
+  margin-top: clamp(0.1rem, 1cqi, 0.75rem);
+  padding: 0.78em 1.25em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.72em;
+  border: 1px solid color-mix(in srgb, var(--cover-gold) 78%, var(--paper));
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--wine) 72%, white), var(--wine));
+  color: color-mix(in srgb, var(--cover-gold) 88%, var(--paper));
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--gold) 28%, transparent),
+    0 0.35rem 0.8rem color-mix(in srgb, var(--table) 52%, transparent);
+  font-size: clamp(0.7rem, 1.35cqi, 1.35rem);
+  line-height: 1.15;
+  text-wrap: balance;
+  transition:
+    filter 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.entry :global(.book-open-button) span {
+  flex: none;
+  font-size: 0.55em;
+}
+
+.entry :global(.book-open-button:hover:not(:disabled)) {
+  filter: brightness(1.13);
+  transform: translateY(-0.08rem);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--gold) 38%, transparent),
+    0 0.48rem 1rem color-mix(in srgb, var(--table) 62%, transparent);
+}
+
+.entry :global(.book-open-button:focus-visible) {
+  outline-color: var(--paper);
+}
+
+.entry :global(.book-open-button:disabled) {
+  cursor: default;
+}
+
+@keyframes open-cover {
+  0% {
+    filter: brightness(1);
+    transform: rotateY(0) translateZ(0);
+  }
+  38% {
+    filter: brightness(0.82);
+  }
+  70% {
+    filter: brightness(0.55);
+  }
+  100% {
+    filter: brightness(0.38);
+    transform: rotateY(-176deg) translateZ(0.2rem);
+  }
+}
+
+@media (max-aspect-ratio: 1 / 1), (max-width: 640px) {
+  .entry :global(.binding) {
+    transform: scale(0.7) rotateX(4deg);
+  }
+
+  .entry[data-entry="opening"] :global(.binding),
+  .entry[data-entry="open"] :global(.binding) {
+    transform: scale(1) rotateX(0);
+  }
+
+  .entry :global(.closed-book) {
+    width: min(96vw, 64vh);
+  }
+
+  .entry :global(.book-cover-copy) {
+    inset: 13% 7% 7%;
+    gap: 0.4rem;
+  }
+
+  .entry :global(.book-cover-title) {
+    font-size: clamp(1.3rem, 7.67cqi, 2.73rem);
+  }
+
+  .entry :global(.book-cover-motto) {
+    max-width: 21em;
+    font-size: clamp(0.94rem, 4.16cqi, 1.37rem);
+  }
+
+  .entry :global(.book-cover-rule) {
+    height: 0.55rem;
+  }
+
+  .entry :global(.book-open-button) {
+    width: min(100%, 27rem);
+    margin-top: 0.15rem;
+    padding: 0.65em 0.9em;
+    font-size: clamp(0.68rem, 2.55cqi, 0.92rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry :global(.binding),
+  .entry :global(.book-open-button) {
+    transition: none;
+  }
+
+  .entry[data-entry="opening"] :global(.book-front-cover) {
+    animation: none;
+  }
+}

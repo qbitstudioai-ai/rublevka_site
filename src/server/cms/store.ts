@@ -2,7 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "../events/db";
 import { cmsSiteStaff } from "./auth-schema";
 import { siteDefaults } from "./defaults";
-import { hasCmsImage } from "./image";
+import { cmsImageMetadata, hasCmsImage } from "./image";
 import {
   CmsError,
   hasSiteKey,
@@ -11,7 +11,11 @@ import {
   type SiteData,
   type SiteKey,
 } from "./model";
-import { cmsSiteContentAudit, cmsSiteDocuments } from "./schema";
+import {
+  cmsSiteContentAudit,
+  cmsSiteDocumentMediaDrafts,
+  cmsSiteDocuments,
+} from "./schema";
 
 export { CmsError } from "./model";
 
@@ -123,7 +127,7 @@ async function checkPublication(
 
   if (key === "media") {
     const uploads = published.media.items.filter((item) =>
-      item.id.startsWith("upload-"),
+      item.src.startsWith("/cms-media/"),
     );
     const present = await Promise.all(
       uploads.map((item) => hasCmsImage(item.src.slice("/cms-media/".length))),
@@ -132,6 +136,23 @@ async function checkPublication(
       throw new CmsError(
         "Часть загруженных файлов отсутствует. Загрузите фотографии повторно.",
       );
+    const metadata = await Promise.all(
+      uploads.map((item) =>
+        cmsImageMetadata(item.src.slice("/cms-media/".length)),
+      ),
+    );
+    if (
+      metadata.some(
+        (value, index) =>
+          !value ||
+          value.width !== uploads[index].width ||
+          value.height !== uploads[index].height,
+      )
+    ) {
+      throw new CmsError(
+        "Размеры файла фотографии не совпадают с данными медиатеки. Загрузите фотографию повторно.",
+      );
+    }
   }
   const media = new Set(published.media.items.map((item) => item.id));
   if (
@@ -224,7 +245,7 @@ async function change(
       updatedAt: now,
     };
     if (action === "save") {
-      const data = parseSiteData(key, input);
+      const data = parseSiteData(key, input, { allowLegacyBook: false });
       assertStableItems(key, row.draft, data);
       next.draft = data;
       next.state = "draft";
@@ -279,8 +300,174 @@ async function change(
       action,
       revision: updated.revision,
     });
-    return updated;
+    if (key === "media" && (action === "publish" || action === "restore")) {
+      // Publishing the media document publishes every pending asset at once,
+      // so no page may keep pointing at an obsolete media revision.
+      await tx.delete(cmsSiteDocumentMediaDrafts);
+    }
+    return { ...updated, mediaRevision: undefined };
   });
+}
+
+export type RelatedMediaChange = {
+  revision: number;
+  input?: SiteData["media"];
+};
+
+async function changeRelated(
+  key: Exclude<SiteKey, "media">,
+  revision: number,
+  actorId: string,
+  action: Exclude<Change, "restore">,
+  input: unknown,
+  relatedMedia: RelatedMediaChange,
+) {
+  return db.transaction(async (tx) => {
+    const publication = action === "publish";
+    if (publication) {
+      await tx.execute(sql`select pg_advisory_xact_lock(6217417, 1)`);
+    }
+
+    const [actor] = await tx
+      .select({ role: cmsSiteStaff.role, active: cmsSiteStaff.active })
+      .from(cmsSiteStaff)
+      .where(eq(cmsSiteStaff.id, actorId))
+      .for("share");
+    if (!actor?.active || (publication && actor.role !== "admin")) {
+      throw new CmsError("У этой учётной записи нет прав на действие.");
+    }
+
+    const lock = async (documentKey: SiteKey, expectedRevision: number) => {
+      const [row] = await tx
+        .select()
+        .from(cmsSiteDocuments)
+        .where(eq(cmsSiteDocuments.key, documentKey))
+        .for("update");
+      requireDocument(row);
+      if (row.revision !== expectedRevision) {
+        throw new CmsError(
+          "Документ изменился в другом окне. Обновите страницу перед сохранением.",
+        );
+      }
+      return row;
+    };
+
+    // Always lock media first so every coupled operation uses the same order.
+    const mediaRow = await lock("media", relatedMedia.revision);
+    const contentRow = await lock(key, revision);
+
+    const apply = async (
+      documentKey: SiteKey,
+      row: DocumentRow,
+      documentInput: unknown,
+    ) => {
+      const now = new Date();
+      const next: Partial<DocumentRow> = {
+        revision: row.revision + 1,
+        updatedAt: now,
+      };
+      if (action === "save") {
+        const data = parseSiteData(documentKey, documentInput, {
+          allowLegacyBook: false,
+        });
+        assertStableItems(documentKey, row.draft, data);
+        next.draft = data;
+        next.state = "draft";
+      } else if (action === "submit") {
+        if (row.state !== "draft") {
+          throw new CmsError(
+            "Для проверки нужен сохранённый черновик.",
+          );
+        }
+        next.state = "review";
+      } else {
+        if (row.state === "published") {
+          throw new CmsError(
+            "Сначала сохраните изменения как черновик.",
+          );
+        }
+        const content = parseSiteData(documentKey, row.draft);
+        await checkPublication(tx, documentKey, content);
+        Object.assign(next, {
+          draft: content,
+          published: content,
+          previous: row.published,
+          previousAt: row.publishedAt,
+          publishedAt: now,
+          state: "published",
+        } satisfies Partial<DocumentRow>);
+      }
+
+      const [updated] = await tx
+        .update(cmsSiteDocuments)
+        .set(next)
+        .where(eq(cmsSiteDocuments.key, documentKey))
+        .returning({ revision: cmsSiteDocuments.revision });
+      await tx.insert(cmsSiteContentAudit).values({
+        actorId,
+        documentKey,
+        action,
+        revision: updated.revision,
+      });
+      return updated.revision;
+    };
+
+    const mediaRevision = await apply(
+      "media",
+      mediaRow,
+      relatedMedia.input,
+    );
+    const nextRevision = action === "publish" && contentRow.state === "published"
+      ? contentRow.revision
+      : await apply(key, contentRow, input);
+    if (action === "publish") {
+      // Media is one document: this operation has just published all of its
+      // draft assets, including changes linked from any other page.
+      await tx.delete(cmsSiteDocumentMediaDrafts);
+    } else {
+      await tx
+        .insert(cmsSiteDocumentMediaDrafts)
+        .values({ documentKey: key, mediaRevision })
+        .onConflictDoUpdate({
+          target: cmsSiteDocumentMediaDrafts.documentKey,
+          set: { mediaRevision, updatedAt: new Date() },
+        });
+    }
+    return { revision: nextRevision, mediaRevision };
+  });
+}
+
+async function linkedMediaChange(key: SiteKey) {
+  if (key === "media") return undefined;
+  const [links, media, document] = await Promise.all([
+    db
+      .select({ revision: cmsSiteDocumentMediaDrafts.mediaRevision })
+      .from(cmsSiteDocumentMediaDrafts)
+      .where(eq(cmsSiteDocumentMediaDrafts.documentKey, key)),
+    readDocument("media"),
+    readDocument(key),
+  ]);
+  // A standalone media publication may have consumed an older link. Ignore
+  // it even on databases created before link cleanup was introduced.
+  if (media.state === "published") return undefined;
+  if (links[0]) return { revision: media.revision };
+
+  // Backward-compatible recovery for media drafts saved before linkage was
+  // persisted: infer the relation from changed media IDs used by the page.
+  const published = new Map(
+    media.published.items.map((item) => [item.id, JSON.stringify(item)]),
+  );
+  const changed = new Set(
+    media.draft.items
+      .filter((item) => published.get(item.id) !== JSON.stringify(item))
+      .map((item) => item.id),
+  );
+  if (
+    photoReferences(key, document.draft).some((id) => changed.has(id))
+  ) {
+    return { revision: media.revision };
+  }
+  return undefined;
 }
 
 export function saveDraft(
@@ -288,15 +475,58 @@ export function saveDraft(
   input: unknown,
   revision: number,
   actorId: string,
+  relatedMedia?: RelatedMediaChange,
 ) {
+  if (relatedMedia && key !== "media") {
+    return changeRelated(
+      key,
+      revision,
+      actorId,
+      "save",
+      input,
+      relatedMedia,
+    );
+  }
   return change(key, revision, actorId, "save", input);
 }
 
-export function submitDraft(key: SiteKey, revision: number, actorId: string) {
+export async function submitDraft(
+  key: SiteKey,
+  revision: number,
+  actorId: string,
+  relatedMedia?: RelatedMediaChange,
+) {
+  const mediaChange = relatedMedia ?? await linkedMediaChange(key);
+  if (mediaChange && key !== "media") {
+    return changeRelated(
+      key,
+      revision,
+      actorId,
+      "submit",
+      undefined,
+      mediaChange,
+    );
+  }
   return change(key, revision, actorId, "submit");
 }
 
-export function publishDraft(key: SiteKey, revision: number, actorId: string) {
+export async function publishDraft(
+  key: SiteKey,
+  revision: number,
+  actorId: string,
+  relatedMedia?: RelatedMediaChange,
+) {
+  const mediaChange = relatedMedia ?? await linkedMediaChange(key);
+  if (mediaChange && key !== "media") {
+    return changeRelated(
+      key,
+      revision,
+      actorId,
+      "publish",
+      undefined,
+      mediaChange,
+    );
+  }
   return change(key, revision, actorId, "publish");
 }
 

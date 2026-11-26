@@ -6,17 +6,32 @@ import type { BookChapter } from "./book-page";
 import { sections, sectionIds } from "@/content/sections";
 import { rememberChapter } from "../guide/book-return";
 import { BookDialog } from "./book-dialog";
+import { BookCover, type BookEntryState } from "./book-cover";
 import { BookPage, roman } from "./book-page";
 import { useBook } from "./use-book";
+import styles from "./story-book.module.css";
 
 export function StoryBook({ chapters }: { chapters: readonly BookChapter[] }) {
   const [panel, setPanel] = useState(false);
+  const [entry, setEntry] = useState<BookEntryState>("closed");
   const closePanel = useCallback(() => setPanel(false), []);
   const { current, previous, book, select } = useBook(chapters, closePanel);
   const touch = useRef<{ x: number; y: number; id: number } | null>(null);
+  const bookOpen = entry === "open";
+
+  const openBook = useCallback(() => {
+    if (entry !== "closed") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setEntry("open");
+      return;
+    }
+    setEntry("opening");
+  }, [entry]);
+
   useEffect(() => {
     function key(e: KeyboardEvent) {
       if (
+        !bookOpen ||
         panel ||
         e.defaultPrevented ||
         e.repeat ||
@@ -36,12 +51,41 @@ export function StoryBook({ chapters }: { chapters: readonly BookChapter[] }) {
     }
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [panel, current, chapters.length, select]);
+  }, [bookOpen, panel, current, chapters.length, select]);
+
+  useEffect(() => {
+    if (!bookOpen) return;
+    book.current
+      ?.querySelector<HTMLElement>("[data-active] [data-title]")
+      ?.focus({ preventScroll: true });
+  }, [bookOpen, book]);
+
+  useEffect(() => {
+    if (entry !== "opening") return;
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const finish = () => setEntry("open");
+    const finishIfReduced = () => {
+      if (motion.matches) finish();
+    };
+    const fallback = window.setTimeout(finish, 1600);
+    motion.addEventListener("change", finishIfReduced);
+    return () => {
+      window.clearTimeout(fallback);
+      motion.removeEventListener("change", finishIfReduced);
+    };
+  }, [entry]);
 
   return (
-    <main className="library" aria-label="Сказочная книга Рублевки" ref={book}>
+    <main
+      className={`library ${styles.entry}`}
+      aria-label="Сказочная книга Рублевки"
+      data-entry={entry}
+      ref={book}
+    >
       <div
         className="binding"
+        aria-hidden={!bookOpen}
+        inert={!bookOpen}
         data-turn={
           previous === null ? undefined : previous < current ? "next" : "back"
         }
@@ -76,7 +120,7 @@ export function StoryBook({ chapters }: { chapters: readonly BookChapter[] }) {
           disabled={previous !== null}
           onClick={() => setPanel(true)}
         >
-          <span aria-hidden="true">☰</span>
+          <span>Оглавление</span>
         </button>
         {chapters.map((chapter, i) => (
           <BookPage
@@ -90,6 +134,11 @@ export function StoryBook({ chapters }: { chapters: readonly BookChapter[] }) {
           />
         ))}
       </div>
+      <BookCover
+        entry={entry}
+        open={openBook}
+        opened={() => setEntry("open")}
+      />
       {panel && (
         <BookDialog contents title="Оглавление" close={closePanel}>
           <ol className="contents">

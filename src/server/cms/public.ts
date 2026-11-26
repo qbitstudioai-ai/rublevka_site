@@ -1,4 +1,3 @@
-import { cache } from "react";
 import type { MediaAsset } from "@/content/media";
 import { siteDefaults } from "./defaults";
 import type { SiteData, SiteKey } from "./model";
@@ -6,10 +5,10 @@ import { readPublishedSite } from "./store";
 
 export const cmsEnabled = () => process.env.CMS_ENABLED === "true";
 
-const publishedSite = cache(async (): Promise<SiteData> => {
+async function publishedSite(): Promise<SiteData> {
   if (!cmsEnabled()) return siteDefaults;
   return readPublishedSite();
-});
+}
 
 export async function publicContent<K extends SiteKey>(
   key: K,

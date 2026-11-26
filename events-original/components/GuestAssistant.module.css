@@ -1,0 +1,84 @@
+.widget {
+  --wood: #553019;
+  --edge: #bb8748;
+  --ink: #422615;
+  --paper: #fff1d2;
+  --wine: #752a25;
+  --pad: .65rem;
+  --carving: url("/meropriyatiya/art/assistant-frame.webp");
+  --portrait: url("/meropriyatiya/art/assistant.webp");
+  --shadow: 0 .5rem 1.6rem #25150870;
+  --width: 25rem;
+  --height: min(33rem, 64dvh);
+  position: fixed;
+  right: max(var(--pad), env(safe-area-inset-right));
+  bottom: max(var(--pad), env(safe-area-inset-bottom));
+  z-index: 100;
+  color: var(--ink);
+  font: 1rem/1.4 Georgia, serif;
+}
+.widget[data-size="0"] { --width: 21rem; --height: min(24rem, 46dvh); }
+.widget[data-size="2"] { --width: 32rem; --height: min(43rem, 82dvh); }
+.panel, .launcher, .message {
+  border: solid var(--wood);
+  border-image: var(--carving) 53 23 40 21 / 1 stretch;
+}
+.panel {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto minmax(0,1fr) auto;
+  width: min(var(--width), calc(100vw - 2 * var(--pad) - env(safe-area-inset-right)));
+  height: var(--height);
+  border-width: 16px 10px 13px;
+  background: var(--wood);
+  box-shadow: var(--shadow);
+}
+.header, .form { padding: var(--pad); background: var(--paper); }
+.header { display: flex; align-items: center; gap: .4rem; color: var(--paper); background: var(--wood); }
+.portrait, .launcher { background: var(--portrait) center / cover; }
+.portrait { flex: 0 0 2.9rem; height: 2.9rem; border-radius: 50%; border: 2px solid var(--edge); }
+.header strong { flex: 1; line-height: 1.15; }
+.controls { display: flex; }
+.widget button { cursor: pointer; font: inherit; }
+.controls button, .form button { min-width: 2rem; min-height: 2.2rem; color: var(--paper); border: 1px solid var(--edge); border-radius: .3rem; background: var(--wood); }
+.widget button:disabled { opacity: .55; cursor: default; }
+.widget :focus-visible { outline: 3px solid var(--edge); outline-offset: -3px; }
+.history { overflow: auto; overscroll-behavior: contain; padding: var(--pad); background: #e7c997; }
+.message, .reply { background: var(--paper); padding: var(--pad); overflow-wrap: anywhere; }
+.message { border-width: 8px 5px; }
+.message p { margin: 0; }
+.message p + p, .reply { margin: .55rem 0 0; }
+.reply { margin-left: 12%; border-radius: .5rem; color: var(--paper); background: var(--wine); white-space: pre-wrap; }
+.form { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: .35rem; }
+.form small { grid-column: 1/-1; font-size: .75rem; }
+.form input { width: 100%; box-sizing: border-box; min-height: 2.4rem; padding-inline: var(--pad); color: var(--ink); background: var(--paper); border: 1px solid var(--edge); font: inherit; }
+.launcher { width: 4.6rem; height: 4.6rem; border-width: 7px; box-shadow: var(--shadow); }
+.collapsed { display: grid; }
+.chatButton, .closePhoto {
+  background: var(--wood);
+  color: var(--paper);
+  border: 1px solid var(--edge);
+}
+.chatButton { min-height: 2rem; }
+.photoDialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  width: min(1254px, 94vw, 90dvh);
+  border: 2px solid var(--edge);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+.photoDialog::backdrop { background: #211309df; }
+.photoDialog img { display: block; width: 100%; height: auto; }
+.widget .closePhoto {
+  position: absolute;
+  top: var(--pad);
+  right: var(--pad);
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  font-size: 1.75rem;
+  line-height: 1;
+}

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { CommunitySection } from "@/components/CommunitySection";
 import { EventCard } from "@/components/EventCard";
+import { PublicSiteHeader } from "@/components/PublicSiteHeader";
+import { GroveFooter } from "@/components/GroveFooter";
 import { BRAND_LOGO, MAIN_SITE_URL } from "@/lib/brand";
 import { todayIso } from "@/lib/format";
 import { getDb } from "@/lib/server/db";
@@ -12,6 +14,7 @@ import { listUpcomingPublishedEvents } from "@/lib/server/repo/events";
 export const metadata: Metadata = {
   title: "Мероприятия — загородный комплекс «Рублёвка»",
   description: "Ближайшие мероприятия загородного комплекса «Рублёвка»: выберите мероприятие и зарегистрируйтесь.",
+  alternates: { canonical: "/meropriyatiya" },
 };
 
 /**
@@ -27,7 +30,8 @@ export default async function Home() {
   const { community } = getPublicSettings(db);
 
   return (
-    <>
+    <div className="public-site-shell">
+      <PublicSiteHeader onIndex />
       <main>
         <header className="events-hero" aria-labelledby="events-title">
           <div className="events-hero-inner">
@@ -77,9 +81,7 @@ export default async function Home() {
 
         <CommunitySection community={community} />
       </main>
-      <footer className="site-footer">
-        <p>Загородный комплекс «Рублёвка»</p>
-      </footer>
-    </>
+      <GroveFooter />
+    </div>
   );
 }

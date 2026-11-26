@@ -42,36 +42,6 @@ export function Photo({
     style={{ objectPosition: asset.focalPoint }} />;
 }
 
-export function PhotosField({
-  label, value, onChange, items, publishedMedia, optional = false,
-}: {
-  label: string;
-  value?: string;
-  onChange: (value: string) => void;
-  items: readonly CmsMedia[];
-  publishedMedia: string[];
-  optional?: boolean;
-}) {
-  const id = useId();
-  const asset = items.find((photo) => photo.id === value);
-  return (
-    <div className="sa-stack">
-      <div className="sa-field">
-        <label htmlFor={id}>{label}</label>
-        <select id={id} value={value ?? ""} onChange={(event) => onChange(event.target.value)}>
-          <option value="" disabled={!optional}>{optional ? "Без фото" : "Выберите фото"}</option>
-          {items.map((photo) => (
-            <option key={photo.id} value={photo.id}>
-              {photo.name}{publishedMedia.includes(photo.id) ? "" : " · черновик"}
-            </option>
-          ))}
-        </select>
-      </div>
-      {asset && <Photo asset={asset} small />}
-    </div>
-  );
-}
-
 export function MoveButtons({
   index, count, name, move,
 }: {

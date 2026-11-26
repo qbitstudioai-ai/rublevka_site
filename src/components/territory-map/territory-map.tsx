@@ -10,6 +10,36 @@ import { initialViewBox, useMapView } from "./use-map-view";
 
 const filters = Object.keys(categories) as MapFilter[];
 
+const sharedHousePortrait = {
+  src: "/art/territory/object-10-11-card.webp",
+  width: 1024,
+  height: 516,
+  alt: "Общий сруб домов №5 и №6",
+};
+
+const reusedHousePortrait = {
+  ...sharedHousePortrait,
+  alt: "Иллюстрация деревянного сруба",
+};
+
+const innPortrait = {
+  src: "/art/territory/inn-card.webp",
+  width: 560,
+  height: 397,
+  alt: "Двухэтажный сруб с зелёной крышей и белыми резными наличниками",
+};
+
+const portraits: Partial<Record<string, typeof innPortrait>> = {
+  "object-08": reusedHousePortrait,
+  "object-09": reusedHousePortrait,
+  "object-10": sharedHousePortrait,
+  "object-11": sharedHousePortrait,
+  "object-17": innPortrait,
+  "object-19": innPortrait,
+  "object-21": { src: "/art/territory/object-21-card.webp", width: 900, height: 487, alt: "" },
+  "object-22": { src: "/art/territory/object-22-card.webp", width: 1100, height: 486, alt: "" },
+};
+
 export function TerritoryMap({
   objects,
   children,
@@ -27,6 +57,8 @@ export function TerritoryMap({
   const svg = useRef<SVGSVGElement>(null);
   const map = useMapView(svg);
   const visibleObjects = objects.filter((object) => matchesFilter(object, filter));
+
+  const portrait = selected ? portraits[selected.id] : undefined;
 
   useEffect(() => {
     if (!selected) return;
@@ -98,7 +130,15 @@ export function TerritoryMap({
     <section className="territory-workspace" aria-label="Объекты на карте" onKeyDown={onKeyDown}>
       <div className="territory-toolbar">
         {intro}
-        <div className="territory-filters" role="group" aria-label="Категории карты">
+        <p className="territory-filter-hint" id="territory-filter-hint">
+          Листайте категории в сторону <span aria-hidden="true">→</span>
+        </p>
+        <div
+          className="territory-filters"
+          role="group"
+          aria-label="Категории карты"
+          aria-describedby="territory-filter-hint"
+        >
           {filters.map((id) => (
             <button
               key={id}
@@ -167,9 +207,9 @@ export function TerritoryMap({
               aria-label="Закрыть карточку"
               onClick={() => close(true)}
             >×</button>
-            {selected.number === 17 || selected.number === 19 ? (
-              <Image className="territory-portrait" src="/art/territory/inn-card.webp"
-                width={560} height={397} alt="Двухэтажный сруб с зелёной крышей и белыми резными наличниками" unoptimized />
+            {portrait ? (
+              <Image className="territory-portrait" src={portrait.src}
+                width={portrait.width} height={portrait.height} alt={portrait.alt} unoptimized />
             ) : null}
             <div className="territory-card-body">
               <p className="territory-card-meta">

@@ -73,6 +73,22 @@
 }
 .sa-button:hover:not(:disabled) { border-color: var(--sa-accent); }
 .sa-button:disabled { opacity: .55; cursor: not-allowed; }
+.sa-file-button { position: relative; cursor: pointer; }
+.sa-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.sa-file-button:has(.sa-file-input:focus-visible) {
+  outline: 3px solid var(--sa-accent);
+  outline-offset: 3px;
+}
 .sa-button.sa-button-primary { background: var(--sa-accent); color: var(--sa-contrast); border-color: var(--sa-accent); font-weight: 600; }
 .sa-field { min-width: 0; display: grid; gap: .3rem; font-size: .88rem; font-weight: 600; }
 .sa-field :is(input:not([type="checkbox"]), textarea, select) {

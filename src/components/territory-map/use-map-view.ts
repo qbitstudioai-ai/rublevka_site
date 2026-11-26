@@ -33,7 +33,7 @@ function renderView(svg: SVGSVGElement, view: MapView) {
   svg.toggleAttribute("data-zoomed", view.width < fullView.width);
 }
 
-export function useMapView(svgRef: RefObject<SVGSVGElement | null>) {
+export function useMapView(svgRef: RefObject<SVGSVGElement | null>, active = true) {
   const current = useRef(fullView);
   const pointers = useRef(new Map<number, Point>());
   const gesture = useRef<Gesture | null>(null);
@@ -50,6 +50,7 @@ export function useMapView(svgRef: RefObject<SVGSVGElement | null>) {
   }
 
   useEffect(() => {
+    if (!active) return;
     const svg = svgRef.current;
     if (!svg) return;
     function wheel(event: WheelEvent) {
@@ -64,7 +65,7 @@ export function useMapView(svgRef: RefObject<SVGSVGElement | null>) {
     }
     svg.addEventListener("wheel", wheel, { passive: false });
     return () => svg.removeEventListener("wheel", wheel);
-  }, [svgRef]);
+  }, [active, svgRef]);
 
   function startGesture(svg: SVGSVGElement) {
     const baseline = measures(pointers.current);

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GuestAssistant } from "../../events-original/components/GuestAssistant";
 
 import { getSiteUrl, isIndexingEnabled } from "@/server/site-url";
 
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
-      <body>{children}</body>
+      <body>{children}<GuestAssistant /></body>
     </html>
   );
 }

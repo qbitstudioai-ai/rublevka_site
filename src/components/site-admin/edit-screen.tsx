@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { sectionIds, sections, type SectionId } from "@/content/sections";
 import { requireSiteUser } from "@/server/cms/auth";
-import type { CmsGuide, SiteKey } from "@/server/cms/model";
+import { photoReferences, type CmsGuide, type SiteKey } from "@/server/cms/model";
 import { readDocument } from "@/server/cms/store";
 import { getSiteUrl } from "@/server/site-url";
 import { ContentEditor } from "./editor";
@@ -29,6 +29,17 @@ export async function SiteEditScreen({
   const guide = sectionIds.includes(documentKey as SectionId) && !seoOnly
     ? record.draft as CmsGuide
     : undefined;
+  const publishedMedia = new Map(
+    media.published.items.map((item) => [item.id, JSON.stringify(item)]),
+  );
+  const changedMedia = new Set(
+    media.draft.items
+      .filter((item) => publishedMedia.get(item.id) !== JSON.stringify(item))
+      .map((item) => item.id),
+  );
+  const initialMediaLinked = documentKey !== "media" &&
+    media.state !== "published" &&
+    photoReferences(documentKey, record.draft).some((id) => changedMedia.has(id));
   return (
     <SiteShell active={seoOnly ? "seo" : documentKey === "kontakty" ? "contacts" : documentKey}>
       <div className="sa-heading">
@@ -64,8 +75,16 @@ export async function SiteEditScreen({
           previousAt: record.previousAt?.toISOString() ?? null,
           hasPrevious: record.hasPrevious,
         }}
-        media={media.draft.items}
-        publishedMedia={media.published.items.map(({ id }) => id)}
+        mediaInitial={{
+          draft: media.draft,
+          revision: media.revision,
+          state: media.state,
+          publishedAt: media.publishedAt?.toISOString() ?? null,
+          previousAt: media.previousAt?.toISOString() ?? null,
+          hasPrevious: media.hasPrevious,
+        }}
+        initialMediaLinked={initialMediaLinked}
+        draftMedia={[...changedMedia]}
         canPublish={user.role === "admin"}
         canonical={new URL(path, getSiteUrl()).href}
         seoOnly={seoOnly}

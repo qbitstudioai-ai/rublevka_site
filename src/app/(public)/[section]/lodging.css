@@ -1,0 +1,185 @@
+.guide-prozhivanie {
+  --lodging-earth: #ae721f;
+  --lodging-leaves: url("/art/territory/lodging-oak.webp");
+  --lodging-card-radius: clamp(1.1rem, 1.9vw, 1.85rem);
+  --lodging-plaque-gutter: clamp(1.25rem, 3.15vw, 3.65rem);
+  --lodging-plaque-width: clamp(22rem, 34.5vw, 41rem);
+}
+
+.guide-prozhivanie .guide-heading,
+.guide-prozhivanie .guide-object,
+.lodging-facts {
+  background: var(--grove-paper);
+  border: var(--grove-frame);
+  outline: var(--grove-rim);
+  outline-offset: -1px;
+  box-shadow: var(--grove-shadow);
+}
+
+.guide-prozhivanie .guide-hero {
+  grid-template-rows: minmax(clamp(25rem, 36.65vw, 43rem), auto);
+}
+.guide-prozhivanie .guide-plate {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+.guide-prozhivanie .guide-plate::after { content: none; }
+
+.guide-prozhivanie .guide-heading {
+  position: relative;
+  align-self: end;
+  width: min(var(--lodging-plaque-width), calc(100% - 3rem));
+  margin: 2rem 0 clamp(2.6rem, 4vw, 4.75rem) clamp(1.1rem, 2vw, 2.4rem);
+  padding: clamp(1.25rem, 1.7vw, 2rem) var(--lodging-plaque-gutter) clamp(1.7rem, 2.3vw, 2.65rem);
+  padding-inline-end: clamp(0.6rem, 1.45vw, 1.75rem);
+  border-radius: clamp(1.1rem, 1.55vw, 1.6rem);
+  box-shadow: var(--grove-shadow), inset 0 0 1.25rem #a3541d24;
+}
+.guide-prozhivanie .guide-heading h1 {
+  margin: 0;
+  font-size: clamp(2.35rem, 4.45vw, 5.1rem);
+  line-height: 0.99;
+  text-wrap: balance;
+  word-spacing: -0.19em;
+}
+.guide-prozhivanie .guide-heading > p {
+  max-width: 25ch;
+  margin: clamp(0.8rem, 1.1vw, 1.3rem) 0 0;
+  font: 400 clamp(1.22rem, 2.16vw, 2.5rem)/1.1 var(--reading);
+}
+.guide-prozhivanie .guide-heading::after {
+  position: absolute;
+  inset: auto -8% -12% auto;
+  width: clamp(5.5rem, 13vw, 14rem);
+  height: auto;
+  aspect-ratio: 1.28;
+  margin: 0;
+  background: var(--lodging-leaves) center / contain no-repeat;
+  opacity: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 0.25rem 0.25rem #21200c66);
+}
+
+.guide-prozhivanie .guide-details::before,
+.guide-prozhivanie .guide-object-copy::before {
+  display: block;
+  content: "";
+  background:
+    var(--grove-crest) center / var(--crest-width) auto no-repeat,
+    linear-gradient(90deg, transparent, var(--divider-gold) 45%, var(--divider-gold)) left center / calc((100% - var(--crest-gap)) / 2) var(--rule-height) no-repeat,
+    linear-gradient(90deg, var(--divider-gold), var(--divider-gold) 55%, transparent) right center / calc((100% - var(--crest-gap)) / 2) var(--rule-height) no-repeat;
+}
+.guide-prozhivanie .guide-details::before {
+  --crest-width: clamp(5rem, 10.5vw, 11rem);
+  --crest-gap: calc(var(--crest-width) + 2rem);
+  --rule-height: 2px;
+  --divider-gold: var(--grove-gold);
+  height: clamp(2.35rem, 3.55vw, 4.3rem);
+  margin: clamp(0.25rem, 0.7vw, 0.65rem) clamp(0.75rem, 4.5vw, 5rem) clamp(0.5rem, 0.75vw, 0.9rem);
+}
+.guide-prozhivanie .guide-objects { gap: clamp(0.85rem, 1.45vw, 1.65rem); }
+.guide-prozhivanie .guide-object { border-radius: var(--lodging-card-radius); }
+.guide-prozhivanie .guide-object-copy {
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  align-items: center;
+  justify-items: stretch;
+  gap: clamp(0.55rem, 1.1vw, 1.25rem);
+  padding: clamp(0.85rem, 1.5vw, 1.75rem);
+  text-align: center;
+}
+.guide-prozhivanie .guide-object-copy::before {
+  --crest-width: clamp(1.75rem, 2.3vw, 2.75rem);
+  --crest-gap: calc(var(--crest-width) + 0.75rem);
+  --rule-height: 1px;
+  --divider-gold: var(--lodging-earth);
+  grid-row: 2;
+  height: clamp(1rem, 1.9vw, 2rem);
+  margin-inline: 8%;
+  filter: brightness(0.8) saturate(0.94);
+}
+.guide-prozhivanie .guide-object h3 {
+  grid-row: 1;
+  align-self: end;
+  margin: 0;
+  font-size: clamp(1.55rem, 2.52vw, 3.05rem);
+  line-height: 0.97;
+  overflow-wrap: anywhere;
+}
+.guide-prozhivanie .guide-object .guide-action {
+  grid-row: 3;
+  align-self: start;
+  min-height: clamp(2.75rem, 4.15vw, 4.75rem);
+  margin: 0;
+  padding: 0.5rem;
+  font-size: clamp(1rem, 1.72vw, 1.9rem);
+}
+.lodging-facts {
+  width: min(60rem, calc(100% - 2 * var(--grove-gutter)));
+  margin: clamp(1.6rem, 3vw, 3rem) auto 0;
+  padding: 0.35rem 1rem;
+  color: var(--ink);
+  border-radius: 0.75rem;
+  font: 1rem/1.45 var(--reading);
+}
+.lodging-facts summary {
+  min-height: var(--tap);
+  padding-block: 0.7rem;
+  color: var(--wine);
+  font-weight: 700;
+  cursor: pointer;
+}
+.lodging-facts dl { display: grid; gap: 0.75rem; margin: 0.25rem 0 0.85rem; }
+.lodging-facts dt { font-weight: 700; }
+.lodging-facts dd { margin: 0.25rem 0 0; }
+
+@media (min-width: 761px) {
+  .guide-prozhivanie .guide-plate::before {
+    position: absolute;
+    inset: 0 44% 0 0;
+    content: "";
+    background: var(--grove-ground) url("/art/territory/lodging-grove.avif") center / cover no-repeat;
+  }
+  .guide-prozhivanie .guide-plate figure {
+    inset: 0 0 0 auto;
+    width: 73%;
+    mask-image: linear-gradient(to right, transparent, #000 28%);
+  }
+  .guide-prozhivanie .guide-plate .lodging-default-crop img {
+    object-position: center 29% !important;
+  }
+}
+@media (min-width: 1000px) {
+  .guide-prozhivanie .guide-object[data-photo="true"] {
+    grid-template-columns: minmax(0, 59fr) minmax(0, 41fr);
+    padding: clamp(0.65rem, 0.96vw, 1rem);
+  }
+  .guide-prozhivanie .guide-object figure {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 1.48;
+    border-radius: calc(var(--lodging-card-radius) - 0.6rem);
+  }
+  .guide-prozhivanie .guide-object-copy { padding-inline: clamp(0.5rem, 1.45vw, 1.6rem) 0.25rem; }
+}
+@media (max-width: 760px) {
+  .guide-prozhivanie .guide-plate { min-height: clamp(12rem, 60vw, 19rem); }
+  .guide-prozhivanie .guide-heading {
+    align-self: center;
+    width: calc(100% - 2 * var(--grove-gutter));
+    margin: -1.5rem 0 0;
+    padding: 1rem 1.1rem 1.45rem;
+  }
+  .guide-prozhivanie .guide-heading h1 { font-size: clamp(2rem, 10.5vw, 3.65rem); }
+  .guide-prozhivanie .guide-heading > p { max-width: 22ch; padding-inline-end: 2.25rem; }
+  .guide-prozhivanie .guide-heading::after { inset: auto -0.4rem -0.85rem auto; }
+  .guide-prozhivanie .guide-details::before { margin-block-start: 0.85rem; }
+  .guide-prozhivanie .guide-object figure {
+    width: auto;
+    margin: 0.55rem 0.55rem 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: calc(var(--lodging-card-radius) - 0.35rem);
+  }
+}
