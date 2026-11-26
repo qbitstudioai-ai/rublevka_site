@@ -199,7 +199,7 @@ export function TerritoryMap({
           </div>
         </div>
         {selected ? (
-          <section key={selected.id} className="territory-card" aria-labelledby="territory-card-title">
+          <section key={selected.id} data-assistant-map-object={selected.id} className="territory-card" aria-labelledby="territory-card-title">
             <button
               className="territory-close"
               ref={closeButton}

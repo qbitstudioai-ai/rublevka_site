@@ -56,6 +56,8 @@ try {
         "src/server/cms/store.test.ts",
         "src/server/cms/access.test.ts",
         "src/server/cms/staff.test.ts",
+        "src/server/assistant/assistant.test.ts",
+        "src/server/assistant/chat-store.test.ts",
       ],
       {
         stdio: "inherit",

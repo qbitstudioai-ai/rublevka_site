@@ -5,7 +5,7 @@ import { readPublishedSite } from "./store";
 
 export const cmsEnabled = () => process.env.CMS_ENABLED === "true";
 
-async function publishedSite(): Promise<SiteData> {
+export async function publishedSite(): Promise<SiteData> {
   if (!cmsEnabled()) return siteDefaults;
   return readPublishedSite();
 }

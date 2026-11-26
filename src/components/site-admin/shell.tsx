@@ -23,7 +23,7 @@ export async function SiteShell({
 }) {
   const user = await requireSiteUser();
   const nav = user.role === "admin"
-    ? [...siteAdminNav, { id: "users", name: "Сотрудники", icon: "♙" }]
+    ? [...siteAdminNav, { id: "assistant", name: "Ассистент", icon: "·" }, { id: "users", name: "Сотрудники", icon: "♙" }]
     : siteAdminNav;
   return (
     <div className="site-admin">

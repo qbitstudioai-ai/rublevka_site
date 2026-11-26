@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru" data-scroll-behavior="smooth">
-      <body>{children}<GuestAssistant /></body>
+      <body>{children}<GuestAssistant connected={process.env.EVENTS_ASSISTANT_MOUNTED === "true"} /></body>
     </html>
   );
 }

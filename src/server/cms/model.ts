@@ -11,10 +11,21 @@ import { mediaCatalog, type MediaAsset } from "@/content/media";
 import { sections, type SectionId } from "@/content/sections";
 import { roomLabels } from "@/content/stay-request";
 
+export const lodgingSchema = z.strictObject({
+  capacity: z.number().int().min(1).max(100).optional(),
+  adults: z.number().int().min(1).max(100).optional(),
+  children: z.number().int().min(0).max(100).optional(),
+  bedrooms: z.number().int().min(0).max(100).optional(),
+  beds: z.number().int().min(0).max(100).optional(),
+  amenities: z.string().trim().max(1000).optional(),
+  restrictions: z.string().trim().max(1000).optional(),
+});
+
 export type CmsItem = Omit<GuideItem, "photo"> & {
   id: string;
   photo?: string;
   visible: boolean;
+  lodging?: z.infer<typeof lodgingSchema>;
 };
 export type CmsGuide = Omit<GuidePage, "items" | "photo" | "gallery"> & {
   photo: string;
@@ -113,6 +124,7 @@ const guideSchema = z.object({
         room: rooms.optional(),
         photo: id.optional(),
         visible: z.boolean(),
+        lodging: lodgingSchema.optional(),
       }),
     )
     .max(100),

@@ -27,7 +27,7 @@ const env = {
   EVENTS_MOUNT_LOCAL: "1",
   EVENTS_ORIGINAL_ORIGIN: "http://127.0.0.1:3271",
 };
-const originalEnv = { ...env };
+const originalEnv = { ...env, EVENTS_ASSISTANT_MOUNTED: "true" };
 for (const key of [
   "DATABASE_URL",
   "SITE_ADMIN_USERNAME",
@@ -45,6 +45,7 @@ for (const key of [
   "TELEGRAM_CHAT_ID",
   "TRUST_PROXY",
   "EVENTS_ORIGINAL_TEST",
+  ...Object.keys(env).filter((key) => key.startsWith("ASSISTANT_") && key !== "ASSISTANT_EVENTS_KEY"),
 ]) {
   delete originalEnv[key];
 }

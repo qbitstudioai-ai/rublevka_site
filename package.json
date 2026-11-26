@@ -18,7 +18,8 @@
     "admin:create": "tsx scripts/create-admin.ts",
     "test:db": "node scripts/test-events-db.mjs",
     "site:admin:create": "node --env-file-if-exists=.env --import tsx scripts/create-site-admin.ts",
-    "site:seed": "node --env-file-if-exists=.env --import tsx scripts/seed-site-cms.ts"
+    "site:seed": "node --env-file-if-exists=.env --import tsx scripts/seed-site-cms.ts",
+    "assistant:cleanup": "node --env-file-if-exists=.env --import tsx scripts/cleanup-assistant.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

@@ -82,3 +82,17 @@
   font-size: 1.75rem;
   line-height: 1;
 }
+
+.answer, .card {
+  padding: var(--pad);
+  background: var(--paper);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.answer { margin-block-start: var(--pad); white-space: pre-wrap; }
+.answer p, .reply p { margin: 0; }
+.card { display: flex; gap: var(--pad); align-items: center; border: 1px solid var(--edge); }
+.card + .card { margin-block-start: var(--pad); }
+.card img { object-fit: cover; max-width: 35%; }
+.form .reset { grid-column: 1 / -1; justify-self: start; padding-inline: var(--pad); }
+.form a { color: var(--wine); }

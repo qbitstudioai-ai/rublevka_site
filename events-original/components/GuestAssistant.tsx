@@ -3,23 +3,25 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
 import styles from "./GuestAssistant.module.css";
+import { useAssistantChat } from "./useAssistantChat";
 
-type Conversation = { open: boolean; size: number; messages: string[]; draft: string };
-const initial: Conversation = { open: true, size: 1, messages: [], draft: "" };
-const storageKey = "rublevka.guest-assistant.v1";
+type Conversation = { open: boolean; size: number; draft: string };
+const initial: Conversation = { open: true, size: 1, draft: "" };
+const storageKey = "rublevka.guest-assistant.v2";
 
 function restore(): Conversation {
   try {
     const value = JSON.parse(sessionStorage.getItem(storageKey) ?? "null");
-    if (value && typeof value.open === "boolean" && [0, 1, 2].includes(value.size)
-      && typeof value.draft === "string" && Array.isArray(value.messages)
-      && value.messages.every((message: unknown) => typeof message === "string")) return value;
+    if (value && typeof value.open === "boolean" && [0, 1, 2].includes(value.size)) return { ...initial, open: value.open, size: value.size };
   } catch { /* Storage can be unavailable in private browsing. */ }
   return initial;
 }
 
-export function GuestAssistant() {
+export function GuestAssistant({ connected = true }: { connected?: boolean }) {
   const [chat, setChat] = useState<Conversation | null>(null);
+  const transport = useAssistantChat(connected && (chat?.open ?? false));
+  const messages = transport.dialog?.messages;
+  const lastMessageId = messages?.at(-1)?.id;
   const history = useRef<HTMLDivElement>(null);
   const current = useRef(initial);
   const photo = useRef<HTMLDialogElement>(null);
@@ -37,20 +39,20 @@ export function GuestAssistant() {
     setChat(current.current);
   }, []);
   useEffect(() => {
-    if (history.current && chat?.messages.length) history.current.scrollTop = history.current.scrollHeight;
-  }, [chat?.messages.length, chat?.open]);
+    if (history.current && lastMessageId) history.current.scrollTop = history.current.scrollHeight;
+  }, [lastMessageId, chat?.open]);
 
   function update(patch: Partial<Conversation>) {
     const next = { ...current.current, ...patch };
     current.current = next;
     setChat(next);
-    try { sessionStorage.setItem(storageKey, JSON.stringify(next)); }
+    try { sessionStorage.setItem(storageKey, JSON.stringify({ open: next.open, size: next.size })); }
     catch { /* Keep the active conversation usable in memory. */ }
   }
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     const message = current.current.draft.trim();
-    if (message) update({ messages: [...current.current.messages, message], draft: "" });
+    if (message && await transport.send(message) && current.current.draft.trim() === message) update({ draft: "" });
   }
   if (!chat) return null;
   return (
@@ -67,18 +69,39 @@ export function GuestAssistant() {
             </div>
           </header>
           <div className={styles.history} ref={history} role="log" aria-label="История диалога">
-            <div className={styles.message}>
+            <div className={styles.message}>{transport.session?.greeting ? <p>{transport.session.greeting}</p> : <>
               <p>Добро пожаловать в волшебный мир «Рублевки»!</p>
               <p>Здесь у каждого гостя своя сказка. Одни приезжают, чтобы забыть о городской суете, насладиться тишиной вековых дубов и теплом уютного сруба. Другие — чтобы окунуться в вихрь ярких событий, веселья и незабываемых приключений!</p>
               <p><strong>Какой будет ваша сказка — тихой и уютной или яркой и головокружительной?</strong></p>
-              <p>Перевернём первую страницу вместе! Я помогу подобрать отдых, домик или мероприятие именно для вас.</p>
+              <p>Перевернём первую страницу вместе! Я помогу подобрать отдых, домик или мероприятие именно для вас.</p></>}
             </div>
-            {chat.messages.map((message, index) => <p className={styles.reply} key={index}>{message}</p>)}
+            {messages?.map((message) => (
+              <div className={message.source === "guest" ? styles.reply : styles.answer} key={message.id}>
+                {message.source === "staff" && <strong>Администратор</strong>}
+                {message.text && <p>{message.text}</p>}
+                {message.status === "failed" && <small>Ответ не получен.</small>}
+                {message.cards.map((card, index) => (
+                  <a className={styles.card} href={card.url} key={index}>
+                    {card.photo && <Image unoptimized src={card.photo} width={96} height={64} alt="" />}
+                    {card.title}
+                  </a>
+                ))}
+              </div>
+            ))}
           </div>
           <form onSubmit={submit} className={styles.form}>
-            <small>Переписка в этой вкладке · ИИ пока отключён</small>
-            <input aria-label="Ваше сообщение" placeholder="Ваше сообщение…" value={chat.draft} onChange={(event) => update({ draft: event.target.value })} />
-            <button type="submit" aria-label="Добавить сообщение" disabled={!chat.draft.trim()}>↑</button>
+            <small role="status">
+              {transport.error || (transport.session?.available
+                ? transport.dialog?.closed ? "Диалог завершён."
+                  : transport.pending || transport.busy ? "Обрабатываем сообщение…"
+                    : transport.dialog?.owner === "staff" ? "В диалоге администратор." : ""
+                : transport.session?.unavailable || (connected ? "Подключаем чат…" : "Ассистент пока недоступен."))}
+              {transport.session && !transport.session.available && <> <a href={transport.session.contact.url}>Связаться с администратором</a></>}
+            </small>
+            <input aria-label="Ваше сообщение" placeholder="Ваше сообщение…" maxLength={2000} value={chat.draft} disabled={!transport.session?.available || transport.dialog?.closed} onChange={(event) => update({ draft: event.target.value })} />
+            <button type="submit" aria-label="Отправить сообщение" disabled={!chat.draft.trim() || transport.dialog?.closed || transport.pending || transport.busy || !transport.session?.available}>↑</button>
+            {transport.session?.available && <button type="button" className={styles.reset} disabled={transport.busy}
+              onClick={() => { void transport.reset().then((reset) => { if (reset) update({ draft: "" }); }); }}>Новый диалог</button>}
           </form>
         </section>
       ) : (

@@ -72,6 +72,26 @@ export function GuideFields({
                     onChange={(detail) => update({ detail })} />
                   <Field label="Описание объекта" multiline value={item.description}
                     onChange={(description) => update({ description })} />
+                  {item.room && (
+                    <div className="sa-fields">
+                      {([
+                        ["capacity", "Вместимость"], ["adults", "Взрослых"], ["children", "Детей"],
+                        ["bedrooms", "Спален"], ["beds", "Спальных мест"],
+                      ] as const).map(([key, label]) => (
+                        <label key={key} className="sa-field">{label}
+                          <input type="number" min={key === "capacity" || key === "adults" ? 1 : 0} max={100}
+                            value={item.lodging?.[key] ?? ""}
+                            onChange={(event) => update({ lodging: { ...item.lodging,
+                              [key]: event.target.value === "" ? undefined : event.target.valueAsNumber,
+                            } })} />
+                        </label>
+                      ))}
+                      <Field label="Удобства" value={item.lodging?.amenities} multiline
+                        onChange={(amenities) => update({ lodging: { ...item.lodging, amenities } })} />
+                      <Field label="Ограничения" value={item.lodging?.restrictions} multiline
+                        onChange={(restrictions) => update({ lodging: { ...item.lodging, restrictions } })} />
+                    </div>
+                  )}
                   <PhotosField label="Фотография объекта" items={items} draftMedia={draftMedia}
                     value={item.photo} onChange={(photo) => update({ photo: photo || undefined })}
                     onUpload={uploadPhoto} optional />

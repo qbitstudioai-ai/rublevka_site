@@ -8,6 +8,8 @@ import {
 
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+  if (pathname.startsWith("/meropriyatiya/api/internal/"))
+    return new NextResponse(null, { status: 404, headers: { "Cache-Control": "no-store" } });
 
   if (isPrivacyPreference(request.cookies.get(privacyPreferenceCookie)?.value)) {
     const response = NextResponse.next();
@@ -45,6 +47,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/meropriyatiya/api/internal/:path*",
     "/((?!admin(?:/|$)|api(?:/|$)|_next(?:/|$)|art(?:/|$)|images(?:/|$)|cms-media(?:/|$)|privacy-choice(?:/|$)|meropriyatiya/(?:admin|api|_next|media|art|brand|catalog|fonts|mock|parchment)(?:/|$)|.*\\.[^/]+$).*)",
   ],
 };

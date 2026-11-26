@@ -5,6 +5,7 @@ export default defineConfig({
     "./src/server/events/schema.ts",
     "./src/server/cms/schema.ts",
     "./src/server/cms/auth-schema.ts",
+    "./src/server/assistant/schema.ts",
   ],
   out: "./drizzle",
   dialect: "postgresql",
