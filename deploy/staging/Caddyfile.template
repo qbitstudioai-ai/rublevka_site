@@ -1,0 +1,30 @@
+{$STAGING_DOMAIN} {
+	header X-Robots-Tag "noindex, nofollow, noarchive"
+	encode zstd gzip
+	request_body {
+		max_size 32MB
+	}
+
+	@internal path /meropriyatiya/api/internal /meropriyatiya/api/internal/*
+	@service {
+		path_regexp service ^/api/assistant/v1/(complex|faq|accommodations(/[a-z0-9-]+)?|services(/[a-z0-9-]+)?|events(/[a-z0-9-]+)?|availability|booking-link|callback(/staff)?|operator|dialog/(state|memory|topic)|consultation/(result|deliver))/?$
+	}
+	route {
+		respond @internal 404
+		handle /robots.txt {
+			respond <<ROBOTS
+			User-agent: *
+			Disallow: /
+			ROBOTS
+		}
+		handle @service {
+			reverse_proxy {$STAGING_UPSTREAM}
+		}
+		handle {
+			basic_auth {
+				{$STAGING_REVIEW_USER} {$STAGING_REVIEW_HASH}
+			}
+			reverse_proxy {$STAGING_UPSTREAM}
+		}
+	}
+}

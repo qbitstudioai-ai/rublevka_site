@@ -1,0 +1,9 @@
+[Unit]
+Description=Back up Rublevka staging data
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/rublevka-staging-config/backup.sh
+UMask=0077

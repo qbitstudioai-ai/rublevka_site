@@ -1,0 +1,59 @@
+name: rublevka-staging
+
+services:
+  db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    env_file: /opt/rublevka-staging-config/postgres.env
+    volumes:
+      - /opt/rublevka-staging-data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rublevka_bootstrap -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks:
+      private:
+        aliases: [rublevka-staging-postgres]
+
+  events:
+    image: rublevka-staging-events:${RUBLEVKA_RELEASE:?}
+    restart: unless-stopped
+    env_file: /opt/rublevka-staging-config/events.env
+    volumes:
+      - /opt/rublevka-staging-data/events/db:/data/db
+      - /opt/rublevka-staging-data/events/uploads:/data/uploads
+      - /opt/rublevka-staging-data/events/backups:/data/backups
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/meropriyatiya/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 4s
+      retries: 8
+    networks: [private]
+
+  site:
+    image: rublevka-staging-site:${RUBLEVKA_RELEASE:?}
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+      events: { condition: service_healthy }
+    env_file: /opt/rublevka-staging-config/site.env
+    volumes:
+      - /opt/rublevka-staging-data/cms-media:/data/cms-media
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/robots.txt').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 4s
+      retries: 8
+    networks:
+      private:
+      proxy:
+        aliases: [rublevka-staging-site]
+
+networks:
+  private:
+    internal: true
+
+  proxy:
+    external: true
+    name: supabase_default
