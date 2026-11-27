@@ -33,8 +33,6 @@ template = (config / "Caddyfile.template").read_text()
 values = {
     "STAGING_DOMAIN": domain,
     "STAGING_UPSTREAM": "rublevka-staging-site:3000",
-    "STAGING_REVIEW_USER": "review",
-    "STAGING_REVIEW_HASH": (config / "reviewer-hash").read_text().strip(),
 }
 for key, value in values.items():
     template = template.replace("{$" + key + "}", value)

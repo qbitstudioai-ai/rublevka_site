@@ -20,10 +20,8 @@ owner_password=$(secret)
 site_password=$(secret)
 n8n_password=$(secret)
 events_key=$(secret)
-review_password=$(secret 18)
 cms_password=$(secret 18)
 events_password=$(secret 18)
-review_hash=$(printf '%s\n' "$review_password" | docker exec -i supabase-caddy caddy hash-password --algorithm bcrypt)
 
 cat > "$config/postgres.env" <<EOF
 POSTGRES_USER=rublevka_bootstrap
@@ -61,14 +59,11 @@ ADMIN_SESSION_SECRET=$(secret)
 EOF
 
 cat > "$config/reviewer-access" <<EOF
-STAGING_REVIEW_USER=review
-STAGING_REVIEW_PASSWORD=$review_password
 SITE_ADMIN_USERNAME=site-admin
 SITE_ADMIN_PASSWORD=$cms_password
 EVENTS_ADMIN_USERNAME=events-admin
 EVENTS_ADMIN_PASSWORD=$events_password
 EOF
-printf '%s\n' "$review_hash" > "$config/reviewer-hash"
 printf 'RUBLEVKA_N8N_USER=rublevka_n8n\nRUBLEVKA_N8N_PASSWORD=%s\n' "$n8n_password" > "$config/n8n-db.env"
 
 export RUBLEVKA_RELEASE=$commit

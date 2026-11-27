@@ -6,9 +6,6 @@
 	}
 
 	@internal path /meropriyatiya/api/internal /meropriyatiya/api/internal/*
-	@service {
-		path_regexp service ^/api/assistant/v1/(complex|faq|accommodations(/[a-z0-9-]+)?|services(/[a-z0-9-]+)?|events(/[a-z0-9-]+)?|availability|booking-link|callback(/staff)?|operator|dialog/(state|memory|topic)|consultation/(result|deliver))/?$
-	}
 	route {
 		respond @internal 404
 		handle /robots.txt {
@@ -17,13 +14,7 @@
 			Disallow: /
 			ROBOTS
 		}
-		handle @service {
-			reverse_proxy {$STAGING_UPSTREAM}
-		}
 		handle {
-			basic_auth {
-				{$STAGING_REVIEW_USER} {$STAGING_REVIEW_HASH}
-			}
 			reverse_proxy {$STAGING_UPSTREAM}
 		}
 	}
