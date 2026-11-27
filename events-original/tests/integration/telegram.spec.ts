@@ -48,7 +48,7 @@ test.describe("Telegram: текст уведомления", () => {
     const registration = register([fixed, contact, free], "Telegram: @ivanov");
     const message = formatRegistrationMessage({ event, registration }, "https://reg.test");
     expect(message).toBe(
-      `Новая регистрация на мероприятие «Встреча на Рублёвке»\nhttps://reg.test/admin/events/${eventId}/registrations/${registration.public_id}`,
+      `Новая регистрация на мероприятие «Встреча на Рублёвке»\nhttps://reg.test/meropriyatiya/admin/events/${eventId}/registrations/${registration.public_id}`,
     );
     for (const secret of ["Иванов", "+7 900", "@ivanov", "Литературная гостиная", "Проживание", "3 500", "сумма"]) expect(message).not.toContain(secret);
   });

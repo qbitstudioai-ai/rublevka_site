@@ -7,10 +7,12 @@ import { formatEventDate, todayIso } from "@/lib/format";
 import { formatRub } from "@/lib/money";
 import { E2E_ADMIN, E2E_TELEGRAM } from "../test-env";
 import {
+  collapseAssistant,
   expectNoHorizontalOverflow,
   fillParticipant,
   imageFixture,
   login,
+  newEventPage,
   readDb,
   shot,
   telegramRequests,
@@ -18,6 +20,8 @@ import {
   uploadFileExists,
   waitForImages,
 } from "./helpers";
+
+test.beforeEach(async ({ context }) => collapseAssistant(context));
 
 /** Скачивает Excel по кнопке и читает лист «Участники». */
 async function downloadExcel(page: Page) {
@@ -33,7 +37,7 @@ async function downloadExcel(page: Page) {
 test.describe("доступ к админпанели", () => {
   test("закрыта без сессии; неверный пароль не авторизует; вход и выход", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop", "Сценарий проверяется на desktop");
-    for (const url of ["/admin", "/admin/settings", "/admin/events/new", "/admin/events/1"]) {
+    for (const url of ["/meropriyatiya/admin", "/meropriyatiya/admin/settings", "/meropriyatiya/admin/events/new", "/meropriyatiya/admin/events/1"]) {
       await page.goto(url);
       await expect(page).toHaveURL(/\/admin\/login$/);
     }
@@ -42,32 +46,32 @@ test.describe("доступ к админпанели", () => {
     await page.getByLabel("Пароль").fill("wrong-password-123");
     await page.getByRole("button", { name: "Войти" }).click();
     await expect(page.getByText("Неверный логин или пароль.")).toBeVisible();
-    await page.goto("/admin");
+    await page.goto("/meropriyatiya/admin");
     await expect(page).toHaveURL(/\/admin\/login$/);
 
     await page.screenshot({ path: shot("v3-admin-01-login.png") });
     await login(page);
-    const cookie = (await page.context().cookies()).find((item) => item.name === "rublevka_admin");
+    const cookie = (await page.context().cookies()).find((item) => item.name === "rublevka_events_admin");
     expect(cookie?.httpOnly).toBe(true);
     expect(cookie?.sameSite).toBe("Lax");
     expect(cookie?.secure).toBe(true);
 
     // Подделанная cookie не даёт доступа.
     await page.context().addCookies([{ ...cookie!, value: `${cookie!.value.split(".")[0]}.forged` }]);
-    await page.goto("/admin");
+    await page.goto("/meropriyatiya/admin");
     await expect(page).toHaveURL(/\/admin\/login$/);
 
     await login(page);
     await page.getByRole("button", { name: "Выйти" }).click();
     await expect(page).toHaveURL(/\/admin\/login$/);
-    await page.goto("/admin");
+    await page.goto("/meropriyatiya/admin");
     await expect(page).toHaveURL(/\/admin\/login$/);
   });
 });
 
 /** Создаёт мероприятие через форму и возвращает его id и slug. */
 async function createEvent(page: Page, title: string, eventDate?: string) {
-  await page.goto("/admin/events/new");
+  await page.goto("/meropriyatiya/admin/events/new");
   await page.getByLabel("Название мероприятия").fill(title);
   if (eventDate) await page.getByLabel("Дата начала").fill(eventDate);
   const slug = await page.getByLabel("Адрес страницы (slug)").inputValue();
@@ -80,7 +84,7 @@ async function createEvent(page: Page, title: string, eventDate?: string) {
 }
 
 async function addActivity(page: Page, eventId: number, data: { title: string; type: "fixed" | "free" | "contact"; price?: string; photo?: string }) {
-  await page.goto(`/admin/events/${eventId}/activities/new`);
+  await page.goto(`/meropriyatiya/admin/events/${eventId}/activities/new`);
   await page.getByLabel("Название").fill(data.title);
   await page.getByLabel("Краткое описание на карточке").fill(`Описание: ${data.title}`);
   const label = { fixed: "Фиксированная цена", free: "Бесплатно", contact: "По согласованию" }[data.type];
@@ -93,7 +97,7 @@ async function addActivity(page: Page, eventId: number, data: { title: string; t
   }
   if (data.photo) await page.getByLabel("Фото карточки").setInputFiles(data.photo);
   await page.getByRole("button", { name: "Добавить услугу" }).click();
-  await expect(page).toHaveURL(new RegExp(`/admin/events/${eventId}\\?activitySaved=1`));
+  await expect(page).toHaveURL(new RegExp(`/meropriyatiya/admin/events/${eventId}\\?activitySaved=1`));
 }
 
 test.describe("управление мероприятием", () => {
@@ -106,12 +110,12 @@ test.describe("управление мероприятием", () => {
 
     const title = `Осенний пикник ${Date.now().toString(36)}`;
     const { id, slug } = await createEvent(page, title);
-    await expect(page.getByTestId("public-url")).toContainText(`/event/${slug}`);
+    await expect(page.getByTestId("public-url")).toContainText(`/meropriyatiya/event/${slug}`);
     await expect(page.getByText("Черновик").first()).toBeVisible();
 
     // Черновик публично недоступен.
     const publicPage = await page.context().newPage();
-    expect((await publicPage.goto(`/event/${slug}`))?.status()).toBe(404);
+    expect((await publicPage.goto(`/meropriyatiya/event/${slug}`))?.status()).toBe(404);
 
     // Без регистраций выгружать нечего — кнопка неактивна и это объяснено.
     await expect(page.getByRole("button", { name: "Скачать Excel" })).toBeDisabled();
@@ -142,9 +146,9 @@ test.describe("управление мероприятием", () => {
     // Публикация.
     await page.getByRole("button", { name: "Опубликовать" }).click();
     await expect(page.getByText("Опубликовано").first()).toBeVisible();
-    expect((await publicPage.goto(`/event/${slug}`))?.status()).toBe(200);
+    expect((await publicPage.goto(`/meropriyatiya/event/${slug}`))?.status()).toBe(200);
     await expect(publicPage.locator(".activity-card h3")).toHaveText(["Мастер-класс", "Ночёвка"]);
-    await expect(publicPage.locator(".hero-photo img")).toHaveAttribute("src", /^\/media\/[0-9a-f-]{36}\.webp$/);
+    await expect(publicPage.locator(".hero-photo img")).toHaveAttribute("src", /^\/meropriyatiya\/media\/[0-9a-f-]{36}\.webp$/);
     const heroSrc = (await publicPage.locator(".hero-photo img").getAttribute("src"))!;
     const cardSrc = (await publicPage.locator(".activity-card img").first().getAttribute("src"))!;
     expect(uploadFileExists(heroSrc)).toBe(true);
@@ -155,8 +159,8 @@ test.describe("управление мероприятием", () => {
     await page.locator("#main").getByLabel("Название мероприятия").fill(newTitle);
     await page.getByRole("button", { name: "Сохранить изменения" }).click();
     await expect(page.getByText("Изменения сохранены.")).toBeVisible();
-    await expect(page.getByTestId("public-url")).toContainText(`/event/${slug}`);
-    await publicPage.goto(`/event/${slug}`);
+    await expect(page.getByTestId("public-url")).toContainText(`/meropriyatiya/event/${slug}`);
+    await publicPage.goto(`/meropriyatiya/event/${slug}`);
     await expect(publicPage.getByRole("heading", { level: 1 })).toContainText(newTitle);
 
     // Регистрация участника на опубликованное мероприятие.
@@ -171,13 +175,13 @@ test.describe("управление мероприятием", () => {
 
     // Второй участник — без мессенджера и без услуг.
     const guestWithoutMessenger = uniqueName("Без мессенджера");
-    await publicPage.goto(`/event/${slug}`);
+    await publicPage.goto(`/meropriyatiya/event/${slug}`);
     await fillParticipant(publicPage, guestWithoutMessenger, null);
     await publicPage.getByRole("button", { name: "Зарегистрироваться" }).click();
     await expect(publicPage.getByRole("heading", { name: "Регистрация завершена" })).toBeVisible();
 
     // Регистрации в админке, поиск по ФИО и телефону.
-    await page.goto(`/admin/events/${id}#registrations`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#registrations`);
     const registrations = page.getByTestId("admin-registration");
     await expect(registrations).toHaveCount(2);
     const first = registrations.filter({ hasText: guest });
@@ -198,7 +202,7 @@ test.describe("управление мероприятием", () => {
     // Поиск не ограничивает Excel: выгружается полный список (заголовок + 2 участника).
     const searched = await downloadExcel(page);
     expect(searched.rows).toHaveLength(3);
-    await page.goto(`/admin/events/${id}#registrations`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#registrations`);
     await page.locator("#registrations").screenshot({ path: shot("v3-admin-05-registrations.png") });
 
     // Snapshot: меняем цену и название услуги — старая регистрация не меняется.
@@ -209,7 +213,7 @@ test.describe("управление мероприятием", () => {
     await page.getByRole("button", { name: "Сохранить услугу" }).click();
     await expect(page.getByTestId("admin-activity").first()).toContainText("5 000 ₽");
 
-    await page.goto(`/admin/events/${id}#registrations`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#registrations`);
     await page.getByRole("link", { name: guest }).click();
     await expect(page.getByTestId("registration-total")).toHaveText("3 500 ₽");
     await expect(page.getByTestId("snapshot-row").first()).toContainText("Мастер-класс");
@@ -217,12 +221,12 @@ test.describe("управление мероприятием", () => {
     await expect(page.getByTestId("snapshot-row").first()).toContainText("3 500 ₽");
     await page.screenshot({ path: shot("v3-admin-07-registration-details.png"), fullPage: true });
 
-    await page.goto(`/admin/events/${id}#registrations`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#registrations`);
     await page.getByRole("link", { name: guestWithoutMessenger }).click();
     await expect(page.locator(".a-details")).toContainText("Не указан");
 
     // Excel: динамические колонки «Услуга N», snapshot-названия, числовая сумма и дата.
-    await page.goto(`/admin/events/${id}#registrations`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#registrations`);
     const excel = await downloadExcel(page);
     const [{ event_date: eventDate }] = readDb<{ event_date: string }>("SELECT event_date FROM events WHERE id = ?", id);
     expect(excel.fileName).toBe(`${slug}_uchastniki_${eventDate}.xlsx`);
@@ -239,28 +243,28 @@ test.describe("управление мероприятием", () => {
 
     // Без сессии администратора файл не выдаётся.
     const anonymous = await browser.newContext();
-    const denied = await anonymous.request.get(`/admin/events/${id}/export`, { maxRedirects: 0 });
+    const denied = await anonymous.request.get(`/meropriyatiya/admin/events/${id}/export`, { maxRedirects: 0 });
     expect(denied.status()).toBe(303);
-    expect(denied.headers()["location"]).toContain("/admin/login");
+    expect(denied.headers()["location"]).toContain("/meropriyatiya/admin/login");
     expect(denied.headers()["content-type"] ?? "").not.toContain("spreadsheet");
     await anonymous.close();
 
     // Страница оплаты по-прежнему показывает сумму из регистрации.
     const [{ public_id: publicId }] = readDb<{ public_id: string }>("SELECT public_id FROM registrations WHERE full_name = ?", guest);
-    await publicPage.goto(`/payment/${publicId}`);
+    await publicPage.goto(`/meropriyatiya/payment/${publicId}`);
     await expect(publicPage.getByTestId("payment-amount")).toHaveText("3 500 ₽");
 
     // Архив: публично недоступно, данные сохранены.
-    await page.goto(`/admin/events/${id}`);
+    await page.goto(`/meropriyatiya/admin/events/${id}`);
     await page.getByRole("button", { name: "Архивировать" }).click();
     await expect(page.getByText("В архиве").first()).toBeVisible();
-    expect((await publicPage.goto(`/event/${slug}`))?.status()).toBe(404);
-    await page.goto("/admin");
+    expect((await publicPage.goto(`/meropriyatiya/event/${slug}`))?.status()).toBe(404);
+    await page.goto("/meropriyatiya/admin");
     await expect(page.locator(".a-event-row").filter({ hasText: newTitle }).locator(".a-event-count strong")).toHaveText("2");
     await page.screenshot({ path: shot("v3-admin-02-events.png"), fullPage: true });
 
     // Удаление всех регистраций — только после подтверждения.
-    await page.goto(`/admin/events/${id}#cleanup`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#cleanup`);
     const deleteRegistrations = page.getByRole("button", { name: "Удалить регистрации (2)" });
     await expect(deleteRegistrations).toBeDisabled();
     await page.getByLabel(/Я понимаю/).check();
@@ -269,7 +273,7 @@ test.describe("управление мероприятием", () => {
     await expect(page.getByText("Удалено регистраций: 2")).toBeVisible();
     expect(readDb("SELECT id FROM registrations WHERE public_id = ?", publicId)).toHaveLength(0);
     expect(readDb("SELECT ra.id FROM registration_activities ra LEFT JOIN registrations r ON r.id = ra.registration_id WHERE r.id IS NULL")).toHaveLength(0);
-    await page.goto(`/admin/events/${id}`);
+    await page.goto(`/meropriyatiya/admin/events/${id}`);
     await expect(page.getByTestId("admin-activity")).toHaveCount(3);
 
     // Полное удаление: кнопка неактивна, пока название не введено точно.
@@ -286,7 +290,7 @@ test.describe("управление мероприятием", () => {
     expect(readDb("SELECT id FROM activities WHERE event_id = ?", id)).toHaveLength(0);
     expect(uploadFileExists(heroSrc)).toBe(false);
     expect(uploadFileExists(cardSrc)).toBe(false);
-    expect((await publicPage.goto(`/payment/${publicId}`))?.status()).toBe(404);
+    expect((await publicPage.goto(`/meropriyatiya/payment/${publicId}`))?.status()).toBe(404);
   });
 
   test("главная: список мероприятий следует за публикацией, архивом и удалением", async ({ page, browser }, testInfo) => {
@@ -306,7 +310,7 @@ test.describe("управление мероприятием", () => {
 
     // Черновик в списке не показывается.
     const home = await page.context().newPage();
-    await home.goto("/");
+    await home.goto("/meropriyatiya");
     const card = (title: string) => home.getByTestId("event-card").filter({ hasText: title });
     await expect(card(soonTitle)).toBeVisible();
     await expect(card(soonTitle)).toContainText("Сегодня");
@@ -322,8 +326,8 @@ test.describe("управление мероприятием", () => {
     await waitForImages(home);
     await home.screenshot({ path: shot("v7-desktop-home-01-list.png"), fullPage: true });
 
-    const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-    await mobile.goto("/");
+    const mobile = await newEventPage(browser, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    await mobile.goto("/meropriyatiya");
     await waitForImages(mobile);
     await expectNoHorizontalOverflow(mobile);
     await mobile.screenshot({ path: shot("v7-mobile-home-01-first-screen.png") });
@@ -332,19 +336,19 @@ test.describe("управление мероприятием", () => {
 
     // Нажатие на карточку (не только на кнопку) ведёт на анкету мероприятия.
     await card(laterTitle).click({ position: { x: 40, y: 40 } });
-    await expect(home).toHaveURL(new RegExp(`/event/${later.slug}$`));
+    await expect(home).toHaveURL(new RegExp(`/meropriyatiya/event/${later.slug}$`));
     await expect(home.getByRole("heading", { level: 1 })).toContainText(laterTitle);
 
     // Архив — мероприятие пропадает из списка.
-    await page.goto(`/admin/events/${soon.id}`);
+    await page.goto(`/meropriyatiya/admin/events/${soon.id}`);
     await page.getByRole("button", { name: "Архивировать" }).click();
     await expect(page.getByText("В архиве").first()).toBeVisible();
-    await home.goto("/");
+    await home.goto("/meropriyatiya");
     await expect(card(laterTitle)).toBeVisible();
     await expect(card(soonTitle)).toHaveCount(0);
 
     // Удаление — тоже.
-    await page.goto(`/admin/events/${later.id}#cleanup`);
+    await page.goto(`/meropriyatiya/admin/events/${later.id}#cleanup`);
     await page.getByLabel(/Для подтверждения введите название/).fill(laterTitle);
     await page.getByRole("button", { name: "Удалить мероприятие навсегда" }).click();
     await expect(page).toHaveURL(/\/admin\?deleted=/);
@@ -365,7 +369,7 @@ test.describe("управление мероприятием", () => {
 
     // Гость открыл анкету, пока мероприятие ещё не прошло, и заполнил её.
     const stale = await page.context().newPage();
-    await stale.goto(`/event/${slug}`);
+    await stale.goto(`/meropriyatiya/event/${slug}`);
     const guest = uniqueName("Опоздавший");
     await fillParticipant(stale, guest);
 
@@ -385,8 +389,8 @@ test.describe("управление мероприятием", () => {
 
     // По ссылке — «Регистрация закрыта» вместо анкеты, путь к списку мероприятий.
     for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
-      const closed = await browser.newPage({ viewport });
-      expect((await closed.goto(`/event/${slug}`))?.status()).toBe(200);
+      const closed = await newEventPage(browser, { viewport });
+      expect((await closed.goto(`/meropriyatiya/event/${slug}`))?.status()).toBe(200);
       await expect(closed.getByRole("heading", { level: 1 })).toContainText("Регистрация закрыта");
       const notice = closed.getByTestId("registration-closed");
       await expect(notice.getByRole("heading", { name: "Мероприятие уже прошло" })).toBeVisible();
@@ -397,13 +401,13 @@ test.describe("управление мероприятием", () => {
       await waitForImages(closed);
       await closed.screenshot({ path: shot(`v9-${viewport.width > 700 ? "desktop" : "mobile"}-registration-closed.png`) });
       await notice.getByRole("link", { name: "Ближайшие мероприятия" }).click();
-      await expect(closed).toHaveURL(/\/$/);
+      await expect(closed).toHaveURL(/\/meropriyatiya$/);
       await expect(closed.getByTestId("event-card").filter({ hasText: title })).toHaveCount(0);
       await closed.close();
     }
 
     // Уборка: тестовое мероприятие не нужно другим тестам.
-    await page.goto(`/admin/events/${id}#cleanup`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#cleanup`);
     await page.getByLabel(/Для подтверждения введите название/).fill(title);
     await page.getByRole("button", { name: "Удалить мероприятие навсегда" }).click();
     await expect(page).toHaveURL(/\/admin\?deleted=/);
@@ -430,7 +434,7 @@ test.describe("управление мероприятием", () => {
       .toFile(poster);
 
     const title = `Велесова ночь ${Date.now().toString(36)}`;
-    await page.goto("/admin/events/new");
+    await page.goto("/meropriyatiya/admin/events/new");
     await page.getByLabel("Название мероприятия").fill(title);
     const slug = await page.getByLabel("Адрес страницы (slug)").inputValue();
     await page.getByLabel("Время начала").fill("17:00");
@@ -463,13 +467,13 @@ test.describe("управление мероприятием", () => {
     expect(row).toEqual({ end_date: endIso, end_time: "02:00", hero_fit: "contain" });
 
     // Список в админке показывает период.
-    await page.goto("/admin");
+    await page.goto("/meropriyatiya/admin");
     await expect(page.locator(".a-event-row").filter({ hasText: title })).toContainText(`${formatEventDate(startIso)}, 17:00 — ${formatEventDate(endIso)}, 02:00`);
 
     for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
       const device = viewport.width > 700 ? "desktop" : "mobile";
-      const visitor = await browser.newPage({ viewport });
-      await visitor.goto(`/event/${slug}`);
+      const visitor = await newEventPage(browser, { viewport });
+      await visitor.goto(`/meropriyatiya/event/${slug}`);
       const facts = visitor.locator(".event-facts");
       await expect(facts).toContainText(`Начало${formatEventDate(startIso)}, 17:00`);
       await expect(facts).toContainText(`Окончание${formatEventDate(endIso)}, 02:00`);
@@ -515,7 +519,7 @@ test.describe("управление мероприятием", () => {
       await expect(dialog).toBeHidden();
       await expect(visitor.getByRole("button", { name: "Открыть афишу" })).toBeFocused();
 
-      await visitor.goto("/");
+      await visitor.goto("/meropriyatiya");
       const card = visitor.getByTestId("event-card").filter({ hasText: title });
       // Отступ между днём недели и временем задают стили, в тексте пробела может не быть.
       await expect(card).toContainText(new RegExp(`,\\s*17:00 · до ${formatEventDate(endIso).replace(/ \d{4}$/, "")}`));
@@ -528,11 +532,11 @@ test.describe("управление мероприятием", () => {
       await card.screenshot({ path: shot(`v13-${device}-poster-card.png`) });
       await visitor.close();
     }
-    await page.goto(`/admin/events/${id}`);
+    await page.goto(`/meropriyatiya/admin/events/${id}`);
     await page.screenshot({ path: shot("v13-admin-poster.png"), fullPage: true });
 
     // Уборка.
-    await page.goto(`/admin/events/${id}#cleanup`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#cleanup`);
     await page.getByLabel(/Для подтверждения введите название/).fill(title);
     await page.getByRole("button", { name: "Удалить мероприятие навсегда" }).click();
     await expect(page).toHaveURL(/\/admin\?deleted=/);
@@ -558,10 +562,10 @@ test.describe("управление мероприятием", () => {
     await expect(page.getByText("Опубликовано").first()).toBeVisible();
 
     // Стоимость видна в списке и на первом экране анкеты.
-    const visitor = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-    await visitor.goto("/");
+    const visitor = await newEventPage(browser, { viewport: { width: 1440, height: 1000 } });
+    await visitor.goto("/meropriyatiya");
     await expect(visitor.getByTestId("event-card").filter({ hasText: title })).toContainText(`Участие — ${rub(1500)}`);
-    await visitor.goto(`/event/${slug}`);
+    await visitor.goto(`/meropriyatiya/event/${slug}`);
     await expect(visitor.locator(".event-facts")).toContainText(`Участие${rub(1500)}`);
 
     // Без услуг: к оплате только участие.
@@ -581,7 +585,7 @@ test.describe("управление мероприятием", () => {
     await expect(visitor.locator(".payment-items li")).toHaveText([`Участие в мероприятии${rub(1500)}`]);
 
     // С платной услугой: участие + услуга.
-    await visitor.goto(`/event/${slug}`);
+    await visitor.goto(`/meropriyatiya/event/${slug}`);
     const withSauna = uniqueName("С баней");
     await fillParticipant(visitor, withSauna);
     await visitor.getByRole("checkbox", { name: /Баня/ }).check();
@@ -594,7 +598,7 @@ test.describe("управление мероприятием", () => {
     await visitor.close();
 
     // Сумму посчитал сервер; смена цены не трогает уже сделанные регистрации.
-    await page.goto(`/admin/events/${id}`);
+    await page.goto(`/meropriyatiya/admin/events/${id}`);
     await page.locator("#main").getByLabel("Стоимость участия, ₽ (необязательно)").fill("2000");
     await page.getByRole("button", { name: "Сохранить изменения" }).click();
     await expect(page.locator("#main").getByLabel("Стоимость участия, ₽ (необязательно)")).toHaveValue("2000");
@@ -608,7 +612,7 @@ test.describe("управление мероприятием", () => {
     ]);
 
     // Уборка.
-    await page.goto(`/admin/events/${id}#cleanup`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#cleanup`);
     await page.getByLabel(/Я понимаю/).check();
     await page.getByRole("button", { name: /Удалить регистрации/ }).click();
     await page.getByLabel(/Для подтверждения введите название/).fill(title);
@@ -631,8 +635,8 @@ test.describe("управление мероприятием", () => {
 
     for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
       const device = viewport.width > 700 ? "desktop" : "mobile";
-      const visitor = await browser.newPage({ viewport });
-      await visitor.goto(`/event/${slug}`);
+      const visitor = await newEventPage(browser, { viewport });
+      await visitor.goto(`/meropriyatiya/event/${slug}`);
       const extra = visitor.getByTestId("extra-info");
       await expect(extra.getByRole("heading", { name: "Дополнительно" })).toBeVisible();
       // Перенос строки из админки сохраняется.
@@ -647,17 +651,17 @@ test.describe("управление мероприятием", () => {
     }
 
     // Пустой текст — блока нет.
-    await page.goto(`/admin/events/${id}`);
+    await page.goto(`/meropriyatiya/admin/events/${id}`);
     await page.locator("#main").getByLabel(/Блок «Дополнительно»/).fill("");
     await page.getByRole("button", { name: "Сохранить изменения" }).click();
     await expect(page.locator("#main").getByLabel(/Блок «Дополнительно»/)).toHaveValue("");
-    const visitor = await browser.newPage();
-    await visitor.goto(`/event/${slug}`);
+    const visitor = await newEventPage(browser);
+    await visitor.goto(`/meropriyatiya/event/${slug}`);
     await expect(visitor.getByRole("heading", { name: "Данные участника" })).toBeVisible();
     await expect(visitor.getByTestId("extra-info")).toHaveCount(0);
     await visitor.close();
 
-    await page.goto(`/admin/events/${id}#cleanup`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#cleanup`);
     await page.getByLabel(/Для подтверждения введите название/).fill(title);
     await page.getByRole("button", { name: "Удалить мероприятие навсегда" }).click();
     await expect(page).toHaveURL(/\/admin\?deleted=/);
@@ -682,8 +686,8 @@ test.describe("управление мероприятием", () => {
 
     // Высота развёрнутого полотна для текста; свиток закрывается кнопкой «Свернуть свиток», крестиком и Escape.
     const sheetHeight = async (viewport: { width: number; height: number }, device: string, shots: boolean) => {
-      const visitor = await browser.newPage({ viewport });
-      await visitor.goto(`/event/${slug}`);
+      const visitor = await newEventPage(browser, { viewport });
+      await visitor.goto(`/meropriyatiya/event/${slug}`);
       const rolled = visitor.getByRole("button", { name: "Подробнее о мероприятии" });
       await expect(rolled).toBeVisible();
       await expect(rolled.locator(".scroll-closed-label")).toHaveCSS("font-family", /Balkara/);
@@ -723,26 +727,26 @@ test.describe("управление мероприятием", () => {
     await sheetHeight({ width: 390, height: 844 }, "mobile", true);
 
     // Длинный текст (длина не ограничена): полотно вытягивается, текст и переносы на месте.
-    await page.goto(`/admin/events/${id}`);
+    await page.goto(`/meropriyatiya/admin/events/${id}`);
     const long = Array.from({ length: 40 }, (_, i) => `${i + 1}. Пункт программы: песни, конкурсы и танцы до утра.`).join("\n");
     await save(long);
     const longDesktop = await sheetHeight({ width: 1440, height: 900 }, "desktop", false);
     expect(longDesktop).toBeGreaterThan(shortDesktop + 600);
-    const visitor = await browser.newPage();
-    await visitor.goto(`/event/${slug}`);
+    const visitor = await newEventPage(browser);
+    await visitor.goto(`/meropriyatiya/event/${slug}`);
     await visitor.getByRole("button", { name: "Подробнее о мероприятии" }).click();
     expect(await visitor.locator(".scroll-text").innerText()).toBe(long);
     await visitor.close();
 
     // Пустое описание — свитка нет.
     await save("");
-    const empty = await browser.newPage();
-    await empty.goto(`/event/${slug}`);
+    const empty = await newEventPage(browser);
+    await empty.goto(`/meropriyatiya/event/${slug}`);
     await expect(empty.getByRole("heading", { name: "Данные участника" })).toBeVisible();
     await expect(empty.getByRole("button", { name: "Подробнее о мероприятии" })).toHaveCount(0);
     await empty.close();
 
-    await page.goto(`/admin/events/${id}#cleanup`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#cleanup`);
     await page.getByLabel(/Для подтверждения введите название/).fill(title);
     await page.getByRole("button", { name: "Удалить мероприятие навсегда" }).click();
     await expect(page).toHaveURL(/\/admin\?deleted=/);
@@ -751,7 +755,7 @@ test.describe("управление мероприятием", () => {
   test("уведомления: статус Telegram и тестовая отправка только для администратора", async ({ page, browser }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop", "Сценарий проверяется на desktop");
     await login(page);
-    await page.goto("/admin/settings");
+    await page.goto("/meropriyatiya/admin/settings");
     await expect(page.getByTestId("telegram-status")).toHaveText("Telegram настроен");
     // Токен и chat_id на страницу не попадают.
     const html = await page.content();
@@ -787,7 +791,7 @@ test.describe("управление мероприятием", () => {
       data: actionRequest.postDataBuffer() ?? "",
       maxRedirects: 0,
     });
-    expect(`${replay.headers()["x-action-redirect"] ?? ""} ${replay.headers()["location"] ?? ""}`).toContain("/admin/login");
+    expect(`${replay.headers()["x-action-redirect"] ?? ""} ${replay.headers()["location"] ?? ""}`).toMatch(/(?:\/meropriyatiya)?\/admin\/login(?:;|\s|$)/);
     expect(telegramRequests().filter((request) => isTestMessage(request.text))).toHaveLength(before + 1);
     await anonymous.close();
   });
@@ -804,7 +808,7 @@ test.describe("управление мероприятием", () => {
     await expect(page.getByText("Опубликовано").first()).toBeVisible();
     const name = `Тестов Повтор ${marker}`;
     const publicPage = await page.context().newPage();
-    await publicPage.goto(`/event/${slug}`);
+    await publicPage.goto(`/meropriyatiya/event/${slug}`);
     await fillParticipant(publicPage, name, null);
     await publicPage.getByRole("button", { name: "Зарегистрироваться" }).click();
     // Регистрация успешна независимо от Telegram.
@@ -820,7 +824,7 @@ test.describe("управление мероприятием", () => {
     expect(outboxRow().last_error).toContain("502");
     expect(outboxRow().last_error).not.toContain(E2E_TELEGRAM.token);
 
-    await page.goto("/admin/settings");
+    await page.goto("/meropriyatiya/admin/settings");
     await expect(page.getByTestId("outbox-pending")).not.toHaveText("0");
     await page.locator("#settings-telegram").locator("..").screenshot({ path: shot("v5-admin-settings-outbox.png") });
 
@@ -846,7 +850,7 @@ test.describe("управление мероприятием", () => {
       data: actionRequest.postDataBuffer() ?? "",
       maxRedirects: 0,
     });
-    expect(`${replay.headers()["x-action-redirect"] ?? ""} ${replay.headers()["location"] ?? ""}`).toContain("/admin/login");
+    expect(`${replay.headers()["x-action-redirect"] ?? ""} ${replay.headers()["location"] ?? ""}`).toMatch(/(?:\/meropriyatiya)?\/admin\/login(?:;|\s|$)/);
     await anonymous.close();
     // Уже отправленное уведомление повторно не уходит.
     expect(telegramRequests().filter((request) => request.text.includes(marker))).toHaveLength(2);
@@ -856,7 +860,7 @@ test.describe("управление мероприятием", () => {
       expect(request.text).not.toContain("+7 900");
     }
 
-    await page.goto(`/admin/events/${id}#cleanup`);
+    await page.goto(`/meropriyatiya/admin/events/${id}#cleanup`);
     await page.getByLabel(/Для подтверждения введите название/).fill(title);
     await page.getByRole("button", { name: "Удалить мероприятие навсегда" }).click();
     await expect(page).toHaveURL(/\/admin\?deleted=/);
@@ -870,13 +874,13 @@ test("mobile: админпанель без горизонтального пе�
   await page.screenshot({ path: shot("v3-admin-mobile-01-events.png"), fullPage: true });
 
   const [{ id }] = readDb<{ id: number }>("SELECT id FROM events WHERE slug = 'vstrecha-na-rublevke'");
-  await page.goto(`/admin/events/${id}`);
+  await page.goto(`/meropriyatiya/admin/events/${id}`);
   await waitForImages(page);
   await expectNoHorizontalOverflow(page);
   await page.locator("#activities").screenshot({ path: shot("v3-admin-mobile-02-activities.png") });
   await page.locator("#registrations").screenshot({ path: shot("v3-admin-mobile-03-registrations.png") });
 
-  for (const url of ["/admin/settings", "/admin/events/new", `/admin/events/${id}/activities/new`]) {
+  for (const url of ["/meropriyatiya/admin/settings", "/meropriyatiya/admin/events/new", `/meropriyatiya/admin/events/${id}/activities/new`]) {
     await page.goto(url);
     await expectNoHorizontalOverflow(page);
   }

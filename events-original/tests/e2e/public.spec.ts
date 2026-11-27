@@ -1,9 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 import { formatEventDate } from "@/lib/format";
 import { E2E_DATA_DIR, E2E_TELEGRAM } from "../test-env";
-import { expectNoHorizontalOverflow, fillParticipant, readDb, shot, uniqueName, waitForImages, waitForTelegram } from "./helpers";
+import { collapseAssistant, expectNoHorizontalOverflow, fillParticipant, readDb, shot, uniqueName, waitForImages, waitForTelegram } from "./helpers";
 
-const DEMO = "/event/vstrecha-na-rublevke";
+test.beforeEach(async ({ context }) => collapseAssistant(context));
+
+const DEMO = "/meropriyatiya/event/vstrecha-na-rublevke";
 /** Дата демо-мероприятия в e2e: e2e-prepare сдвигает его на неделю вперёд, чтобы регистрация была открыта. */
 const demoDateLabel = () =>
   formatEventDate(readDb<{ event_date: string }>("SELECT event_date FROM events WHERE slug = 'vstrecha-na-rublevke'")[0].event_date);
@@ -33,34 +35,34 @@ test.describe("публичная анкета", () => {
   });
 
   test("главная — список мероприятий, неизвестный slug — 404", async ({ page }) => {
-    await page.goto("/");
-    await expect(page).toHaveURL(/\/$/);
+    await page.goto("/meropriyatiya");
+    await expect(page).toHaveURL(/\/meropriyatiya$/);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
       new URL("/meropriyatiya", page.url()).href,
     );
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Ближайшие мероприятия");
     // Логотип ведёт на основной сайт, справа — вход в админпанель (без сессии — страница входа).
-    await expect(page.getByRole("link", { name: /основной сайт/ })).toHaveAttribute("href", "https://rublevka34.com/");
+    await expect(page.getByRole("link", { name: /основной сайт/ })).toHaveAttribute("href", "/");
     await expect(page.getByText("rublevka34.com", { exact: true })).toHaveCount(0);
     await page.getByRole("link", { name: "Админпанель" }).click();
     await expect(page).toHaveURL(/\/admin\/login$/);
-    await page.goto("/");
+    await page.goto("/meropriyatiya");
     // Состав списка зависит от даты запуска и параллельных тестов: либо карточки, либо пустое состояние.
     const cards = page.getByTestId("event-card");
     if ((await cards.count()) === 0) {
       await expect(page.getByRole("heading", { name: "Сейчас нет открытых регистраций" })).toBeVisible();
     } else {
       for (const link of await page.getByRole("link", { name: /^Зарегистрироваться: / }).all()) {
-        await expect(link).toHaveAttribute("href", /^\/event\/[a-z0-9-]+$/);
+        await expect(link).toHaveAttribute("href", /^\/meropriyatiya\/event\/[a-z0-9-]+$/);
       }
     }
 
-    const response = await page.goto("/event/net-takogo-meropriyatiya");
+    const response = await page.goto("/meropriyatiya/event/net-takogo-meropriyatiya");
     expect(response?.status()).toBe(404);
     await expect(page.getByRole("heading", { name: "Страница недоступна" })).toBeVisible();
     await page.getByRole("link", { name: "Все мероприятия" }).click();
-    await expect(page).toHaveURL(/\/$/);
+    await expect(page).toHaveURL(/\/meropriyatiya$/);
   });
 
   test("кнопка «Назад к списку мероприятий» на первом экране анкеты", async ({ page }) => {
@@ -73,7 +75,7 @@ test.describe("публичная анкета", () => {
     expect(box.y + box.height).toBeLessThan(page.viewportSize()!.height);
     expect(box.height).toBeGreaterThanOrEqual(48);
     await back.click();
-    await expect(page).toHaveURL(/\/$/);
+    await expect(page).toHaveURL(/\/meropriyatiya$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Ближайшие мероприятия");
   });
 
@@ -126,7 +128,7 @@ test.describe("публичная анкета", () => {
     const notice = await waitForTelegram(publicId);
     expect(notice.tokenOk).toBe(true);
     expect(notice.chatId).toBe(E2E_TELEGRAM.chatId);
-    expect(notice.text).toBe(`Новая регистрация на мероприятие «Встреча на Рублёвке»\n${baseURL}/admin/events/${eventId}/registrations/${publicId}`);
+    expect(notice.text).toBe(`Новая регистрация на мероприятие «Встреча на Рублёвке»\n${baseURL}/meropriyatiya/admin/events/${eventId}/registrations/${publicId}`);
     expect(notice.text).not.toContain(name);
     expect(notice.text).not.toContain("+7 900");
 
@@ -141,8 +143,8 @@ test.describe("публичная анкета", () => {
       .toEqual([{ status: "sent", attempts: 1 }]);
   });
 
-  test("/api/health: ok без путей и секретов", async ({ request }) => {
-    const response = await request.get("/api/health");
+  test("/meropriyatiya/api/health: ok без путей и секретов", async ({ request }) => {
+    const response = await request.get("/meropriyatiya/api/health");
     expect(response.status()).toBe(200);
     expect(response.headers()["cache-control"]).toContain("no-store");
     const body = await response.json();
@@ -176,7 +178,7 @@ test.describe("публичная анкета", () => {
       name,
     );
     expect(total).toBe(0);
-    await page.goto(`/payment/${publicId}`);
+    await page.goto(`/meropriyatiya/payment/${publicId}`);
     await expect(page.getByRole("heading", { name: "Оплата не требуется" })).toBeVisible();
     await expect(page.getByTestId("payment-amount")).toHaveCount(0);
     await expect(page.getByRole("img", { name: /QR-код для оплаты/ })).toHaveCount(0);
@@ -202,7 +204,7 @@ test.describe("публичная анкета", () => {
     await expect(page.getByTestId("summary-total")).toHaveText("3 500 ₽");
 
     // До регистрации рабочего перехода к оплате нет.
-    await expect(page.locator('a[href^="/payment"]')).toHaveCount(0);
+    await expect(page.locator('a[href^="/meropriyatiya/payment"]')).toHaveCount(0);
     await expect(page.getByRole("button", { name: /Оплатить/ })).toHaveCount(0);
 
     await page.getByRole("button", { name: "Зарегистрироваться" }).click();
@@ -245,14 +247,14 @@ test.describe("публичная анкета", () => {
 
   test("несуществующая регистрация — 404", async ({ page }) => {
     for (const id of ["00000000-0000-4000-8000-000000000000", "not-a-uuid", "1"]) {
-      const response = await page.goto(`/payment/${id}`);
+      const response = await page.goto(`/meropriyatiya/payment/${id}`);
       expect(response?.status()).toBe(404);
     }
-    expect((await page.goto("/payment"))?.status()).toBe(404);
+    expect((await page.goto("/meropriyatiya/payment"))?.status()).toBe(404);
   });
 
   test("внизу — блок сообществ: кнопки Telegram, VK, MAX и QR Telegram", async ({ page }) => {
-    for (const url of ["/", DEMO]) {
+    for (const url of ["/meropriyatiya", DEMO]) {
       await page.goto(url);
       const community = page.getByRole("region", { name: "Выбирайте удобное для Вас сообщество" });
       await expect(community).toBeVisible();
@@ -278,14 +280,14 @@ test.describe("публичная анкета", () => {
   });
 
   test("нет горизонтального переполнения", async ({ page }) => {
-    for (const url of ["/", DEMO, "/event/net-takogo"]) {
+    for (const url of ["/meropriyatiya", DEMO, "/meropriyatiya/event/net-takogo"]) {
       await page.goto(url);
       await expectNoHorizontalOverflow(page);
     }
     // Самый узкий телефон и планшет: список и блок сообществ без переполнения.
     for (const width of [320, 768]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto("/");
+      await page.goto("/meropriyatiya");
       await expectNoHorizontalOverflow(page);
     }
     await page.locator(".community-section").screenshot({ path: shot(`v8-tablet-community.png`) });

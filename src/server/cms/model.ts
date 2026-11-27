@@ -50,7 +50,21 @@ export type CmsBook = {
   description: string;
   indexable: boolean;
 };
+const guestInformation = z.object({
+  description: z.string().trim().max(3000).optional(),
+  visitingTerms: z.string().trim().max(3000).optional(),
+  stayRules: z.string().trim().max(3000).optional(),
+  checkIn: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$|^$/).optional(),
+  checkOut: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$|^$/).optional(),
+  faq: z.array(z.object({
+    question: z.string().trim().min(1).max(200),
+    answer: z.string().trim().min(1).max(2000),
+  })).max(40).optional(),
+  restaurant: z.string().trim().max(3000).optional(),
+});
+
 export type CmsContacts = {
+  guestInformation?: z.infer<typeof guestInformation>;
   phone: string;
   email: string;
   location: string;
@@ -180,6 +194,7 @@ const socialHosts = [
   "youtube.com",
 ];
 const contactsSchema = z.object({
+  guestInformation: guestInformation.optional(),
   phone: z
     .string()
     .trim()

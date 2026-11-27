@@ -48,11 +48,28 @@ export function apiError(error: unknown) {
   return json({ error: "temporarily_unavailable" }, 503);
 }
 
+const personalName = "[А-ЯЁA-Z][а-яёa-z]+(?:-[А-ЯЁA-Z][а-яёa-z]+)?";
+const namedPerson = /(?:фио|меня зовут|имя и фамилия|full name)\s*:?\s*[\p{L}-]+(?:[ \t]+(?!(?:заезд|выезд|бюджет|стоимость|даты|цена)(?:\s|:|$))[\p{L}-]+){0,2}/giu;
+const patronymic = new RegExp(String.raw`(?<![\p{L}])${personalName}[ \t]+${personalName}[ \t]+[А-ЯЁ][а-яё]+(?:ович|евич|овна|евна|инична|ична)(?![\p{L}])`, "gu");
+
 export function redact(value: string) {
-  return value.normalize("NFKC")
-    .replace(/\b(?:passport|address|full name)\s*:\s*[^\n]+|(?:паспорт|адрес|фио)\s*:\s*[^\n]+/giu, "[скрыто]")
+  return value.normalize("NFC")
+    .replace(namedPerson, "[скрыто]")
+    .replace(patronymic, "[скрыто]")
+    .replace(/(?:адрес|address)\s*:\s*[^\n;]+?(?=,\s*(?:заезд|выезд|даты|бюджет|цена|стоимость)(?=\s|:)|;|\n|$)/giu, "[скрыто]")
+    .replace(/(?:(?:г\.|город)\s*[\p{L} -]+,\s*)?(?:ул\.|улица|проспект|пр-т|переулок|шоссе|street)\s*[\p{L}\d -]+(?:,?\s*(?:д\.|дом|кв\.|квартира)\s*\d+[\p{L}/\d-]*)*/giu, "[скрыто]")
+    .replace(/(?:паспорт|passport)\s*:\s*[\d \t-]{6,20}\d/giu, "[скрыто]")
     .replace(/[^\s@]+@[^\s@]+\.[\p{L}]{2,}/giu, "[скрыто]")
     .replace(/(?:https?:\/\/|www\.)[^\s]+/gi, "[скрыто]")
     .replace(/@[\p{L}\p{N}_]+/gu, "[скрыто]")
-    .replace(/\+?\d(?:[\s().-]*\d){5,}/g, "[скрыто]");
+    .replace(/(?<![\p{L}\d])(?:\+?[78](?:[ \t().-]*\d){10}|\+(?![78])(?:[ \t().-]*\d){10,15}|\(\d{3}\)(?:[ \t.-]*\d){7}|9\d{2}[ \t-]\d{3}[ \t-]\d{2}[ \t-]\d{2})(?!\d)/gu,
+      (match, offset: number, input: string) => /^(?:[ \t]*)(?:₽|руб|RUB|[€$])/iu.test(input.slice(offset + match.length))
+        && /^\d{1,3}(?: \d{3})*$/.test(match) ? match : "[скрыто]");
+}
+
+export function canonicalJson(input: object) {
+  return JSON.stringify(input, (_key, value: unknown) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+    return Object.fromEntries(Object.entries(value).sort(([first], [second]) => first < second ? -1 : first > second ? 1 : 0));
+  });
 }

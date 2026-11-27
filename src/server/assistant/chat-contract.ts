@@ -7,6 +7,7 @@ import { ApiError } from "./security";
 import { localDay } from "@/content/stay-request";
 import { publicSettings } from "./settings";
 import type { Card } from "./schema";
+import { memoryPatch } from "./memory";
 
 const messageId = z.uuid();
 const path = z.string().max(140).regex(/^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*\/?)?$/);
@@ -26,24 +27,36 @@ const cardReference = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("service"), id: serviceId }),
   z.strictObject({ type: z.literal("contact") }),
 ]);
-const response = z.strictObject({
-  dialogId: messageId, id: messageId, requestId: messageId.nullable(),
-  version: z.number().int().positive(),
-  source: z.enum(["assistant", "staff"]), status: z.enum(["completed", "failed"]),
+const command = {
+  dialogId: messageId, id: messageId, version: z.number().int().positive(),
+};
+const answer = {
   text: z.string().trim().max(3500).default(""),
   cards: z.array(cardReference).max(6).default([]),
-}).refine(({ text, cards, status }) => status === "failed" || Boolean(text || cards.length));
-export const callback = response;
-export const operator = z.strictObject({
-  dialogId: messageId, id: messageId, version: z.number().int().positive(),
-  action: z.enum(["request_consultation", "complete_consultation", "takeover", "release", "close"]),
-  telegramTopic: z.string().regex(/^\d{1,20}$/).optional(),
-  salesStage: z.string().trim().min(1).max(80).optional(),
-  summary: z.string().trim().max(1200).optional(),
-  need: z.strictObject({ categoryId: objectId.optional(), adults: z.number().int().min(1).max(100).optional(),
-    children: z.number().int().min(0).max(100).optional(), dates: z.strictObject({ arrival: z.iso.date(), departure: z.iso.date() }).refine(({ arrival, departure }) => arrival < departure).optional(),
-  }).optional(),
+};
+const hasAnswer = ({ text, cards }: { text: string; cards: unknown[] }) => Boolean(text || cards.length);
+export const callback = z.strictObject({
+  ...command, ...answer, requestId: messageId.nullable(),
+  source: z.enum(["assistant", "staff"]), status: z.enum(["completed", "failed"]),
+  memory: memoryPatch.optional(),
+  consultation: z.strictObject({ id: messageId, question: z.string().trim().min(1).max(1200) }).optional(),
+}).refine((input) => {
+  if (input.memory || input.consultation) {
+    if (input.source !== "assistant" || input.status !== "completed") return false;
+  }
+  if (input.consultation && (!input.requestId || !input.text)) return false;
+  return input.status === "failed" || hasAnswer(input);
 });
+export const operator = z.strictObject({ ...command, action: z.enum(["takeover", "release", "close"]) });
+export const dialogLookup = z.strictObject({ dialogId: messageId });
+export const updateMemory = z.strictObject({ ...command, memory: memoryPatch });
+export const bindTopic = z.strictObject({ ...command, telegramTopic: z.string().regex(/^[1-9]\d{0,19}$/) });
+export const consultationResult = z.strictObject({
+  ...command, consultationId: messageId, result: z.string().trim().min(1).max(3500),
+});
+export const consultationDelivery = z.strictObject({
+  ...command, ...answer, consultationId: messageId, memory: memoryPatch.optional(),
+}).refine(hasAnswer);
 
 export async function pageContext(input: z.infer<typeof guestMessage>["context"]) {
   let route = input.path.replace(/\/$/, "") || "/";

@@ -1,8 +1,8 @@
-import { eq } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../events/db";
 import { administrator } from "./knowledge";
-import { assistantSettings, assistantSettingsAudit } from "./schema";
+import { assistantConsultations, assistantDialogs, assistantMessages, assistantSettings, assistantSettingsAudit } from "./schema";
 
 export const settingsInput = z.strictObject({
   enabled: z.boolean(),
@@ -23,6 +23,19 @@ export async function saveSettings(actorId: string, input: z.input<typeof settin
   await db.transaction(async (tx) => {
     await tx.insert(assistantSettings).values({ id: 1, ...changes })
       .onConflictDoUpdate({ target: assistantSettings.id, set: changes });
+    if (!changes.enabled) {
+      const active = tx.select({ id: assistantDialogs.id }).from(assistantDialogs)
+        .where(and(eq(assistantDialogs.closed, false), gt(assistantDialogs.expiresAt, new Date())));
+      await tx.update(assistantDialogs).set({ version: sql`${assistantDialogs.version} + 1` })
+        .where(and(eq(assistantDialogs.closed, false), gt(assistantDialogs.expiresAt, new Date())));
+      await tx.update(assistantConsultations).set({ status: "cancelled", result: null })
+        .where(and(inArray(assistantConsultations.dialogId, active), inArray(assistantConsultations.status, ["requested", "answered"])));
+      await tx.update(assistantMessages).set({ status: "cancelled" })
+        .where(and(inArray(assistantMessages.dialogId, active), ne(assistantMessages.source, "guest"), isNull(assistantMessages.deliveredAt)));
+      await tx.update(assistantMessages).set({ status: "complete", webhook: null, dispatchLease: null })
+        .where(and(inArray(assistantMessages.dialogId, active), eq(assistantMessages.source, "guest"),
+          or(inArray(assistantMessages.status, ["pending", "sending"]), sql`${assistantMessages.webhook} is not null`)));
+    }
     await tx.insert(assistantSettingsAudit).values({ actorId, changes });
   });
 }

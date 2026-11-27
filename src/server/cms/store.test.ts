@@ -411,3 +411,31 @@ test("publishing checks CMS dimensions against the stored image", async () => {
     /размеры файла/i,
   );
 });
+
+test("guest rules, FAQ and restaurant reach the API only after contacts publication", async () => {
+  const { knowledge } = await import("../assistant/knowledge");
+  const previous = process.env.CMS_ENABLED;
+  process.env.CMS_ENABLED = "true";
+  try {
+    const contacts = await readDocument("contacts");
+    const guestInformation = { description: "Описание из CMS", visitingTerms: "Правила посещения из CMS",
+      stayRules: "Правила проживания из CMS", checkIn: "14:30", checkOut: "11:00",
+      faq: [{ question: "Вопрос из CMS?", answer: "Ответ из CMS." }], restaurant: "Сведения о ресторане из CMS" };
+    const saved = await saveDraft("contacts", { ...contacts.published, guestInformation }, contacts.revision, editor);
+    assert.notDeepEqual((await knowledge("faq", undefined, new URLSearchParams())).data,
+      { items: guestInformation.faq, status: "published" });
+    await submitDraft("contacts", saved.revision, editor);
+    const ready = await readDocument("contacts");
+    await publishDraft("contacts", ready.revision, admin);
+    const complex = await knowledge("complex", undefined, new URLSearchParams());
+    assert.equal((complex.data as { checkIn: string }).checkIn, "14:30");
+    assert.equal((complex.data as { description: string }).description, guestInformation.description);
+    assert.deepEqual((await knowledge("faq", undefined, new URLSearchParams())).data,
+      { items: guestInformation.faq, status: "published" });
+    const restaurant = await knowledge("services", "restaurant", new URLSearchParams());
+    assert.equal((restaurant.data as { description: string }).description, guestInformation.restaurant);
+  } finally {
+    if (previous === undefined) delete process.env.CMS_ENABLED;
+    else process.env.CMS_ENABLED = previous;
+  }
+});

@@ -32,7 +32,7 @@ export function accommodations(site: SiteData) {
   });
 }
 export function services(site: SiteData) {
-  return serviceSections.flatMap((section) => {
+  const catalog = serviceSections.flatMap((section) => {
     const page = site[section];
     const url = siteLink("/" + section);
     const items = page.items.filter((item) => item.visible).map((item) => ({
@@ -42,6 +42,12 @@ export function services(site: SiteData) {
     return [{ id: section as string, section, title: page.heading, description: page.intro,
       details: page.body || null, photo: picture(site, page.photo), url }, ...items];
   });
+  const restaurant = site.contacts.guestInformation?.restaurant;
+  if (restaurant) catalog.push({
+    id: "restaurant", section: "uslugi", title: "Ресторан", description: restaurant,
+    details: null, photo: null, url: siteLink("/uslugi"),
+  });
+  return catalog;
 }
 
 export const pageQuery = {
@@ -96,13 +102,18 @@ export async function knowledge(resource: string, id: string | undefined, query:
       (id && (resource === "faq" || resource === "complex"))) throw new ApiError(404, "not_found");
   const site = await publishedSite();
   const source = cmsEnabled() ? "cms/published" : "site/defaults";
+  const info = site.contacts.guestInformation;
   if (resource === "complex") return envelope(source, {
-    name: "Загородный комплекс «Рублевка»", description: site.book.description,
+    name: "Загородный комплекс «Рублевка»", description: (info?.description ?? site.book.description) || null,
     address: site.contacts.address, location: site.contacts.location,
     contacts: { phone: site.contacts.phone, email: site.contacts.email, url: siteLink("/kontakty") },
-    visitingTerms: null, stayRules: null, checkIn: null, checkOut: null, url: siteLink("/"),
+    visitingTerms: info?.visitingTerms || null, stayRules: info?.stayRules || null,
+    checkIn: info?.checkIn || null, checkOut: info?.checkOut || null, url: siteLink("/"),
   });
-  if (resource === "faq") return envelope(source, { items: [], status: "unpublished" });
+  if (resource === "faq") {
+    const items = info?.faq ?? [];
+    return envelope(source, { items, status: items.length ? "published" : "unpublished" });
+  }
   const items = resource === "accommodations" ? accommodations(site) : services(site);
   if (id) {
     const item = items.find((item) => item.id === (resource === "services" ? serviceId : objectId).parse(id));

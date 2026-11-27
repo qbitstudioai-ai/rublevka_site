@@ -248,7 +248,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
             </p>
           </div>
         </div>
-        <form className="a-search" method="get" action={`/admin/events/${event.id}#registrations`} role="search">
+        <form className="a-search" method="get" action={`/meropriyatiya/admin/events/${event.id}#registrations`} role="search">
           <label className="a-label" htmlFor="q">
             Поиск по ФИО или телефону
           </label>

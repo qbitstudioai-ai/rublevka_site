@@ -15,6 +15,7 @@ export default defineConfig({
   reporter: "list",
   use: {
     baseURL,
+    actionTimeout: 15000,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

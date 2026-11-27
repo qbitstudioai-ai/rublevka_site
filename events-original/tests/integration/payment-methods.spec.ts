@@ -45,7 +45,7 @@ test.describe("способы оплаты", () => {
     save({ paymentMethod: "qr", paymentPhone: "+7 900 123-45-67", paymentRecipient: "Иван И." });
     // Номер сохранён, но участнику не показывается.
     expect(getSettings(db)).toMatchObject({ payment_method: "qr", payment_phone: "+7 900 123-45-67" });
-    expect(getPublicSettings(db).payment).toMatchObject({ method: "qr", phone: null, recipient: null, qr: { src: "/mock/qr-payment-demo.svg" } });
+    expect(getPublicSettings(db).payment).toMatchObject({ method: "qr", phone: null, recipient: null, qr: { src: "/meropriyatiya/mock/qr-payment-demo.svg" } });
 
     save({ paymentMethod: "phone", paymentPhone: "+7 900 123-45-67", paymentRecipient: "Иван И." });
     expect(getPublicSettings(db).payment).toMatchObject({ method: "phone", phone: "+7 900 123-45-67", recipient: "Иван И.", qr: null });
@@ -53,7 +53,7 @@ test.describe("способы оплаты", () => {
     expect(getSettings(db).payment_qr_image).toBe("/mock/qr-payment-demo.svg");
 
     save({ paymentMethod: "both", paymentPhone: "+7 900 123-45-67" });
-    expect(getPublicSettings(db).payment).toMatchObject({ method: "both", phone: "+7 900 123-45-67", recipient: null, qr: { src: "/mock/qr-payment-demo.svg" } });
+    expect(getPublicSettings(db).payment).toMatchObject({ method: "both", phone: "+7 900 123-45-67", recipient: null, qr: { src: "/meropriyatiya/mock/qr-payment-demo.svg" } });
 
     // База не принимает неизвестный способ.
     expect(() => db.prepare("UPDATE app_settings SET payment_method = 'card' WHERE id = 1").run()).toThrow(/CHECK/);

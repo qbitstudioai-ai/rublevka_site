@@ -8,8 +8,8 @@
 | --- | --- |
 | Знания и бронирование | `Authorization: Bearer <ASSISTANT_KNOWLEDGE_KEY>` |
 | Сайт → webhook n8n | `Authorization: Bearer <ASSISTANT_N8N_WEBHOOK_KEY>` |
-| Callback ИИ | HMAC с `ASSISTANT_N8N_CALLBACK_KEY` |
-| Операторские команды и callback сотрудника | HMAC с `ASSISTANT_OPERATOR_KEY` |
+| Callback ИИ и итог консультации | HMAC с `ASSISTANT_N8N_CALLBACK_KEY` |
+| Служебное состояние, операторские команды, результат консультации и callback сотрудника | HMAC с `ASSISTANT_OPERATOR_KEY` |
 | Основной сайт → SQLite-адаптер афиши | Отдельный bearer `ASSISTANT_EVENTS_KEY` |
 | Браузер | Same-origin, заголовок `X-Assistant-Client: browser`, cookie сессии для сообщений |
 
@@ -21,12 +21,12 @@
 
 | Метод и маршрут | Вход | Схема data |
 | --- | --- | --- |
-| GET `/complex` | — | `{name,description,address,location,contacts:{phone,email,url},visitingTerms,stayRules,checkIn,checkOut,url}`. Неопубликованные поля равны `null`. |
-| GET `/faq` | — | `{items:[], status:"unpublished"}` до появления утверждённой справки. |
+| GET `/complex` | — | `{name,description,address,location,contacts:{phone,email,url},visitingTerms,stayRules,checkIn,checkOut,url}`. Пустые поля равны `null`. Для старых версий «Контактов» описание берётся из опубликованной книги. |
+| GET `/faq` | — | `{items:[{question,answer}],status:"published"|"unpublished"}`. При пустой справке `items:[]`. |
 | GET `/accommodations` | `q`, `category`, минимальные `capacity` и `bedrooms`, `limit`, `offset` | Страница с `{id,title,category,capacity,photos,url}`. |
 | GET `/accommodations/:id` | ID опубликованной категории | Краткая карточка плюс `description,adults,children,bedrooms,beds,amenities,restrictions,providerCategoryId,mapObjectId,features,enquiryUrl`. |
 | GET `/services` | `q`, `section` из `banya,besedki,banketnye-zaly,uslugi`, `limit`, `offset` | Страница с `{id,section,title,photo,url}`. |
-| GET `/services/:id` | ID раздела или ID вида `section-itemId` | Краткая карточка плюс `description,details`. Состояние бронирования услуг не проверяется. |
+| GET `/services/:id` | ID раздела, `restaurant` или ID вида `section-itemId` | Краткая карточка плюс `description,details`. Состояние бронирования услуг не проверяется. |
 | GET `/events` | `q,from,to,limit,offset` | Страница с краткими объектами мероприятий. |
 | GET `/events/:id` | Числовой ID SQLite или slug | `{item: EventDetail}`. |
 | POST `/availability` | `BookingRequest` | `{status,enquiryUrl}`, в будущем также `offers`. |
@@ -81,7 +81,7 @@ BookingRequest = {
 | GET `/chat/messages` | `{owner,closed,acknowledge:UUID[],messages: Message[]}`. Снимок до 40 записей, в порядке `sequence`. Браузер опрашивает только открытый чат на видимой странице. |
 | POST `/chat/ack` | `{ids: UUID[]}` до 20 ID после отображения. Ответ `{status:"accepted"}`. Без подтверждения запись остаётся в очереди. |
 
-`Message = {id,sequence,source,requestId,text,cards,status,createdAt}`. `source` — `guest`, `assistant` или `staff`. `status` — `pending`, `complete` или `failed`. `requestId` равен UUID запроса или `null`. Элементы `cards` имеют вид `{title,url,photo?}`. Токен сессии выдаётся в HttpOnly SameSite=Strict cookie, по HTTPS с Secure. В PostgreSQL хранится SHA‑256 токена. Повторное открытие другой страницы на том же origin восстанавливает сессию.
+`Message = {id,sequence,source,requestId,text,cards,status,sending,createdAt}`. `source` — `guest`, `assistant` или `staff`. `status` — `pending`, `complete` или `failed`. `requestId` равен UUID запроса или `null`. Элементы `cards` имеют вид `{title,url,photo?}`. Токен сессии выдаётся в HttpOnly SameSite=Strict cookie, по HTTPS с Secure. В PostgreSQL хранится SHA‑256 токена. Повторное открытие другой страницы на том же origin восстанавливает сессию.
 
 ## Webhook и callback
 
@@ -99,9 +99,15 @@ Webhook получает JSON следующей формы:
 }
 ```
 
-`context.type` — `home`, `booking`, `accommodations`, `map`, `events`, `event`, `service`, `page` или `other`. Сервер проверяет public route и ID по опубликованным данным. `history` содержит до 12 записей `{source,text}`. Сайт удаляет распознаваемые телефоны, email, мессенджерные имена, ссылки и явно подписанные персональные поля. Имена и адреса в произвольном тексте могут остаться. Перед передачей внешней модели нужен дополнительный контроль PII в n8n. Идентификатор темы Telegram предназначен для маршрутизации в n8n. По содержимому webhook нужно принимать данные как недоверенные.
+`context.type` — `home`, `booking`, `accommodations`, `map`, `events`, `event`, `service`, `page` или `other`. Сервер проверяет public route и ID по опубликованным данным. `history` содержит до 12 записей `{source,text}`. Сайт удаляет распознаваемые телефоны, email, мессенджерные имена, ссылки и явно подписанные персональные поля. Имена и адреса в произвольном тексте могут остаться. Перед передачей внешней модели нужен дополнительный контроль персональных данных в n8n. Идентификатор темы Telegram предназначен для маршрутизации в n8n. По содержимому webhook нужно принимать данные как недоверенные.
 
-Webhook подтверждает приём любым 2xx. На запрос отводится 2 секунды, допускается один повтор при сетевой ошибке, 429 или 5xx, с тем же `Idempotency-Key`. Тело ответа игнорируется. n8n должен дедуплицировать по `dialogId + id`. По истечении двух минут ожидающий ответ перестаёт приниматься. Перезапуск в момент передачи может оставить запрос в состоянии ожидания до тайм-аута. Это ограниченный HTTP-транспорт с идемпотентностью, без гарантии доставки webhook при отказе процесса.
+Webhook подтверждает приём любым 2xx. На запрос отводится 2 секунды, допускается один повтор при сетевой ошибке, 429 или 5xx, с тем же `Idempotency-Key`. Тело ответа игнорируется. n8n должен дедуплицировать по `dialogId + id`. Если HTTP-подтверждение потеряно, сайт может принять callback по исходному ID в течение двух минут, пока запрос последний и состояние диалога совпадает. До трёх попыток захвата одной отправки восстанавливаются через `POST /chat/messages` с тем же ID и исходным текстом и контекстом. Сайт повторяет прежнее JSON-тело. Через 7 секунд после необработанного захвата опрос показывает ошибку и позволяет повторить отправку. Признак `sending` указывает, что webhook ещё отправляется. При исчерпании окна или попыток сайт отвечает `409 delivery_exhausted`, и гость может отправить новый запрос. Сайт очищает временное тело после успешной передачи, смены версии или при следующей проверке после истечения окна. Фонового повтора без обращения гостя нет. Если окно прошло, workflow может проверить состояние и при необходимости передать диалог сотруднику. Нельзя гарантировать единственность внешнего действия, если n8n принимает повтор без дедупликации по `dialogId + id`.
+
+### Данные для внешней модели и сотрудника
+
+Webhook и состояние диалога содержат обезличенную историю. Обычные сообщения сотрудника видны гостю и исключены из истории для модели. Результат консультации передаётся отдельным полем после обезличивания. Сайт маскирует известные форматы телефонов, email, ФИО и адресов и сохраняет распознаваемые даты, суммы и параметры поездки. Произвольный текст может содержать нераспознанные персональные сведения. Перед вызовом модели n8n фильтрует текст дополнительно и передаёт только разрешённые поля, исключая технические ID темы и сессии.
+
+Предлагаемый контракт после отдельного согласования — независимый HTTPS webhook операторского контура `{protocol:"1",dialogId,id,time,operator:{text}}` с отдельным секретом и дедупликацией. Исходный текст берётся из памяти текущего HTTP-запроса, а не из базы, общей очереди, истории или логов. Целевой служебный workflow имеет доступ только к операторскому каналу, отключает сохранение сырых payload в журналах исполнения и не передаёт `operator.text` в клиентский workflow или модель. Повтор возможен только пока исходный запрос доступен по утверждённым правилам хранения. Сейчас сайт отправляет только обезличенный текст, отдельный транспорт исходного текста отсутствует.
 
 Подписанный `POST /callback` для ИИ и `POST /callback/staff` для сотрудника:
 
@@ -116,13 +122,90 @@ Webhook подтверждает приём любым 2xx. На запрос о
 }
 ```
 
-`status` — `completed` или `failed`. Успешный ответ содержит текст до 3500 символов и/или до 6 карточек. `requestId` обязателен для ответа ИИ и может быть `null` для отдельного сообщения сотрудника. Допустимые карточки — `accommodation`, `service`, `event`, `booking`, `registration` с `id`, а также `contact` без ID. Сайт сам разрешает идентификаторы в актуальные ссылки и фотографии. Карточка `booking` открывает существующую форму обращения, `registration` разрешена только при действующей регистрации. Callback не принимает сырые URL или HTML. Ответ `{status:"accepted"|"duplicate"}`.
+`status` — `completed` или `failed`. Успешный ответ содержит текст до 3500 символов и/или до 6 карточек. `requestId` обязателен для ответа ИИ и может быть `null` для отдельного сообщения сотрудника. Допустимые карточки — `accommodation`, `service`, `event`, `booking`, `registration` с `id`, а также `contact` без ID. Сайт сам разрешает идентификаторы в актуальные ссылки и фотографии. Карточка `booking` открывает существующую форму обращения, `registration` разрешена только при действующей регистрации. Опциональное `memory:MemoryPatch` записывается в той же транзакции, что и успешный ответ ИИ. Поле `consultation` используется для начала асинхронного уточнения. Callback не принимает сырые URL или HTML. Ответ `{status:"accepted"|"duplicate"}`.
 
-Подписанный `POST /operator` принимает `{dialogId,id,version,action,telegramTopic?,salesStage?,need?,summary?}`. `action` — `request_consultation`, `complete_consultation`, `takeover`, `release` или `close`. Результат консультации можно передать через `summary` при `complete_consultation`. `telegramTopic` — числовой ID строкой, `need` — объект с необязательными `categoryId,adults,children,dates:{arrival,departure}`. Ответ `{status,owner,version,closed,consultation}`. `consultation`: `none`, `requested`, `completed`.
+## Состояние, память и консультации
 
-Диалог начинается с `version:1` и владельца `assistant`. При смене владельца и закрытии версия увеличивается. На старой версии публикация callback невозможна. При перехвате неподтверждённые ответы ИИ аннулируются под той же блокировкой диалога, а уже подтверждённые виджетом остаются в короткой истории. Сайт принимает ответы сотрудника при владельце `staff`. У завершённого диалога историю можно прочитать до истечения срока хранения. Старый токен после сброса недействителен.
+Все методы этой группы принимают JSON в теле POST. Для служебных операций используйте подпись с `ASSISTANT_OPERATOR_KEY`, а для `/consultation/deliver` — подпись с `ASSISTANT_N8N_CALLBACK_KEY`. Поля `dialogId`, `id` команды и `consultationId` имеют формат UUID. Команды с записью проверяют открытое состояние диалога и переданную версию внутри транзакции.
 
-До 20 неподтверждённых ответов и до 1000 ID на диалог. Снимок сообщений ограничен 40 записями. Одновременно в режиме ИИ обрабатывается один запрос. Сессии ограничены 120 новыми диалогами в минуту на экземпляр PostgreSQL, запросы передачи — 12 в минуту на диалог, опрос и подтверждения — по 40 в минуту. По умолчанию сессия хранится 24 часа с момента создания, затем диалог, сообщения и receipt IDs очищаются каскадно. Для регулярной очистки при отсутствии новых сессий запускайте `npm run assistant:cleanup` из планировщика окружения.
+| Маршрут | JSON запроса | JSON ответа при успехе |
+| --- | --- | --- |
+| `/dialog/state` | `{dialogId}` | `DialogState` |
+| `/dialog/memory` | `{dialogId,id,version,memory:MemoryPatch}` | `{status,version}` |
+| `/dialog/topic` | `{dialogId,id,version,telegramTopic}` | `{status,version,telegramTopic}` |
+| `/operator` | `{dialogId,id,version,action}` | `{status,owner,version,closed,consultation}` |
+| `/consultation/result` | `{dialogId,id,version,consultationId,result}` | `{status,consultationId}` |
+| `/consultation/deliver` | `{dialogId,id,version,consultationId,text,cards?,memory?}` | `{status,consultationId}` |
+
+```text
+DialogState = {
+  dialogId: UUID, version: integer, owner: "assistant" | "staff", status: "active" | "closed",
+  telegramTopic: string | null, consultation: "none" | "requested" | "completed",
+  salesStage: string | null, summary: string | null, need: Need | null,
+  history: { source: "guest" | "assistant", text: string }[],
+  expiresAt: ISODateTime,
+  consultations: {
+    id: UUID, requestId: UUID, question: string, result: string | null,
+    status: "requested" | "answered" | "delivered", createdAt: ISODateTime
+  }[]
+}
+MemoryPatch = {salesStage?: string | null, summary?: string | null, need?: NeedPatch}
+Need = {
+  dates?: {arrival?: YYYY-MM-DD, departure?: YYYY-MM-DD},
+  adults?: integer[1..100], children?: integer[0..100], childAges?: integer[0..17][],
+  bedrooms?: integer[0..100], categoryId?: "room" | "cottage" | "bedrooms" | "family",
+  budget?: {amountMinor?: integer[1..1000000000], type?: "total" | "per_night" | "per_guest"},
+  purpose?: "holiday" | "celebration" | "event" | "business" | "other",
+  preferences?: ("quiet" | "active" | "family" | "outdoors" | "wellness" | "culture")[],
+  eventIds?: integer[], serviceIds?: ServiceId[], specialRequests?: RequestCode[]
+}
+NeedPatch = Need с дополнительным допустимым значением childAges: null
+```
+
+В бюджете `amountMinor` задаётся в копейках. Отсутствующие поля сохраняются при обновлении, `dates` и `budget` объединяются по ключам. Массивы заменяются целиком, `childAges:null` очищает возраста. `salesStage:null` и `summary:null` очищают соответствующие поля. Лимиты текста — 80 символов для этапа и 1200 для резюме. При совместной записи дат выезд должен быть позже заезда. Если заданы и число детей, и возраста, их количество должно совпадать.
+
+`ServiceId` принимает `banya`, `besedki`, `banketnye-zaly`, `uslugi`, `restaurant`, `uslugi-pool`, `uslugi-outdoor-games`, `uslugi-children`, `banya-steam-room`, `banya-house-and-yard`, `besedki-orange`, `besedki-green`, `besedki-beige`, `banketnye-zaly-large-hall` и `banketnye-zaly-small-hall`. `RequestCode` принимает `accessibility`, `crib`, `extra_bed`, `pet`, `parking`, `kitchen`, `early_check_in`, `late_check_out`, `dietary_options`, `quiet_location`, `adjacent_rooms` и `other`. В структурированной потребности используются коды и числа. Значения интересов описывают запрос гостя и не подтверждают наличие услуги или мероприятия.
+
+Пример `POST /dialog/memory`:
+
+```json
+{"dialogId":"ab40f0ed-41e5-4ac1-a169-865dea499b83","id":"5aad01aa-45d6-45e1-9d9c-2f2744b44a37","version":1,"memory":{"need":{"dates":{"arrival":"2099-05-10"},"adults":2,"budget":{"amountMinor":5000000,"type":"total"}}}}
+```
+
+Пример `POST /dialog/topic`:
+
+```json
+{"dialogId":"ab40f0ed-41e5-4ac1-a169-865dea499b83","id":"82907c38-5963-47a1-9572-62acba96cea2","version":1,"telegramTopic":"1729"}
+```
+
+Сначала получите состояние и проверьте `telegramTopic`. Если ID уже привязан, используйте его. Привязка уникальна для сохранённых диалогов и сверяется в PostgreSQL. Замена существующего ID и привязка этого же ID к другому сохранённому диалогу возвращают `topic_conflict`. Повторная привязка того же ID к тому же диалогу допустима. Сброс и очистка истёкшего диалога удаляют соответствие. n8n отвечает за создание тем и хранение операторского архива.
+
+### Асинхронная консультация
+
+1. Ассистент отправляет подписанный `POST /callback` с `status:"completed"`, исходным `requestId`, промежуточным `text` и дополнительным объектом `"consultation":{"id":"e981560b-ad82-4f16-8a8a-c42eef4b6b5c","question":"Уточните, можно ли заселиться раньше?"}`. Сайт атомарно закрывает ожидание по этому запросу, публикует промежуточный ответ и записывает консультацию. Гость может отправить следующее сообщение.
+2. Служебный workflow получает вопрос из `/dialog/state` и сохраняет корреляцию `dialogId + consultationId + version` при обращении к сотруднику. Максимум восемь открытых консультаций на диалог. Состояние возвращает их первыми, затем последние завершённые, максимум 12 записей.
+3. Когда сотрудник ответил, служебный workflow отправляет `/consultation/result`. Поле `result` принимает до 3500 символов. Сайт обезличивает результат и возвращает его через подписанную выдачу состояния до доставки или отмены. Служебный workflow передаёт клиентскому workflow выбранный результат с его идентификаторами.
+4. Клиентский workflow отправляет итог через `/consultation/deliver` отдельной операцией. Требуются актуальные версия и ID консультации в статусе `answered`. Обычный двухминутный тайм-аут относится только к первоначальному callback. Итог доступен до истечения сессии и использует существующую очередь браузерной доставки. После публикации промежуточное значение `result` удаляется. В память попадают только явно переданные поля `memory`.
+
+Пример записи результата:
+
+```json
+{"dialogId":"ab40f0ed-41e5-4ac1-a169-865dea499b83","id":"ab849612-f66b-445b-8a0f-3702ee4ddd65","version":1,"consultationId":"e981560b-ad82-4f16-8a8a-c42eef4b6b5c","result":"Администратор подтвердил ранний заезд по согласованию."}
+```
+
+Пример доставки после консультации:
+
+```json
+{"dialogId":"ab40f0ed-41e5-4ac1-a169-865dea499b83","id":"a99a7df6-f8ae-4d6c-9af8-fb189a7e9668","version":1,"consultationId":"e981560b-ad82-4f16-8a8a-c42eef4b6b5c","text":"Ранний заезд возможен по согласованию с администратором.","cards":[{"type":"contact"}]}
+```
+
+`POST /operator` принимает действия `takeover`, `release` и `close`. Каждый перехват увеличивает версию, в том числе при передаче между сотрудниками. n8n сохраняет версию, выданную при конкретном перехвате, вместе с идентификатором сотрудника в собственном контуре. Ответ прежнего сотрудника со старой версией отклоняется. `release` переводит диалог от сотрудника к ассистенту, `close` завершает его. Перехват, возврат и закрытие отменяют несовместимые консультации и неподтверждённые ответы. Сброс удаляет диалог, а истечение срока блокирует публикацию и оставляет записи до штатной очистки.
+
+При отключении в панели сайт отклоняет подписанные записи и чтение состояния с `503 chat_unavailable`. Идущая запись и переключение сериализуются на строке настроек. Отключение инвалидирует версию открытых диалогов и отменяет ожидающие операции. Повторное включение не восстанавливает старые ответы.
+
+Повтор того же нормализованного запроса с тем же ID получает `duplicate` или повторно захватывает недоставленный гостевой webhook в допустимом окне. Повтор ID с изменённым содержимым получает `409 id_conflict`. Порядок полей JSON значения не имеет. Для старых receipt без отпечатка содержимое проверить нельзя, поэтому повтор их ID отклоняется. Старые статусы консультаций без собственного ID не возобновляются после миграции. Настройки памяти и привязка темы сохраняются под блокировкой и не меняют версию, владельца или статус консультации. Дубликаты команд могут вернуть только `status` и текущее состояние версии. За полной актуальной информацией обращайтесь к `/dialog/state`.
+
+До 20 неподтверждённых ответов и до 1000 ID на диалог. Снимок сообщений ограничен 40 записями. Одновременно в режиме ИИ ожидается один обычный callback. Сессии ограничены 120 новыми диалогами в минуту на экземпляр PostgreSQL, запросы передачи — 12 в минуту на диалог, опрос и подтверждения — по 40 в минуту. По умолчанию диалог хранится 24 часа, затем записи сообщений, консультаций и receipt очищаются каскадно. Для регулярной очистки запускайте `npm run assistant:cleanup` из планировщика окружения.
 
 ## Ошибки
 
@@ -133,9 +216,9 @@ JSON ошибок имеет вид `{error: string}`, кроме зафикси
 | 400 | `invalid_input`, `invalid_json`, `invalid_category`, `invalid_card` |
 | 401 | `unauthorized`, `session_required` |
 | 403 | `invalid_origin`, `wrong_source` |
-| 404 | `not_found`, `dialog_not_found` |
+| 404 | `not_found`, `dialog_not_found`, `consultation_not_found` |
 | 405 | `method_not_allowed` |
-| 409 | `id_conflict`, `dialog_closed`, `dialog_limit`, `reply_pending`, `stale_state`, `stale_request`, `unknown_request`, `delivery_queue_full` |
+| 409 | `id_conflict`, `dialog_closed`, `dialog_limit`, `reply_pending`, `stale_state`, `stale_request`, `unknown_request`, `delivery_queue_full`, `delivery_exhausted`, `topic_conflict`, `consultation_limit`, `consultation_conflict`, `stale_consultation` |
 | 413 / 415 | `body_too_large` / `json_required` |
 | 429 | `rate_limited` |
 | 503 | `chat_unavailable`, `events_unavailable`, `temporarily_unavailable`, либо статус `delivery_failed` |
@@ -160,7 +243,7 @@ JSON ошибок имеет вид `{error: string}`, кроме зафикси
 
 ## Сведения, требующие подтверждения
 
-- В опубликованной CMS отсутствуют отдельные правила проживания и посещения, время заезда и выезда, FAQ и отдельная карточка ресторана. Тексты из исторических мероприятий не подменяют опубликованные сведения об услуге.
+- Правила, время заезда и выезда, FAQ и описание ресторана заполняются в существующем документе «Контакты». API читает их после публикации администратором. Пустые поля остаются пустыми, ресторан появляется в каталоге услуг после заполнения описания.
 - Категории `room`, `cottage`, `bedrooms`, `family` сохраняют действующие ID для формы обращения. Фото и вместимость берутся из публичных карточек. Дополнительные характеристики редактируются в CMS. Допустимый состав гостей, число спален и кроватей, удобства и ограничения требуют заполнения структурированных полей. Карта содержит физические объекты, а однозначное сопоставление категорий документально не подтверждено.
 - Идентификаторы Bnovo, доступность, тарифы и ссылки бронирования появятся после получения доступа и согласования контракта. Действующая форма обращения и используемый сайтом механизм бронирования сохраняются.
 - Перед включением в production руководитель проекта проверяет транспорт и правила обработки персональных данных, включая окончательный срок хранения, временную cookie при первом обращении и дополнительное обезличивание свободного текста в n8n.

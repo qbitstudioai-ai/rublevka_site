@@ -1,4 +1,4 @@
-import { bigint, bigserial, boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { bigint, bigserial, boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 export const assistantDialogs = pgTable("assistant_dialogs", {
   id: uuid().primaryKey().defaultRandom(),
@@ -6,13 +6,12 @@ export const assistantDialogs = pgTable("assistant_dialogs", {
   owner: text().$type<"assistant" | "staff">().notNull().default("assistant"),
   version: integer().notNull().default(1),
   closed: boolean().notNull().default(false),
-  consultation: text().notNull().default("none"),
   telegramTopic: text("telegram_topic"),
   salesStage: text("sales_stage"),
   need: jsonb().$type<Record<string, unknown>>(),
   summary: text(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-}, (table) => [index("assistant_dialogs_expiry").on(table.expiresAt)]);
+}, (table) => [index("assistant_dialogs_expiry").on(table.expiresAt), uniqueIndex("assistant_dialogs_topic").on(table.telegramTopic)]);
 
 export type Card = { title: string; url: string; photo?: string };
 export const assistantMessages = pgTable("assistant_messages", {
@@ -27,12 +26,16 @@ export const assistantMessages = pgTable("assistant_messages", {
   status: text().$type<"sending" | "pending" | "complete" | "failed" | "cancelled">().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+  webhook: jsonb().$type<Record<string, unknown>>(),
+  dispatchLease: timestamp("dispatch_lease", { withTimezone: true }),
+  dispatchAttempts: integer("dispatch_attempts").notNull().default(0),
 }, (table) => [index("assistant_messages_dialog_order").on(table.dialogId, table.sequence)]);
 
 export const assistantReceipts = pgTable("assistant_receipts", {
   dialogId: uuid("dialog_id").notNull().references(() => assistantDialogs.id, { onDelete: "cascade" }),
   id: uuid().notNull(),
   kind: text().notNull(),
+  fingerprint: text(),
 }, (table) => [primaryKey({ columns: [table.dialogId, table.id] })]);
 
 export const assistantRates = pgTable("assistant_rates", {
@@ -54,3 +57,14 @@ export const assistantSettingsAudit = pgTable("assistant_settings_audit", {
   changes: jsonb().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const assistantConsultations = pgTable("assistant_consultations", {
+  id: uuid().primaryKey(),
+  dialogId: uuid("dialog_id").notNull().references(() => assistantDialogs.id, { onDelete: "cascade" }),
+  requestId: uuid("request_id").notNull(),
+  version: integer().notNull(),
+  question: text().notNull(),
+  result: text(),
+  status: text().$type<"requested" | "answered" | "delivered" | "cancelled">().notNull().default("requested"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [index("assistant_consultations_dialog").on(table.dialogId, table.createdAt)]);

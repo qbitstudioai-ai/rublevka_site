@@ -3,12 +3,12 @@ import { cookies } from "next/headers";
 import { z } from "zod";
 import { localDay } from "@/content/stay-request";
 import { bookingProvider, bookingRequest, validMapObject } from "./booking";
-import { callback, guestMessage, operator, pageContext, resolveCards } from "./chat-contract";
-import { acceptGuest, acknowledge, cleanupExpired, duplicateCallback, finishDispatch, limitRate, operate, readMessages, receive, requireDialog, retentionSeconds, session } from "./chat-store";
+import { bindTopic, callback, consultationDelivery, consultationResult, dialogLookup, guestMessage, operator, pageContext, resolveCards, updateMemory } from "./chat-contract";
+import { acceptGuest, acknowledge, answerConsultation, checkCallbackReplay, cleanupExpired, deliverConsultation, finishDispatch, limitRate, linkTelegramTopic, operate, patchDialogMemory, readDialog, readMessages, receive, requireDialog, retentionSeconds, session } from "./chat-store";
 import { accommodations, envelope, knowledge, siteLink } from "./knowledge";
 import { publishedSite } from "../cms/public";
-import { ApiError, apiError, authorized, json, jsonBody, rawJson } from "./security";
-import { publicSettings } from "./settings";
+import { ApiError, apiError, authorized, canonicalJson, json, jsonBody, rawJson } from "./security";
+import { publicSettings, readSettings } from "./settings";
 
 const sessionCookie = "rublevka_assistant_v1";
 const cookiePath = "/api/assistant/v1/chat";
@@ -45,10 +45,13 @@ async function signedInput(request: Request, key?: string) {
 }
 
 export async function deliverWebhook(config: NonNullable<ReturnType<typeof webhook>>, event: NonNullable<Awaited<ReturnType<typeof acceptGuest>>>) {
+  const { attempt: _attempt, ...payload } = event;
+  void _attempt;
+  const body = canonicalJson(payload);
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const response = await fetch(config.url, {
-        method: "POST", body: JSON.stringify(event), cache: "no-store", redirect: "error",
+        method: "POST", body, cache: "no-store", redirect: "error",
         signal: AbortSignal.timeout(2000),
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + config.key, "Idempotency-Key": event.id },
       });
@@ -109,7 +112,7 @@ async function chat(request: Request, operation: string | undefined) {
   }
   if (request.method === "GET") return json(await readMessages(token));
   const input = guestMessage.parse(await jsonBody(request, 10000));
-  const event = await acceptGuest(token, input, await pageContext(input.context));
+  const event = await acceptGuest(token, input, () => pageContext(input.context));
   if (!event) return json({ status: "duplicate", id: input.id }, 202);
   const sent = await deliverWebhook(config, event);
   await finishDispatch(event, sent);
@@ -121,21 +124,35 @@ export async function assistantRequest(request: Request, parts: string[]) {
   try {
     if (parts.length > 2) throw new ApiError(404, "not_found");
     if (resource === "chat") return await chat(request, id);
-    if (resource === "callback" || resource === "operator") {
+    if (["callback", "operator", "dialog", "consultation"].includes(resource)) {
       if (request.method !== "POST") throw new ApiError(405, "method_not_allowed");
-      if (process.env.ASSISTANT_CHAT_ENABLED !== "true" || !process.env.DATABASE_URL)
-        throw new ApiError(503, "chat_unavailable");
       const operatorKey = process.env.ASSISTANT_OPERATOR_KEY;
-      if (resource === "operator") {
-        if (id) throw new ApiError(404, "not_found");
-        return json(await operate(operator.parse(await signedInput(request, operatorKey))));
+      const assistantKey = process.env.ASSISTANT_N8N_CALLBACK_KEY;
+      const assistantOperation = (resource === "callback" && !id) || (resource === "consultation" && id === "deliver");
+      const body = await signedInput(request, assistantOperation ? assistantKey : operatorKey);
+      if (process.env.ASSISTANT_CHAT_ENABLED !== "true" || !process.env.DATABASE_URL || !(await readSettings()).enabled)
+        throw new ApiError(503, "chat_unavailable");
+      if (resource === "operator" && !id) return json(await operate(operator.parse(body)));
+      if (resource === "dialog") {
+        if (id === "state") return json(await readDialog(dialogLookup.parse(body).dialogId));
+        if (id === "memory") return json(await patchDialogMemory(updateMemory.parse(body)));
+        if (id === "topic") return json(await linkTelegramTopic(bindTopic.parse(body)));
       }
-      if (id !== "staff" && id !== undefined) throw new ApiError(404, "not_found");
-      const source = id === "staff" ? "staff" : "assistant";
-      const input = callback.parse(await signedInput(request, source === "staff" ? operatorKey : process.env.ASSISTANT_N8N_CALLBACK_KEY));
-      if (input.source !== source) throw new ApiError(403, "wrong_source");
-      if (await duplicateCallback(input)) return json({ status: "duplicate" });
-      return json(await receive(input, input.status === "completed" ? await resolveCards(input.cards) : []));
+      if (resource === "consultation" && id === "result")
+        return json(await answerConsultation(consultationResult.parse(body)));
+      if (resource === "consultation" && id === "deliver") {
+        const input = consultationDelivery.parse(body);
+        if (await checkCallbackReplay(input, "consultation_delivery")) return json({ status: "duplicate" });
+        return json(await deliverConsultation(input, await resolveCards(input.cards)));
+      }
+      if (resource === "callback" && (!id || id === "staff")) {
+        const source = id === "staff" ? "staff" : "assistant";
+        const input = callback.parse(body);
+        if (input.source !== source) throw new ApiError(403, "wrong_source");
+        if (await checkCallbackReplay(input, input.source)) return json({ status: "duplicate" });
+        return json(await receive(input, input.status === "completed" ? await resolveCards(input.cards) : []));
+      }
+      throw new ApiError(404, "not_found");
     }
     requireKey(request, process.env.ASSISTANT_KNOWLEDGE_KEY);
     if (request.method === "GET") return json(await knowledge(resource, id, new URL(request.url).searchParams));

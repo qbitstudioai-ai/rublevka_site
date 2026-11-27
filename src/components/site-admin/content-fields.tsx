@@ -245,6 +245,10 @@ function ManifestoFields({ value, change }: Change<ManifestoChapter>) {
 }
 
 export function ContactFields({ value, change }: Change<Contacts>) {
+  const info = value.guestInformation ?? {};
+  function updateInfo(patch: NonNullable<Contacts["guestInformation"]>) {
+    change({ ...value, guestInformation: { ...info, ...patch } });
+  }
   return (
     <>
       <section className="sa-panel">
@@ -264,6 +268,36 @@ export function ContactFields({ value, change }: Change<Contacts>) {
           <Field label="Долгота" value={Number.isFinite(value.longitude) ? value.longitude : ""} type="number"
             onChange={(longitude) => change({ ...value, longitude: longitude === "" ? NaN : Number(longitude) })} />
         </div>
+      </section>
+      <section className="sa-panel">
+        <h2>Справочная информация для гостей</h2>
+        <Field label="Описание комплекса" value={info.description} multiline onChange={(description) => updateInfo({ description })} />
+        <Field label="Правила посещения" value={info.visitingTerms} multiline onChange={(visitingTerms) => updateInfo({ visitingTerms })} />
+        <Field label="Правила проживания" value={info.stayRules} multiline onChange={(stayRules) => updateInfo({ stayRules })} />
+        <div className="sa-fields">
+          <label className="sa-field">Время заезда
+            <input type="time" value={info.checkIn ?? ""} onChange={(event) => updateInfo({ checkIn: event.target.value })} />
+          </label>
+          <label className="sa-field">Время выезда
+            <input type="time" value={info.checkOut ?? ""} onChange={(event) => updateInfo({ checkOut: event.target.value })} />
+          </label>
+        </div>
+        <Field label="Информация о ресторане" value={info.restaurant} multiline onChange={(restaurant) => updateInfo({ restaurant })} />
+        <h3>Частые вопросы</h3>
+        {info.faq?.map((entry, index, faq) => (
+          <div className="sa-item sa-stack" key={index}>
+            <Field label="Вопрос" value={entry.question} onChange={(question) => updateInfo({
+              faq: faq.map((row, position) => position === index ? { ...row, question } : row),
+            })} />
+            <Field label="Ответ" value={entry.answer} multiline onChange={(answer) => updateInfo({
+              faq: faq.map((row, position) => position === index ? { ...row, answer } : row),
+            })} />
+            <div><button type="button" className="sa-button"
+              onClick={() => updateInfo({ faq: faq.filter((_, position) => position !== index) })}>Убрать вопрос</button></div>
+          </div>
+        ))}
+        <div><button type="button" className="sa-button" disabled={(info.faq?.length ?? 0) >= 40}
+          onClick={() => updateInfo({ faq: [...(info.faq ?? []), { question: "", answer: "" }] })}>Добавить вопрос</button></div>
       </section>
       <section className="sa-panel">
         <h2>Социальные сети</h2>

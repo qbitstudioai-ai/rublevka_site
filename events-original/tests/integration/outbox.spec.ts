@@ -72,7 +72,7 @@ test.describe("Telegram outbox", () => {
     expect(row).toMatchObject({ status: "sent", attempts: 1, last_error: null, locked_until: null });
     expect(row.sent_at).not.toBeNull();
     expect(telegram.texts).toEqual([
-      `Новая регистрация на мероприятие «Встреча на Рублёвке»\nhttps://reg.test/admin/events/${eventId}/registrations/${registration.public_id}`,
+      `Новая регистрация на мероприятие «Встреча на Рублёвке»\nhttps://reg.test/meropriyatiya/admin/events/${eventId}/registrations/${registration.public_id}`,
     ]);
 
     expect(await processPendingTelegramNotifications(db, config, { ...telegram, includeFailed: true })).toMatchObject({ processed: 0, sent: 0 });
@@ -210,7 +210,7 @@ test.describe("Telegram outbox", () => {
       expect(received).toHaveLength(2);
       // Ссылка в админку строится из APP_URL (лишний «/» в конце убирается), имён участников в тексте нет.
       for (const text of received) {
-        expect(text).toMatch(/^Новая регистрация на мероприятие «Встреча на Рублёвке»\nhttps:\/\/reg\.test\/admin\/events\/\d+\/registrations\/[0-9a-f-]{36}$/);
+        expect(text).toMatch(/^Новая регистрация на мероприятие «Встреча на Рублёвке»\nhttps:\/\/reg\.test\/meropriyatiya\/admin\/events\/\d+\/registrations\/[0-9a-f-]{36}$/);
         expect(text).not.toContain("Участник");
       }
 

@@ -95,7 +95,10 @@ async function sendOnce(config, text, deps) {
  */
 export function formatRegistrationMessage({ event, registration }, appUrl = "") {
   const lines = [`Новая регистрация на мероприятие «${event.title}»`];
-  if (appUrl) lines.push(`${appUrl}/admin/events/${event.id}/registrations/${registration.public_id}`);
+  if (appUrl) {
+    const eventsUrl = appUrl.endsWith("/meropriyatiya") ? appUrl : appUrl + "/meropriyatiya";
+    lines.push(`${eventsUrl}/admin/events/${event.id}/registrations/${registration.public_id}`);
+  }
   return lines.join("\n");
 }
 

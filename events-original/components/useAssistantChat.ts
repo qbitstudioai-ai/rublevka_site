@@ -4,11 +4,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type Card = { title: string; url: string; photo?: string };
 type Message = { id: string; source: "guest" | "assistant" | "staff"; text: string;
-  cards: Card[]; status: "complete" | "failed" | "pending" };
+  cards: Card[]; sending: boolean; status: "complete" | "failed" | "pending" };
 type Session = { active: boolean; available: boolean; greeting: string | null; unavailable: string; contact: { title: string; url: string } };
 type Dialog = { closed: boolean; owner: string; acknowledge: string[]; messages: Message[] };
 const pollError = "Не удалось обновить диалог.";
 const path = "/api/assistant/v1/chat/";
+
+class RequestError extends Error {
+  constructor(status: number, public code?: string) { super(String(status)); }
+}
 
 async function request<T>(command: string, input?: object, signal?: AbortSignal) {
   const response = await fetch(path + command, {
@@ -16,7 +20,10 @@ async function request<T>(command: string, input?: object, signal?: AbortSignal)
     headers: { "X-Assistant-Client": "browser", ...(input && { "Content-Type": "application/json" }) },
     body: input === undefined ? undefined : JSON.stringify(input),
   });
-  if (!response.ok) throw new Error(String(response.status));
+  if (!response.ok) {
+    const body = await response.json().catch(() => null) as { error?: string } | null;
+    throw new RequestError(response.status, body?.error);
+  }
   return await response.json() as T;
 }
 
@@ -53,7 +60,7 @@ export function useAssistantChat(open: boolean) {
   const [busy, setBusy] = useState(false);
   const operation = useRef(false);
   const generation = useRef(0);
-  const submission = useRef<{ text: string; id: string } | null>(null);
+  const submission = useRef<{ text: string; id: string; context: ReturnType<typeof context> } | null>(null);
   const pending = dialog?.messages.some((message) => message.status === "pending") ?? false;
 
   const load = useCallback(async (signal?: AbortSignal) => {
@@ -108,27 +115,33 @@ export function useAssistantChat(open: boolean) {
     generation.current++;
     setBusy(true);
     setError("");
-    if (submission.current?.text !== text) submission.current = { text, id: crypto.randomUUID() };
+    if (submission.current?.text !== text) submission.current = { text, id: crypto.randomUUID(), context: context() };
     let sent = false;
-    let failed = false;
+    let exhausted = false;
     try {
       if (!session.active) {
         const state = await request<Session>("session", { create: true }, AbortSignal.timeout(6000));
         setSession(state);
         if (!state.active) throw new Error("Session unavailable");
       }
-      await request("messages", { ...submission.current, context: context() }, AbortSignal.timeout(12000));
+      await request("messages", submission.current, AbortSignal.timeout(12000));
       sent = true;
-    } catch { setError("Не удалось подтвердить отправку."); }
+    } catch (error) {
+      exhausted = error instanceof RequestError && error.code === "delivery_exhausted";
+      setError(exhausted ? "Не удалось доставить сообщение. Отправьте его снова." : "Не удалось подтвердить отправку.");
+    }
     try {
       const latest = await request<Dialog>("messages", undefined, AbortSignal.timeout(6000));
       setDialog(latest);
       const recorded = latest.messages.find(({ id }) => id === submission.current?.id);
-      failed = recorded?.status === "failed";
-      if (recorded && !failed) { sent = true; setError(""); }
-      if (failed) setError("Не удалось отправить сообщение.");
+      const failed = recorded?.status === "failed";
+      if (recorded && !failed && (!recorded.sending || sent)) { sent = true; setError(""); }
+      if (failed) {
+        sent = false;
+        if (!exhausted) setError("Не удалось отправить сообщение.");
+      }
     } catch { /* The next poll restores the current state. */ }
-    if (sent || failed) submission.current = null;
+    if (sent || exhausted) submission.current = null;
     operation.current = false;
     setBusy(false);
     return sent;

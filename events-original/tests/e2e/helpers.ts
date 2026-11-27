@@ -1,11 +1,23 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Browser, type BrowserContext, type BrowserContextOptions, type Page } from "@playwright/test";
 import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { E2E_ADMIN, E2E_DATABASE_PATH, E2E_TELEGRAM, E2E_UPLOADS_DIR } from "../test-env";
 
-export const shot = (name: string) => path.join(process.cwd(), "docs", "ui-review", name);
+export async function collapseAssistant(context: BrowserContext) {
+  await context.addInitScript(() => {
+    sessionStorage.setItem("rublevka.guest-assistant.v2", JSON.stringify({ open: false, size: 1 }));
+  });
+}
+
+export async function newEventPage(browser: Browser, options?: BrowserContextOptions) {
+  const page = await browser.newPage(options);
+  await collapseAssistant(page.context());
+  return page;
+}
+
+export const shot = (name: string) => path.join(process.cwd(), ".e2e-data", "ui-review", name);
 
 export async function waitForImages(page: Page) {
   await page.waitForLoadState("networkidle");
@@ -50,7 +62,7 @@ export async function waitForTelegram(marker: string) {
 }
 
 export async function login(page: Page) {
-  await page.goto("/admin/login");
+  await page.goto("/meropriyatiya/admin/login");
   await page.getByLabel("Логин").fill(E2E_ADMIN.username);
   await page.getByLabel("Пароль").fill(E2E_ADMIN.password);
   await page.getByRole("button", { name: "Войти" }).click();

@@ -57,6 +57,7 @@ try {
         "src/server/cms/access.test.ts",
         "src/server/cms/staff.test.ts",
         "src/server/assistant/assistant.test.ts",
+        "src/server/assistant/privacy.test.ts",
         "src/server/assistant/chat-store.test.ts",
       ],
       {
